@@ -1,0 +1,21 @@
+name: Main - Continuous Integration
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Continuous Integration
+    uses: ./.github/workflows/__shared-ci.yml
+    secrets:
+      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}
+
+  get-available-images-matrix:
+    uses: ./.github/workflows/__shared-get-available-images-matrix.yml
+
+  clean:
+    needs: get-available-images-matrix
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@0.4.1
+    with:
+      images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}

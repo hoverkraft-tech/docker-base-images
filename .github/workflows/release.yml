@@ -1,0 +1,95 @@
+name: • 🛫 Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-available-images-matrix:
+    uses: ./.github/workflows/__shared-get-available-images-matrix.yml
+
+  prepare-images-to-build:
+    needs: [get-available-images-matrix]
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: get-latest-tag-sha
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tags = await github.paginate(github.rest.repos.listTags, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const tagFilter = '${{ matrix.image }}-';
+            const imageTags = tags.filter(tag => tag.name.startsWith(tagFilter));
+
+            // Sort tags regarding semver
+            imageTags.sort((a, b) => {
+              const aVersion = a.name.replace(tagFilter, '');
+              const bVersion = b.name.replace(tagFilter, '');
+              return bVersion.localeCompare(aVersion, undefined, { numeric: true });
+            });
+
+            core.setOutput('sha', imageTags.length ? imageTags[0].commit.sha : '');
+
+      - id: should-build-image
+        uses: ./.github/actions/should-build-image
+        with:
+          base-sha: ${{ steps.get-latest-tag-sha.outputs.sha }}
+          build-context: images/${{ matrix.image }}
+
+      - id: release
+        if: steps.should-build-image.outputs.should-build-image == 'true'
+        # FIXME: wait for PR to be merged https://github.com/release-drafter/release-drafter/pull/1255
+        uses: neilime/release-drafter@fix/strip-prefix-before-comparing-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          publish: true
+          config-name: release-config/${{ matrix.image }}-release-config.yml
+
+      - id: set-images-to-build
+        if: steps.should-build-image.outputs.should-build-image == 'true' && steps.release.outputs.tag_name != ''
+        run: |
+          BUILD_TAG=$(echo "${{ steps.release.outputs.tag_name }}" | sed -E "s/^${{ matrix.image }}-//")
+          BUILD_IMAGES='{"name":"${{ matrix.image }}","context":"images/${{ matrix.image }}", "dockerfile":"Dockerfile", "tag":"'$BUILD_TAG'", "platforms": ["linux/amd64","linux/arm64","linux/arm/v7"]}'
+          echo "images<<EOF" >> "$GITHUB_OUTPUT" && echo "$BUILD_IMAGES" >> "$GITHUB_OUTPUT" && echo "EOF" >> "$GITHUB_OUTPUT"
+
+      # FIXME: Set built images infos in file to be uploaded as artifacts, because github action does not handle job outputs for matrix
+      # https://github.com/orgs/community/discussions/26639
+      - if: steps.should-build-image.outputs.should-build-image == 'true'
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@0.4.3
+        with:
+          value: ${{ steps.set-images-to-build.outputs.images }}
+          artifact-name: images-to-build
+
+  # FIXME: Download matrix ouputs from artifacts, because github action does not handle job outputs for matrix
+  # https://github.com/orgs/community/discussions/26639
+  get-images-to-build:
+    needs: prepare-images-to-build
+    runs-on: "ubuntu-latest"
+    outputs:
+      images: ${{ steps.get-matrix-outputs.outputs.result }}
+    steps:
+      - id: get-matrix-outputs
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@0.4.3
+        with:
+          artifact-name: "images-to-build"
+
+  build-images:
+    needs: get-images-to-build
+    if: needs.get-images-to-build.outputs.images != '[]'
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0.4.1
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      images: ${{ needs.get-images-to-build.outputs.images }}
+    secrets:
+      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}
