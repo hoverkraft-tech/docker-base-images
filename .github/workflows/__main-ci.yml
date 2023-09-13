@@ -1,0 +1,36 @@
+name: Internal - Main - Continuous Integration
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/continous-integration.yml
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+    secrets:
+      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}
+
+  get-available-images:
+    uses: ./.github/workflows/get-available-images.yml
+
+  clean:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      packages: write
+    needs: get-available-images
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@0.9.2
+    with:
+      images: ${{ needs.get-available-images.outputs.images }}
+
+  release:
+    needs: ci
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/release-actions.yml@0.7.2
+    with:
+      update-all: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event_name == 'workflow_dispatch' }}
+      github-app-id: ${{ vars.CI_BOT_APP_ID }}
+    secrets:
+      github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}

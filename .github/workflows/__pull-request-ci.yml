@@ -1,0 +1,13 @@
+name: Internal - Pull request - Continuous Integration
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/continous-integration.yml
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+    secrets:
+      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}

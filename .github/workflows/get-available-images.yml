@@ -1,0 +1,26 @@
+# Get available images
+# ====================
+# Workflow to list available images regarding the "images" folder.
+
+name: Get available images
+
+on:
+  workflow_call:
+    outputs:
+      images:
+        description: 'Available images. Example:  ["php-8.2","node-18"]'
+        value: ${{ jobs.get-available-images.outputs.images }}
+
+jobs:
+  get-available-images:
+    runs-on: "ubuntu-latest"
+    outputs:
+      images: ${{ steps.get-available-images.outputs.images }}
+
+    steps:
+      - uses: hoverkraft-tech/ci-github-common/actions/checkout@0.7.2
+
+      - id: get-available-images
+        run: |
+          IMAGES=$(find images/* -maxdepth 0 -type d -exec basename {} \; | jq -Rnc "[inputs|select(length>0)]");
+          echo "images<<EOF" >> "$GITHUB_OUTPUT" && echo "$IMAGES" >> "$GITHUB_OUTPUT" && echo "EOF" >> "$GITHUB_OUTPUT"
