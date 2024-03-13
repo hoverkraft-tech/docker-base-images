@@ -1,0 +1,12 @@
+template: |
+  # What's Changed
+  $CHANGES
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...mydumper-$RESOLVED_VERSION
+name-template: "Version mydumper - $RESOLVED_VERSION"
+tag-template: "mydumper-$RESOLVED_VERSION"
+tag-prefix: "mydumper-"
+include-paths:
+  - images/mydumper/*
+  - .github/actions/should-build-image/*
+  - .github/workflows/__shared-ci.yml
+  - .github/workflows/__shared-get-available-images-matrix.yml

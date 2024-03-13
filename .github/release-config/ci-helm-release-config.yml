@@ -1,10 +1,10 @@
 template: |
   # What's Changed
   $CHANGES
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...composer-$RESOLVED_VERSION
-name-template: "Version helm ct - $RESOLVED_VERSION"
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...ci-helm-$RESOLVED_VERSION
+name-template: "Version ci-helm - $RESOLVED_VERSION"
 tag-template: "ci-helm-$RESOLVED_VERSION"
-tag-prefix: "ci-helm"
+tag-prefix: "ci-helm-"
 include-paths:
   - images/ci-helm/*
   - .github/actions/should-build-image/*
