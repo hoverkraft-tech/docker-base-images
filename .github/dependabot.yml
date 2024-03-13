@@ -3,27 +3,12 @@
 version: 2
 updates:
   - package-ecosystem: docker
-    directory: /images/composer
+    directory: /images/ci-helm
     open-pull-requests-limit: 20
     schedule:
       interval: weekly
   - package-ecosystem: docker
-    directory: /images/drupal-9
-    open-pull-requests-limit: 20
-    schedule:
-      interval: weekly
-  - package-ecosystem: docker
-    directory: /images/laravel-9
-    open-pull-requests-limit: 20
-    schedule:
-      interval: weekly
-  - package-ecosystem: docker
-    directory: /images/nodejs-8
-    open-pull-requests-limit: 20
-    schedule:
-      interval: weekly
-  - package-ecosystem: docker
-    directory: /images/smile-drupal-9
+    directory: /images/mydumper
     open-pull-requests-limit: 20
     schedule:
       interval: weekly
