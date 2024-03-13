@@ -17,7 +17,7 @@ jobs:
         image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: |
           TEMPLATE_CONTENT=$(cat .github/release-config.template.yml)
@@ -44,7 +44,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
