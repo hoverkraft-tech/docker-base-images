@@ -30,7 +30,7 @@ jobs:
           mkdir -p ./.github/release-config
           echo "$CONFIG_CONTENT" > ./.github/release-config/${{ matrix.image }}-release-config.yml
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: changed-files
           path: ./.github/release-config/${{ matrix.image }}-release-config.yml
