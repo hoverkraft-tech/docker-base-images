@@ -1,0 +1,12 @@
+template: |
+  # What's Changed
+  $CHANGES
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...composer-$RESOLVED_VERSION
+name-template: "Version helm ct - $RESOLVED_VERSION"
+tag-template: "ci-helm-$RESOLVED_VERSION"
+tag-prefix: "ci-helm"
+include-paths:
+  - images/ci-helm/*
+  - .github/actions/should-build-image/*
+  - .github/workflows/__shared-ci.yml
+  - .github/workflows/__shared-get-available-images-matrix.yml

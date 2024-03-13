@@ -1,0 +1,24 @@
+name: Shared - Get available images matrix
+
+on:
+  workflow_call:
+    outputs:
+      images-matrix:
+        description: 'Available images matrix. Example: ["composer","drupal-10"]'
+        value: ${{ jobs.get-available-images-matrix.outputs.images-matrix }}
+
+jobs:
+  get-available-images-matrix:
+    runs-on: "ubuntu-latest"
+    outputs:
+      images-matrix: ${{ steps.get-available-images-matrix.outputs.images-matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Set matrix from "images" folder
+      - id: get-available-images-matrix
+        run: |
+          MATRIX_IMAGES=$(find images/* -maxdepth 0 -type d -exec basename {} \; | jq -Rnc "[inputs|select(length>0)]");
+          echo "images-matrix<<EOF" >> "$GITHUB_OUTPUT" && echo "$MATRIX_IMAGES" >> "$GITHUB_OUTPUT" && echo "EOF" >> "$GITHUB_OUTPUT"
