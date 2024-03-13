@@ -29,7 +29,7 @@ jobs:
     outputs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: should-build-image
         uses: ./.github/actions/should-build-image
         with:
