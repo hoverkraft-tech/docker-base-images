@@ -1,0 +1,19 @@
+services:
+  mydumper:
+    build: .
+    entrypoint: ["tail", "-f", "/dev/null"]
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    volumes:
+      - ./backup:/backup
+      - ./entrypoint.sh:/entrypoint.sh
+
+  mysql:
+    image: mariadb:10
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
