@@ -16,6 +16,6 @@ jobs:
 
   clean:
     needs: get-available-images-matrix
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@0.4.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@0.15.3
     with:
       images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
