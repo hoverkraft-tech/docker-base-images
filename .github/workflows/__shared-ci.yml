@@ -13,7 +13,7 @@ on:
 
 jobs:
   checks:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@0.4.3
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@0.13.1
 
   get-available-images-matrix:
     needs: checks
@@ -43,7 +43,7 @@ jobs:
 
       # FIXME: Set built images infos in file to be uploaded as artifacts, because github action does not handle job outputs for matrix
       # https://github.com/orgs/community/discussions/26639
-      - uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@0.4.3
+      - uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@0.13.1
         with:
           value: ${{ steps.set-images-to-build.outputs.images }}
           artifact-name: images-to-build
@@ -57,7 +57,7 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@0.4.3
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@0.13.1
         with:
           artifact-name: "images-to-build"
 
