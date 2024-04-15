@@ -51,7 +51,7 @@ jobs:
               core.setOutput('comment-body','No images have been built.');
             }
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@0.4.3
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@0.13.2
         with:
           title: "Images have been built :sparkles: !"
           body: |
