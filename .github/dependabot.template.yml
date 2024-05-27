@@ -1,19 +1,33 @@
 version: 2
 updates:
-  - package-ecosystem: "docker"
-    directory: "/images/*/Dockerfile"
+  - package-ecosystem: docker
     open-pull-requests-limit: 20
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: friday
+      time: "04:00"
+
+  - package-ecosystem: docker
+    open-pull-requests-limit: 20
+    directory: "/images/*/Dockerfile"
+    schedule:
+      interval: weekly
+      day: friday
+      time: "04:00"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 20
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: friday
+      time: "04:00"
 
   - package-ecosystem: "github-actions"
     directory: "actions/**/action.yml"
     open-pull-requests-limit: 20
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: friday
+      time: "04:00"

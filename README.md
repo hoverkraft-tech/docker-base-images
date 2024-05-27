@@ -4,19 +4,26 @@ Opinionated Docker base images crafted by Hoverkraft.
 
 ## Builded Images
 
-## Actions
+## Managing a docker-base-images for an organization
 
-### - [Should build image](actions/should-build-image/README.md)
+### Grant Dependabot access to private repositories
 
-## Reusable Workflows
+- Go to [Code security and analysis](https://github.com/organizations/xxx/settings/security_analysis)
+- Grant Dependabot access to private repositories: add the repository `docker-base-images`
 
-### - [Continuous integration](.github/workflows/continuous-integration.md)
+### Actions
 
-### - [Generate release config](.github/workflows/generate-release-config.md)
+#### - [Should build image](actions/should-build-image/README.md)
 
-### - [Get available images](.github/workflows/get-available-images.md)
+### Reusable Workflows
 
-### - [Release](.github/workflows/release.md)
+#### - [Continuous integration](.github/workflows/continuous-integration.md)
+
+#### - [Generate release config](.github/workflows/generate-release-config.md)
+
+#### - [Get available images](.github/workflows/get-available-images.md)
+
+#### - [Release](.github/workflows/release.md)
 
 ## Prerequisites
 
