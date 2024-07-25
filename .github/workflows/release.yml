@@ -48,8 +48,7 @@ jobs:
 
       - id: release
         if: steps.should-build-image.outputs.should-build-image == 'true'
-        # FIXME: wait for PR to be merged https://github.com/release-drafter/release-drafter/pull/1255
-        uses: neilime/release-drafter@fix/strip-prefix-before-comparing-version
+        uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
