@@ -5,12 +5,12 @@ template: |
 
   **Full Changelog**:
 
-  - https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...{{image}}-$RESOLVED_VERSION
-name-template: "{{image}} - $RESOLVED_VERSION"
-tag-template: "{{image}}-$RESOLVED_VERSION"
-tag-prefix: "{{image}}-"
+  - https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...ci-helm-$RESOLVED_VERSION
+name-template: "ci-helm - $RESOLVED_VERSION"
+tag-template: "ci-helm-$RESOLVED_VERSION"
+tag-prefix: "ci-helm-"
 include-paths:
-  - images/{{image}}/*
+  - images/ci-helm/*
   - .github/actions/should-build-image/*
   - .github/workflows/__shared-ci.yml
   - .github/workflows/__shared-get-available-images-matrix.yml
