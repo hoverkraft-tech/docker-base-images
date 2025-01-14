@@ -91,4 +91,4 @@ jobs:
       oci-registry: ${{ vars.OCI_REGISTRY }}
       images: ${{ needs.get-images-to-build.outputs.images }}
     secrets:
-      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
