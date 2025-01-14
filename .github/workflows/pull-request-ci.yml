@@ -9,7 +9,7 @@ jobs:
     name: Continuous Integration
     uses: ./.github/workflows/__shared-ci.yml
     secrets:
-      oci-registry-password: ${{ secrets.GHCR_PAT_TOKEN }}
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   update-pr:
     if: ${{ needs.ci.outputs.built-images }}
@@ -38,13 +38,13 @@ jobs:
 
             const commentMessage = Object.values(builtImages).map(({name,images}) => {
                 const imagesToPull = images.map(image => `\`\`\`\ndocker pull ${image}\n\`\`\``).join("\n");
-                
+
                 return `### ${name}\n${imagesToPull}`;
             }).join("\n");
 
             if(commentMessage.length){
               core.setOutput(
-                'comment-body', 
+                'comment-body',
                 commentMessage + "\n\nOnce the Pull Request gets validated, these(s) image(s) will automatically be deleted."
               );
             } else {
