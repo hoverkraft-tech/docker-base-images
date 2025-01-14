@@ -17,7 +17,7 @@ jobs:
         image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: |
           TEMPLATE_CONTENT=$(cat .github/release-config.template.yml)
@@ -30,7 +30,7 @@ jobs:
           mkdir -p ./.github/release-config
           echo "$CONFIG_CONTENT" > ./.github/release-config/${{ matrix.image }}-release-config.yml
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: changed-files
           path: ./.github/release-config/${{ matrix.image }}-release-config.yml
@@ -44,9 +44,9 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: changed-files
           path: ./.github/release-config/
