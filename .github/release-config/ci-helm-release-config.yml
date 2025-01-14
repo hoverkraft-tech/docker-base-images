@@ -1,12 +1,175 @@
 template: |
   # What's Changed
+
   $CHANGES
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...ci-helm-$RESOLVED_VERSION
-name-template: "Version ci-helm - $RESOLVED_VERSION"
-tag-template: "ci-helm-$RESOLVED_VERSION"
-tag-prefix: "ci-helm-"
+
+  **Full Changelog**:
+
+  - https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...{{image}}-$RESOLVED_VERSION
+name-template: "{{image}} - $RESOLVED_VERSION"
+tag-template: "{{image}}-$RESOLVED_VERSION"
+tag-prefix: "{{image}}-"
 include-paths:
-  - images/ci-helm/*
+  - images/{{image}}/*
   - .github/actions/should-build-image/*
   - .github/workflows/__shared-ci.yml
   - .github/workflows/__shared-get-available-images-matrix.yml
+
+version-resolver:
+  major:
+    labels:
+      - "release-major"
+  minor:
+    labels:
+      - "release-minor"
+  patch:
+    labels:
+      - "release-patch"
+  default: patch
+
+categories:
+  - title: '🚀 Features'
+    labels:
+    - 'feature'
+    - 'feat'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧰 Maintenance'
+    label: 'chore'
+  - title: '📚 Documentation'
+    label: 'docs'
+  - title: '🧪 Tests'
+    label: 'test'
+  - title: '🏷️ Version Tags'
+    label: 'version'
+  - title: '🔖 Release Tags'
+    label: 'release'
+  - title: '🧩 Dependencies'
+    label: 'dependencies'
+  - title: '🔒 Security'
+    label: 'security'
+  - title: '🚨 Breaking Changes'
+    label: 'breaking'
+  - title: '🧹 Code Cleanup'
+    label: 'cleanup'
+  - title: '🔧 Config'
+    label: 'config'
+  - title: '📦 Packages'
+    label: 'package'
+  - title: '🔥 Removals'
+    label: 'removal'
+  - title: '🚧 Work In Progress'
+    label: 'wip'
+  - title: '🔀 Merges'
+    label: 'merge'
+  - title: '🎨 Style'
+    label: 'style'
+  - title: '🔊 Logging'
+    label: 'logging'
+  - title: '🔇 Silence'
+    label: 'silence'
+  - title: '🤖 CI/CD'
+    label: 'ci'
+
+autolabeler:
+  - label: "release-major"
+    title:
+      - "/^BREAKING CHANGE:/"
+  - label: "release-minor"
+    title:
+      - "/^feat:/"
+      - "/^feat\\(.+\\):/"
+  - label: "feature"
+    title:
+      - "/^feat:/"
+      - "/^feat\\(.+\\):/"
+  - label: "fix"
+    title:
+      - "/^fix:/"
+      - "/^fix\\(.+\\):/"
+  - label: "ci"
+    title:
+      - "/^ci:/"
+      - "/^ci\\(.+\\):/"
+  - label: "chore"
+    title:
+      - "/^chore:/"
+      - "/^chore\\(.+\\):/"
+  - label: "docs"
+    title:
+      - "/^docs:/"
+      - "/^docs\\(.+\\):/"
+      - "/^doc:/"
+      - "/^doc\\(.+\\):/"
+  - label: "test"
+    title:
+      - "/^test:/"
+      - "/^test\\(.+\\):/"
+  - label: "version"
+    title:
+      - "/^version:/"
+      - "/^version\\(.+\\):/"
+  - label: "release"
+    title:
+      - "/^release:/"
+      - "/^release\\(.+\\):/"
+  - label: "dependencies"
+    title:
+      - "/^deps:/"
+      - "/^deps\\(.+\\):/"
+      - "/^dependencies:/"
+      - "/^dependencies\\(.+\\):/"
+  - label: "security"
+    title:
+      - "/^security:/"
+      - "/^security\\(.+\\):/"
+  - label: "breaking"
+    title:
+      - "/^breaking:/"
+      - "/^breaking\\(.+\\):/"
+      - "/^BREAKING CHANGE:/"
+  - label: "cleanup"
+    title:
+      - "/^cleanup:/"
+      - "/^cleanup\\(.+\\):/"
+      - "/^refactor:/"
+      - "/^refactor\\(.+\\):/"
+  - label: "config"
+    title:
+      - "/^config:/"
+      - "/^config\\(.+\\):/"
+  - label: "package"
+    title:
+      - "/^package:/"
+      - "/^package\\(.+\\):/"
+  - label: "removal"
+    title:
+      - "/^removal:/"
+      - "/^removal\\(.+\\):/"
+      - "/^remove:/"
+      - "/^remove\\(.+\\):/"
+  - label: "wip"
+    title:
+      - "/^wip:/"
+      - "/^wip\\(.+\\):/"
+  - label: "merge"
+    title:
+      - "/^merge:/"
+      - "/^merge\\(.+\\):/"
+  - label: "style"
+    title:
+      - "/^style:/"
+      - "/^style\\(.+\\):/"
+  - label: "logging"
+    title:
+      - "/^logging:/"
+      - "/^logging\\(.+\\):/"
+      - "/^log:/"
+      - "/^log\\(.+\\):/"
+  - label: "silence"
+    title:
+      - "/^silence:/"
+      - "/^silence\\(.+\\):/"
