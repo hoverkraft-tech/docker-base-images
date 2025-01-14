@@ -4,6 +4,17 @@ on:
   pull_request:
     branches: [main]
 
+# jscpd:ignore-start
+permissions:
+  contents: read
+  issues: read
+  packages: write
+  pull-requests: read
+  statuses: write
+  # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+  id-token: write
+# jscpd:ignore-end
+
 jobs:
   ci:
     name: Continuous Integration
@@ -51,7 +62,7 @@ jobs:
               core.setOutput('comment-body','No images have been built.');
             }
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@0.4.3
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@0.15.0
         with:
           title: "Images have been built :sparkles: !"
           body: |
