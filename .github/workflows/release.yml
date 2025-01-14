@@ -3,6 +3,14 @@ name: • 🛫 Release
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  issues: read
+  packages: write
+  pull-requests: read
+  # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+  id-token: write
+
 jobs:
   get-available-images-matrix:
     uses: ./.github/workflows/__shared-get-available-images-matrix.yml
@@ -48,7 +56,7 @@ jobs:
 
       - id: release
         if: steps.should-build-image.outputs.should-build-image == 'true'
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -59,19 +67,21 @@ jobs:
         if: steps.should-build-image.outputs.should-build-image == 'true' && steps.release.outputs.tag_name != ''
         run: |
           BUILD_TAG=$(echo "${{ steps.release.outputs.tag_name }}" | sed -E "s/^${{ matrix.image }}-//")
-          BUILD_IMAGES='{"name":"${{ matrix.image }}","context":"images/${{ matrix.image }}", "dockerfile":"Dockerfile", "tag":"'$BUILD_TAG'", "platforms": ["linux/amd64","linux/arm64","linux/arm/v7"]}'
+          BUILD_IMAGES='{"name":"${{ matrix.image }}","context":"images/${{ matrix.image }}", "dockerfile":"Dockerfile", "tag":"'$BUILD_TAG'", "platforms": ["linux/amd64","linux/arm64"]}'
+          echo "BUILD_IMAGES=$BUILD_IMAGES"
           echo "images<<EOF" >> "$GITHUB_OUTPUT" && echo "$BUILD_IMAGES" >> "$GITHUB_OUTPUT" && echo "EOF" >> "$GITHUB_OUTPUT"
 
       # FIXME: Set built images infos in file to be uploaded as artifacts, because github action does not handle job outputs for matrix
       # https://github.com/orgs/community/discussions/26639
       - if: steps.should-build-image.outputs.should-build-image == 'true'
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@0.4.3
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@0.16.0
         with:
           value: ${{ steps.set-images-to-build.outputs.images }}
           artifact-name: images-to-build
 
   # FIXME: Download matrix ouputs from artifacts, because github action does not handle job outputs for matrix
   # https://github.com/orgs/community/discussions/26639
+  # jscpd:ignore-start
   get-images-to-build:
     needs: prepare-images-to-build
     runs-on: "ubuntu-latest"
@@ -79,16 +89,24 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@0.4.3
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@0.16.0
         with:
           artifact-name: "images-to-build"
 
   build-images:
     needs: get-images-to-build
     if: needs.get-images-to-build.outputs.images != '[]'
+    # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0.19.0
     with:
       oci-registry: ${{ vars.OCI_REGISTRY }}
       images: ${{ needs.get-images-to-build.outputs.images }}
     secrets:
       oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+# jscpd:ignore-end

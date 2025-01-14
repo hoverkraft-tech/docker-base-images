@@ -6,6 +6,8 @@ on:
       images-matrix:
         description: 'Available images matrix. Example: ["composer","drupal-10"]'
         value: ${{ jobs.get-available-images-matrix.outputs.images-matrix }}
+permissions:
+  contents: read
 
 jobs:
   get-available-images-matrix:
