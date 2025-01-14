@@ -1,5 +1,7 @@
 FROM ubuntu:jammy
 
+LABEL org.opencontainers.image.source = "https://github.com/hoverkraft-tech/docker-base-images"
+
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC \
     MYSQL_HOST=mysql \
