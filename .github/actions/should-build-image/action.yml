@@ -20,19 +20,23 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout
+    - if: ${{ github.event_name == 'push' }}
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    - if: ${{ github.event_name != 'push' }}
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - id: changed-files
-      uses: tj-actions/changed-files@v44.5.2
+      uses: tj-actions/changed-files@v45.0.5
       with:
         base_sha: ${{ inputs.base-sha }}
         since_last_remote_commit: ${{ github.event_name == 'push' }}
         files: |
-          ./${{ inputs.build-context }}/*
-          .github/actions/should-build-image/*
+          ${{ inputs.build-context }}/
+          .github/actions/should-build-image/
           .github/workflows/__shared-ci.yml
           .github/workflows/__shared-get-available-images-matrix.yml
 

@@ -2,18 +2,25 @@
 
 Opinionated Docker base images
 
-## Builded Images
+## Our images
 
 ### [ci-helm](images/ci-helm/README.md)
 
+A docker image with all the tools needed to validate an helm chart
+
+- helm chart-testing (aka ct)
+- helm kubeconform plugin
+
 ### [mydumper](images/mydumper/README.md)
 
-### Prerequisites
+An image with an opiniated mydumper command as entrypoint
+
+## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
 - Make
 
-### Linting
+## Linting
 
 - Lint all files: `make lint`
 - Lint a specific file: `make lint images/ci-helm/Dockerfile`
