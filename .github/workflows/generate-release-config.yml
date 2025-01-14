@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: changed-files
+          name: changed-files-${{ matrix.image }}
           path: ./.github/release-config/${{ matrix.image }}-release-config.yml
 
   publish-actions-readme:
@@ -48,7 +48,8 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: changed-files
+          pattern: changed-files-*
+          merge-multiple: true
           path: ./.github/release-config/
 
       - uses: tibdex/github-app-token@v1

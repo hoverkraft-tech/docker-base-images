@@ -11,6 +11,15 @@ on:
         description: "Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry."
         required: true
 
+permissions:
+  contents: read
+  issues: read
+  packages: write
+  pull-requests: read
+  statuses: write
+  # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+  id-token: write
+
 jobs:
   checks:
     # FIXME: the new version of the linter fails with a lot of errors if upgraded
