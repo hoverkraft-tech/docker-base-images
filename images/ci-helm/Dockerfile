@@ -1,4 +1,4 @@
-ARG version=v3.9.0
+ARG version=v3.12.0
 FROM quay.io/helmpack/chart-testing:${version}
 
 # we can probably ignore warning about versions of such packages

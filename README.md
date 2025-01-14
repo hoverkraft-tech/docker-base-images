@@ -6,6 +6,8 @@ Opinionated Docker base images
 
 ### [ci-helm](images/ci-helm/README.md)
 
+### [mydumper](images/mydumper/README.md)
+
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
