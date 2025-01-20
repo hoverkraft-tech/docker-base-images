@@ -23,7 +23,7 @@ permissions:
 jobs:
   checks:
     # FIXME: the new version of the linter fails with a lot of errors if upgraded
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@0.4.3
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@0.16.0
 
   get-available-images-matrix:
     needs: checks
