@@ -1,0 +1,30 @@
+version: "3"
+
+vars:
+  HK_DEPLOYMENT_ID: 1234
+  IMAGE: ttl.sh/fc5845dc-b549-4ffb-85d0-7921a34777a3:1m
+  PLATFORMS: linux/amd64,linux/arm64
+
+tasks:
+  build:
+    cmds:
+      - docker buildx build --push --platform {{ .PLATFORMS }} -t {{ .IMAGE }} .
+
+  test:
+    cmds:
+      - >-
+        docker run --rm -it \
+          -e HK_DEPLOYMENT_ID="{{ .HK_DEPLOYMENT_ID }}" \
+          -v ./tests:/code \
+          --workdir /code \
+          --entrypoint /hk-tools/hk-deployment.sh \
+          {{ .IMAGE }}
+
+  test2:
+    cmds:
+      - >-
+        docker run --rm -it \
+          -v ./tests:/code \
+          --workdir /code \
+          --entrypoint /hk-tools/hk-deployment.sh \
+          {{ .IMAGE }}
