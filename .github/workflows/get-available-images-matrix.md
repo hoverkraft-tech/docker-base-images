@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Get available images matrix
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/e9f31c745507798697b7dc88225a7c0f70fdc7aa534f2536a575e4f5ea249d88/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
+  <img src="https://opengraph.githubassets.com/f99cbb7ac7ba55c6ef8f364daea3fedb5d3e2de5108a430706114c68565f8a35/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
 </div>
 
 ---
@@ -14,6 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/hoverkraft-tech/docker-base-images)](https://github.com/hoverkraft-tech/docker-base-images/releases)
 [![License](https://img.shields.io/github/license/hoverkraft-tech/docker-base-images)](http://choosealicense.com/licenses/mit/)
 [![Stars](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md)
 
 <!-- badges:end -->
 <!-- overview:start -->
@@ -26,6 +27,7 @@ so other pipelines can build/test those Docker bases without duplicating discove
 ### Permissions
 
 - **`contents`**: `read`
+- **`id-token`**: `write`
 
 <!-- overview:end -->
 <!-- usage:start -->
@@ -41,7 +43,7 @@ on:
 permissions: {}
 jobs:
   get-available-images-matrix:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@65de0135fb3e798171322fcf37e6eb26ca40c93a # main
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@f3e5a2179a0163e0683586ae7100a07bec1394e6 # main
     permissions: {}
     with:
       # JSON array of runner(s) to use.
@@ -87,6 +89,11 @@ jobs:
 <!-- examples:start -->
 <!-- examples:end -->
 <!-- contributing:start -->
+
+## Contributing
+
+Contributions are welcome! Please see the [contributing guidelines](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md) for more details.
+
 <!-- contributing:end -->
 <!-- security:start -->
 <!-- security:end -->
