@@ -36,9 +36,9 @@ jobs:
     uses: ./.github/workflows/prune-pull-requests-images-tags.yml
     permissions:
       contents: read
-      pull-requests: read
-      packages: write
       id-token: write
+      packages: write
+      pull-requests: read
 
   release:
     needs: ci

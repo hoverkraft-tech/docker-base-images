@@ -16,16 +16,7 @@ on:
         default: '["ubuntu-latest"]'
         required: false
 
-permissions:
-  actions: read
-  contents: read
-  issues: read
-  packages: write
-  pull-requests: read
-  statuses: write
-  security-events: write
-  # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
-  id-token: write
+permissions: {}
 
 jobs:
   get-available-images-matrix:
