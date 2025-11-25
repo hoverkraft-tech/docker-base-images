@@ -22,7 +22,7 @@ jobs:
       contents: read
       issues: read
       packages: write
-      pull-requests: read
+      pull-requests: write
       id-token: write
     secrets:
       oci-registry-password: ${{ github.token }}
