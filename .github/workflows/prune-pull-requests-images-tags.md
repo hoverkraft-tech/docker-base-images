@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Clean images tags from pull requests
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/e9f31c745507798697b7dc88225a7c0f70fdc7aa534f2536a575e4f5ea249d88/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
+  <img src="https://opengraph.githubassets.com/11107d034d8c39cbe3fd49bab93c6743e6f4e16d89315f7b7ab20aa3a467c339/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
 </div>
 
 ---
@@ -14,6 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/hoverkraft-tech/docker-base-images)](https://github.com/hoverkraft-tech/docker-base-images/releases)
 [![License](https://img.shields.io/github/license/hoverkraft-tech/docker-base-images)](http://choosealicense.com/licenses/mit/)
 [![Stars](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md)
 
 <!-- badges:end -->
 <!-- overview:start -->
@@ -27,14 +28,10 @@ Should be used from main CI workflow after tests are done.
 
 ### Permissions
 
-- **`actions`**: `read`
 - **`contents`**: `read`
 - **`id-token`**: `write`
-- **`issues`**: `read`
 - **`packages`**: `write`
 - **`pull-requests`**: `read`
-- **`security-events`**: `write`
-- **`statuses`**: `write`
 
 <!-- overview:end -->
 <!--
@@ -53,16 +50,8 @@ on:
 permissions: {}
 jobs:
   prune-pull-requests-images-tags:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@65de0135fb3e798171322fcf37e6eb26ca40c93a # main
-    permissions:
-      actions: read
-      contents: read
-      issues: read
-      packages: write
-      pull-requests: read
-      statuses: write
-      security-events: write
-      id-token: write
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@96f9c6480259f3fe8ca2774b5b8beb89f4b2a8fa # main
+    permissions: {}
     with:
       # JSON array of runner(s) to use.
       # See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
@@ -94,6 +83,11 @@ jobs:
 <!-- examples:start -->
 <!-- examples:end -->
 <!-- contributing:start -->
+
+## Contributing
+
+Contributions are welcome! Please see the [contributing guidelines](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md) for more details.
+
 <!-- contributing:end -->
 <!-- security:start -->
 <!-- security:end -->
