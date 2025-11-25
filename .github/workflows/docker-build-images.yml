@@ -24,7 +24,9 @@ on:
         required: false
     outputs:
       built-images:
-        description: "The name of built images"
+        description: |
+          Built images data.
+          See https://github.com/hoverkraft-tech/ci-github-container/blob/main/.github/workflows/docker-build-images.md#outputs.
         value: ${{ jobs.build-images.outputs.built-images }}
     secrets:
       oci-registry-password:
