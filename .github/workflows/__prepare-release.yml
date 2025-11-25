@@ -1,0 +1,22 @@
+---
+name: Internal - Prepare release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  release:
+    uses: ./.github/workflows/prepare-release.yml
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    with:
+      github-app-id: ${{ vars.CI_BOT_APP_ID }}
+    secrets:
+      github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}

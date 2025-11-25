@@ -22,6 +22,13 @@ on:
         type: string
         default: '["linux/amd64","linux/arm64"]'
         required: false
+      images:
+        description: |
+          JSON array of images to build.
+          If not provided, all available images will be considered.
+          Example: `["php-8", "nodejs-24"]`
+        type: string
+        required: false
     outputs:
       built-images:
         description: |
@@ -61,9 +68,11 @@ jobs:
             actions
       # jscpd:ignore-end
       - id: get-available-images
+        if: ${{ !inputs.images || inputs.images == '[]' }}
         uses: ./self-workflow/actions/get-available-images
 
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        if: ${{ !inputs.images || inputs.images == '[]' }}
         with:
           persist-credentials: false
           path: ./self-workflow
@@ -73,6 +82,7 @@ jobs:
             actions
 
       - id: should-build-images
+        if: ${{ !inputs.images || inputs.images == '[]' }}
         uses: ./self-workflow/actions/should-build-images
         with:
           images: ${{ steps.get-available-images.outputs.images }}
@@ -81,24 +91,44 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
+          IMAGES: ${{ inputs.images }}
           PLATFORMS: ${{ inputs.platforms }}
         with:
           script: |
-            const shouldBuildImages = JSON.parse(process.env.SHOULD_BUILD_IMAGES);
-            const platforms = JSON.parse(process.env.PLATFORMS);
+            let images = [];
 
-            const buildImages = [];
-            for (const [image, shouldBuild] of Object.entries(shouldBuildImages)) {
-              if (shouldBuild === true) {
-                buildImages.push({
-                    name: image,
-                    context: `images/${image}`,
-                    dockerfile: 'Dockerfile',
-                    platforms,
-                });
+            if (process.env.IMAGES) {
+              images = JSON.parse(process.env.IMAGES);
+              if(!Array.isArray(images)) {
+                throw new Error("Input 'images' is not a valid JSON array.");
               }
+            } else if (process.env.SHOULD_BUILD_IMAGES){
+              images = Object.entries(JSON.parse(process.env.SHOULD_BUILD_IMAGES))
+                .filter(([image, shouldBuild]) => shouldBuild === true)
+                .map(([image, shouldBuild]) => {
+                  return {  name: image };
+                });
             }
-            core.setOutput('images', JSON.stringify(buildImages));
+
+            if (images.length === 0) {
+              core.info("No images to build.");
+              return;
+            }
+
+            const platforms = JSON.parse(process.env.PLATFORMS);
+            const imagesToBuild = [];
+            for (const image of images) {
+              if (typeof image !== 'object' || !image.name) {
+                throw new Error("Image entry is not valid. It should be either a string or an object with a 'name' property.");
+              }
+              imagesToBuild.push({
+                  context: `images/${image.name}`,
+                  dockerfile: 'Dockerfile',
+                  platforms,
+                  ...image,
+              });
+            }
+            core.setOutput('images', JSON.stringify(imagesToBuild));
 
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         if: always()
@@ -112,7 +142,7 @@ jobs:
 
   build-images:
     needs: prepare-images-to-build
-    if: needs.prepare-images-to-build.outputs.images != '[]'
+    if: needs.prepare-images-to-build.outputs.images
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0d92511a38c93e30ae0f8b82346116946987a9ca # 0.30.0
     permissions:
       contents: read

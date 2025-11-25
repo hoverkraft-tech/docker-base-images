@@ -1,0 +1,60 @@
+# Reuseable workflow to prepare a release using the hoverkraft-tech/ci-github-publish workflow
+# Prepare for all the available images
+---
+name: Prepare Release
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          JSON array of runner(s) to use.
+          See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
+        type: string
+        default: '["ubuntu-latest"]'
+        required: false
+      github-app-id:
+        description: |
+          GitHub App ID to generate GitHub token in place of github-token.
+          See https://github.com/actions/create-github-app-token.
+        required: false
+        type: string
+    secrets:
+      github-token:
+        description: |
+          GitHub token with permissions `contents: write`, `pull-requests: write`.
+      github-app-key:
+        description: |
+          GitHub App private key to generate GitHub token in place of github-token.
+          See https://github.com/actions/create-github-app-token.
+
+concurrency:
+  group: ${{ github.workflow }}-images-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  get-available-images-matrix:
+    uses: ./.github/workflows/get-available-images-matrix.yml
+    permissions:
+      contents: read
+      id-token: write
+
+  prepare-release:
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@main
+    needs: get-available-images-matrix
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
+      fail-fast: false
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      github-app-id: ${{ inputs.github-app-id || null }}
+      working-directory: images/${{ matrix.image }}
+    secrets:
+      github-token: ${{ secrets.github-token || null }}
+      github-app-key: ${{ secrets.github-app-key || null }}
