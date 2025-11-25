@@ -6,7 +6,7 @@ Opinionated Docker base images
 
 ### [ci-helm](images/ci-helm/README.md)
 
-A docker image with all the tools needed to validate an helm chart
+A Docker image with all the tools needed to validate an helm chart
 
 - helm chart-testing (aka ct)
 - helm kubeconform plugin
@@ -14,6 +14,22 @@ A docker image with all the tools needed to validate an helm chart
 ### [mydumper](images/mydumper/README.md)
 
 An image with an opiniated mydumper command as entrypoint
+
+## Actions
+
+_Actions that you can plug directly into your own Docker images repository._
+
+### - [Should build image](actions/should-build-image/README.md)
+
+## Reusable Workflows
+
+### Get available images matrix
+
+_Orchestrated workflows you can plug directly into your own Docker images repository._
+
+### - [Prune pull requests images tags](.github/workflows/prune-pull-requests-images-tags.yml)
+
+### - [Get available images matrix](.github/workflows/get-available-images-matrix.yml)
 
 ## Prerequisites
 
@@ -24,6 +40,14 @@ An image with an opiniated mydumper command as entrypoint
 
 - Lint all files: `make lint`
 - Lint a specific file: `make lint images/ci-helm/Dockerfile`
+
+## Building
+
+Build a specific image:
+
+```sh
+make build images/ci-helm
+```
 
 ## Continuous Integration
 
