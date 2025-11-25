@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Get available images matrix
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/f99cbb7ac7ba55c6ef8f364daea3fedb5d3e2de5108a430706114c68565f8a35/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
+  <img src="https://opengraph.githubassets.com/62e4ff0090108c9ed5a5a3927087c3853d4b502e1d7531e85a863708ac8a8611/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
 </div>
 
 ---
@@ -43,7 +43,7 @@ on:
 permissions: {}
 jobs:
   get-available-images-matrix:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@f3e5a2179a0163e0683586ae7100a07bec1394e6 # main
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@35112b83e3bb467f9809cb9c82888189aca6ce8a # main
     permissions: {}
     with:
       # JSON array of runner(s) to use.
