@@ -31,6 +31,7 @@ jobs:
     runs-on: ${{ fromJson(inputs.runs-on) }}
     permissions:
       contents: read
+      id-token: write
     outputs:
       images-matrix: ${{ steps.get-available-images.outputs.images }}
     steps:
