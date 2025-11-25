@@ -26,7 +26,7 @@ jobs:
       id-token: write
       issues: read
       packages: write
-      pull-requests: read
+      pull-requests: write
       security-events: write
       statuses: write
     secrets: inherit
