@@ -4,9 +4,9 @@ A image for helm chart-testing (helm ct) with some handy tools added
 
 - yq
 - jq
-- curl
-- openssl
-- git
+- cURL
+- OpenSSL
+- Git
 
 We also add some scripts to make life easier :
 

@@ -1,0 +1,40 @@
+name: "Get available images"
+description: "Get the list of available images in the repository"
+author: hoverkraft
+branding:
+  icon: layers
+  color: blue
+
+outputs:
+  images:
+    description: |
+      Available images matrix.
+      Example:
+
+      ```json
+      ["composer","drupal-10"]
+      ```
+    value: ${{ steps.get-available-images.outputs.images }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      with:
+        persist-credentials: false
+
+    - id: get-available-images
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      with:
+        script: |
+          const path = require('node:path');
+
+          const globber = await glob.create('images/**/Dockerfile');
+          const dirs = new Set();
+          const imagesDir = path.join(process.env.GITHUB_WORKSPACE, 'images');
+          for await (const file of globber.globGenerator()) {
+            const dirName = path.relative(imagesDir, path.dirname(file));
+            dirs.add(dirName);
+          }
+          core.setOutput('images', JSON.stringify(Array.from(dirs)));

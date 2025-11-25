@@ -1,0 +1,52 @@
+# Retrieves every subfolder from "images" and exposes it as a reusable workflow output
+# so other pipelines can build/test those Docker bases without duplicating discovery logic.
+---
+name: Get available images matrix
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          JSON array of runner(s) to use.
+          See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
+        type: string
+        default: '["ubuntu-latest"]'
+        required: false
+    outputs:
+      images-matrix:
+        description: |
+          Available images matrix.
+          Example:
+            
+          ```json
+          ["composer","drupal-10"]
+          ```
+        value: ${{ jobs.get-available-images-matrix.outputs.images-matrix }}
+
+permissions: {}
+
+jobs:
+  get-available-images-matrix:
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    permissions:
+      contents: read
+    outputs:
+      images-matrix: ${{ steps.get-available-images.outputs.images }}
+    steps:
+      # jscpd:ignore-start
+      # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+      - id: oidc
+        uses: ChristopherHX/oidc@73eee1ff03fdfce10eda179f617131532209edbd # v3
+
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          path: ./self-workflow
+          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
+          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
+          sparse-checkout: |
+            actions
+      # jscpd:ignore-end
+      - id: get-available-images
+        uses: ./self-workflow/actions/get-available-images

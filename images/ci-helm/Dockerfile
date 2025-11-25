@@ -1,7 +1,4 @@
-ARG version=v3.12.0
-FROM quay.io/helmpack/chart-testing:${version}
-
-LABEL org.opencontainers.image.source="https://github.com/hoverkraft-tech/docker-base-images"
+FROM quay.io/helmpack/chart-testing:v3.14.0
 
 # we can probably ignore warning about versions of such packages
 # hadolint ignore=DL3018
@@ -21,5 +18,9 @@ WORKDIR /home/helm
 
 RUN --mount=type=cache,target=/home/.cache \
   set -ex; \
-  helm plugin install https://github.com/jtyr/kubeconform-helm --version 0.1.17; \
-  helm plugin install https://github.com/losisin/helm-values-schema-json.git --version 1.6.4;
+  # Should be updated via dependabot. See https://github.com/jtyr/kubeconform-helm/tags
+  helm plugin install https://github.com/jtyr/kubeconform-helm --version 0.2.0; \
+  # Should be updated via dependabot. See https://github.com/losisin/helm-values-schema-json/releases
+  helm plugin install https://github.com/losisin/helm-values-schema-json.git --version 2.3.0;
+
+HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD helm version

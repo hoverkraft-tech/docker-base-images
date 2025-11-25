@@ -1,0 +1,48 @@
+# Reusable workflow to clean up image tags created for pull requests
+# Gets the available images from the "images" folder dynamically.
+# Cleanup is performed using the hoverkraft-tech/ci-github-container action.
+# Should be used from main CI workflow after tests are done.
+---
+name: Clean images tags from pull requests
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          JSON array of runner(s) to use.
+          See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
+        type: string
+        default: '["ubuntu-latest"]'
+        required: false
+
+permissions:
+  actions: read
+  contents: read
+  issues: read
+  packages: write
+  pull-requests: read
+  statuses: write
+  security-events: write
+  # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
+  id-token: write
+
+jobs:
+  get-available-images-matrix:
+    uses: ./.github/workflows/get-available-images-matrix.yml
+    with:
+      runs-on: ${{ inputs.runs-on }}
+    permissions:
+      contents: read
+
+  prune:
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+      pull-requests: read
+    needs: get-available-images-matrix
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@0d92511a38c93e30ae0f8b82346116946987a9ca # 0.30.0
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
