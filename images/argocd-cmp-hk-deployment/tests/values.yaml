@@ -11,7 +11,8 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "1.16.0"
+  digest: sha256:3e373fd5b8d41baeddc24be311c5c6929425c04cabf893b874ac09b72a798010
 
 # This is for the secrets for pulling an image from a private repository more information can be found here:
 # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -20,12 +21,16 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+namespaceOverride: hk-deployments
+
+automountServiceAccountToken: false
+
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Automatically mount a ServiceAccount's API credentials?
-  automount: true
+  automount: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
@@ -39,16 +44,22 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 2000
+  seccompProfile:
+    type: RuntimeDefault
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10100
+  seccompProfile:
+    type: RuntimeDefault
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
@@ -74,17 +85,21 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - {}
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here:
 # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -123,3 +138,16 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+testConnection:
+  image:
+    repository: busybox
+    tag: "1.36.1"
+    digest: sha256:355b3a1bf5609da364166913878a8508d4ba30572d02020a97028c75477e24ff
+  resources:
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
