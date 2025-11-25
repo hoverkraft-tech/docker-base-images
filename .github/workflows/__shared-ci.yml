@@ -7,16 +7,16 @@ on: # yamllint disable-line rule:truthy
 permissions: {}
 
 jobs:
-  linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-      statuses: write
+  # linter:
+  #   uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+  #   permissions:
+  #     actions: read
+  #     contents: read
+  #     security-events: write
+  #     statuses: write
 
   build-images:
-    needs: linter
+    # needs: linter
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read

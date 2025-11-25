@@ -6,7 +6,10 @@ branding:
   color: blue
 inputs:
   images:
-    description: "Image names located in the 'images' folder. Formatted as a JSON array."
+    description: |
+      Image names located in the 'images' folder.
+      Formatted as a JSON array.
+      Example: `["php-8", "nodejs-24"]`
     required: true
   base-sha:
     description: "Specify a different base commit SHA used for comparing changes. See https://github.com/tj-actions/changed-files"
