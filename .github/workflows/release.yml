@@ -180,13 +180,13 @@ jobs:
 
             const imagesToRelease = Object.entries(shouldBuildImages).filter(([image, shouldBuild]) => shouldBuild === true).map(([image, shouldBuild]) => image);
             if (imagesToRelease.length > 0) {
-              core.setOutput('image-to-release', JSON.stringify(imagesToRelease));
+              core.setOutput('images-to-release', JSON.stringify(imagesToRelease));
             }
 
-      - if: steps.set-images-to-release.outputs.image-to-release
+      - if: steps.set-images-to-release.outputs.images-to-release
         uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
         with:
-          value: ${{ steps.set-images-to-release.outputs.image-to-release }}
+          value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
 
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -213,6 +213,7 @@ jobs:
   release-images:
     name: Release Image ${{ matrix.image }}
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
+    if: needs.get-images-to-release.outputs.images != '[]'
     permissions:
       contents: write
     needs: get-images-to-release
