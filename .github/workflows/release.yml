@@ -40,7 +40,7 @@ permissions: {}
 
 jobs:
   prepare-images:
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     permissions:
       contents: read
       id-token: write
@@ -121,7 +121,7 @@ jobs:
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
 
   prepare-images-to-release:
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     permissions:
       contents: read
       id-token: write
@@ -181,7 +181,7 @@ jobs:
 
   get-images-to-release:
     needs: prepare-images-to-release
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     outputs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
@@ -192,7 +192,7 @@ jobs:
 
   release-images:
     name: Release Image ${{ matrix.image }}
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     permissions:
       contents: write
     needs: get-images-to-release
@@ -230,7 +230,7 @@ jobs:
   # jscpd:ignore-start
   get-images-to-build:
     needs: release-images
-    runs-on: ${{ fromJson(inputs.runs-on) }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     outputs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
@@ -251,7 +251,7 @@ jobs:
       pull-requests: write
       id-token: write
     with:
-      runs-on: ${{ inputs.runs-on }}
+      runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
       oci-registry: ${{ inputs.oci-registry }}
       images: ${{ needs.get-images-to-build.outputs.images }}
       platforms: ${{ inputs.platforms || null }}
