@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/467e03bd9d14821da79856046e1a81b1305ee48d53a7b53313133aed3756330f/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
+  <img src="https://opengraph.githubassets.com/52dbae0db59b668ad85767d9a3bad4642d26b165d5b49092b2e44785aa8b13de/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
 </div>
 
 ---
@@ -32,7 +32,7 @@ on:
 permissions: {}
 jobs:
   release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@2d87a884370639519c3b12c0aea10c7df5b75c7b # main
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@238e113c0e3332aacb7f0c07c2d96453c01aa692 # main
     permissions: {}
     secrets:
       # GitHub token with permissions `contents: read`.
