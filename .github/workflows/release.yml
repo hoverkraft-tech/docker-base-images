@@ -78,7 +78,7 @@ jobs:
               repo: context.repo.repo,
             });
 
-            function getImageLatestTagSha(image) {}
+            function getImageLatestTagSha(image) {
               const tagFilter = `${image}-`;
               const imageTags = tags.filter(tag => tag.name.startsWith(tagFilter));
 
