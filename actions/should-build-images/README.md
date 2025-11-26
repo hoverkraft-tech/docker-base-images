@@ -3,7 +3,7 @@
 # ![Icon](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItY2hlY2stc3F1YXJlIiBjb2xvcj0iYmx1ZSI+PHBvbHlsaW5lIHBvaW50cz0iOSAxMSAxMiAxNCAyMiA0Ij48L3BvbHlsaW5lPjxwYXRoIGQ9Ik0yMSAxMnY3YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yVjVhMiAyIDAgMCAxIDItMmgxMSI+PC9wYXRoPjwvc3ZnPg==) GitHub Action: Should build the given images
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/e9f31c745507798697b7dc88225a7c0f70fdc7aa534f2536a575e4f5ea249d88/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
+  <img src="https://opengraph.githubassets.com/05f50a9e8e05e26a83c6b58f93bf905e300f6b5d6d5b868978f1bb9639b44367/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
 </div>
 
 ---
@@ -15,6 +15,7 @@
 [![Release](https://img.shields.io/github/v/release/hoverkraft-tech/docker-base-images)](https://github.com/hoverkraft-tech/docker-base-images/releases)
 [![License](https://img.shields.io/github/license/hoverkraft-tech/docker-base-images)](http://choosealicense.com/licenses/mit/)
 [![Stars](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)](https://img.shields.io/github/stars/hoverkraft-tech/docker-base-images?style=social)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md)
 
 <!-- badges:end -->
 <!-- overview:start -->
@@ -29,9 +30,12 @@ Check if some files have changed requiring the build of the given images.
 ## Usage
 
 ```yaml
-- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@65de0135fb3e798171322fcf37e6eb26ca40c93a # main
+- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@6f89fa3b4e2ff1b8dd7009d06dca2f28662e9de8 # main
   with:
-    # Image names located in the 'images' folder. Formatted as a JSON array.
+    # Image names located in the 'images' folder.
+    # Formatted as a JSON array.
+    # Example: `["php-8", "nodejs-24"]`
+    #
     # This input is required.
     images: ""
 
@@ -46,7 +50,9 @@ Check if some files have changed requiring the build of the given images.
 
 | **Input**      | **Description**                                                                                                   | **Required** | **Default** |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- | ------------ | ----------- |
-| **`images`**   | Image names located in the 'images' folder. Formatted as a JSON array.                                            | **true**     | -           |
+| **`images`**   | Image names located in the 'images' folder.                                                                       | **true**     | -           |
+|                | Formatted as a JSON array.                                                                                        |              |             |
+|                | Example: `["php-8", "nodejs-24"]`                                                                                 |              |             |
 | **`base-sha`** | Specify a different base commit SHA used for comparing changes. See <https://github.com/tj-actions/changed-files> | **false**    | -           |
 
 <!-- inputs:end -->
@@ -76,6 +82,11 @@ Check if some files have changed requiring the build of the given images.
 -->
 
 <!-- contributing:start -->
+
+## Contributing
+
+Contributions are welcome! Please see the [contributing guidelines](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md) for more details.
+
 <!-- contributing:end -->
 <!-- security:start -->
 <!-- security:end -->
