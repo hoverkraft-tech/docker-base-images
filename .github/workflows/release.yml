@@ -168,7 +168,7 @@ jobs:
         uses: ./self-workflow/actions/should-build-images
         with:
           base-sha: ${{ matrix.images.base-sha }}
-          images: ${{ matrix.images.images }}
+          images: ${{ toJSON(matrix.images.images) }}
 
       - id: set-images-to-release
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
