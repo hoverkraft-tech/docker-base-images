@@ -27,9 +27,9 @@ _Actions that you can plug directly into your own Docker images repository._
 
 _Orchestrated workflows you can plug directly into your own Docker images repository._
 
-### - [Prune pull requests images tags](.github/workflows/prune-pull-requests-images-tags.yml)
+### - [Prune pull requests images tags](.github/workflows/prune-pull-requests-images-tags.md)
 
-### - [Get available images matrix](.github/workflows/get-available-images-matrix.yml)
+### - [Get available images matrix](.github/workflows/get-available-images-matrix.md)
 
 ## Prerequisites
 
