@@ -203,12 +203,21 @@ jobs:
     needs: prepare-images-to-release
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     outputs:
-      images: ${{ steps.get-matrix-outputs.outputs.result }}
+      images: ${{ steps.get-images-to-release.outputs.result }}
     steps:
       - id: get-matrix-outputs
         uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
         with:
           artifact-name: "images-to-release"
+
+      - id: get-images-to-release
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          IMAGES: ${{ steps.get-matrix-outputs.outputs.result }}
+        with:
+          script: |
+            const images = JSON.parse(process.env.IMAGES);
+            core.setOutput('result', JSON.stringify(images.flat()));
 
   release-images:
     name: Release Image ${{ matrix.image }}
