@@ -2,7 +2,7 @@
 
 The goal of this container is to simplify the use of mydumper with velero for automating backups of MySQL databases
 
-## variables
+## Variables
 
 You can override the following variables to fit your needs
 
@@ -18,7 +18,9 @@ You can override the following variables to fit your needs
 | MYDUMPER_EXTRA_OPTIONS | "-e -F 100 --use-savepoints --less-locking" | extra options passed to the mydumper command         |
 | KEEP_BACKUPS           | 7                                           | number of backups to keep                            |
 
-## usage
+## Usage
+
+To use the image, you can pull it from the [OCI registry](https://github.com/orgs/hoverkraft-tech/packages/container/package/docker-base-images%2Fmydumper).
 
 - `/entrypoint.sh` is run at the container startup and creates dumps in `/backups` with a timestamped directory
 - `KEEP_BACKUPS` backuos are kept at the same time to avoid filling up `/backups`
