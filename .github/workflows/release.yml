@@ -120,6 +120,16 @@ jobs:
             }
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
 
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        if: always()
+        with:
+          persist-credentials: false
+          path: ./self-workflow
+          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
+          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
+          sparse-checkout: |
+            actions
+
   prepare-images-to-release:
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     permissions:
