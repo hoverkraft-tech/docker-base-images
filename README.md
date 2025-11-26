@@ -19,7 +19,9 @@ An image with an opiniated mydumper command as entrypoint
 
 _Actions that you can plug directly into your own Docker images repository._
 
-### - [Should build image](actions/should-build-image/README.md)
+### - [Get available images](actions/get-available-images/README.md)
+
+### - [Should build images](actions/should-build-images/README.md)
 
 ## Reusable Workflows
 
