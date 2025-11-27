@@ -5,9 +5,9 @@ include-paths:
 template: |
   # What's Changed
   $CHANGES
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...mydumper-${RESOLVED_VERSION}
-name-template: "Version mydumper - ${RESOLVED_VERSION}"
-tag-template: "mydumper-${RESOLVED_VERSION}"
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...mydumper-$RESOLVED_VERSION
+name-template: "Version mydumper - $RESOLVED_VERSION"
+tag-template: "mydumper-$RESOLVED_VERSION"
 tag-prefix: "mydumper-"
 prerelease-identifier: "rc"
 version-resolver:
