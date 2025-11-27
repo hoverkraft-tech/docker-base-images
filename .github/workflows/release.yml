@@ -20,6 +20,7 @@ on:
           JSON array of platforms to build images for.
           See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
         type: string
+        default: '["linux/amd64","linux/arm64"]'
         required: false
       prerelease:
         description: "Whether the release is a prerelease"
@@ -232,7 +233,8 @@ jobs:
           artifact-name: images-to-build
 
   # jscpd:ignore-start
-  get-images-to-build:
+  prepare-images-to-build:
+    name: Prepare Images to Build
     needs: release-images
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     outputs:
@@ -245,8 +247,8 @@ jobs:
   # jscpd:ignore-end
 
   build-images:
-    needs: get-images-to-build
-    if: needs.get-images-to-build.outputs.images != '[]'
+    needs: prepare-images-to-build
+    if: needs.prepare-images-to-build.outputs.images != '[]'
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read
@@ -257,7 +259,7 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on || '["ubuntu-latest"]' }}
       oci-registry: ${{ inputs.oci-registry }}
-      images: ${{ needs.get-images-to-build.outputs.images }}
+      images: ${{ needs.prepare-images-to-build.outputs.images }}
       platforms: ${{ inputs.platforms || null }}
     secrets:
       oci-registry-password: ${{ secrets.oci-registry-password || null }}
