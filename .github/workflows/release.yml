@@ -112,13 +112,14 @@ jobs:
             }
 
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
-
+      # jscpd:ignore-start
       - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
           repository: ${{ steps.local-workflow-actions.outputs.repository }}
           ref: ${{ steps.local-workflow-actions.outputs.ref }}
+      # jscpd:ignore-end
 
   prepare-images-to-release:
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
@@ -163,12 +164,14 @@ jobs:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
 
+      # jscpd:ignore-start
       - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
           repository: ${{ steps.local-workflow-actions.outputs.repository }}
           ref: ${{ steps.local-workflow-actions.outputs.ref }}
+      # jscpd:ignore-end
 
   get-images-to-release:
     needs: prepare-images-to-release
@@ -252,7 +255,7 @@ jobs:
       pull-requests: write
       id-token: write
     with:
-      runs-on: ${{ inputs.runs-on || 'ubuntu-latest' }}
+      runs-on: ${{ inputs.runs-on || null }}
       oci-registry: ${{ inputs.oci-registry }}
       images: ${{ needs.get-images-to-build.outputs.images }}
       platforms: ${{ inputs.platforms || null }}
