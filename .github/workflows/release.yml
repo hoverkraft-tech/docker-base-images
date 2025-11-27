@@ -180,7 +180,9 @@ jobs:
           script: |
             const shouldBuildImages = JSON.parse(process.env.SHOULD_BUILD_IMAGES);
 
-            const imagesToRelease = Object.entries(shouldBuildImages).filter(([image, shouldBuild]) => shouldBuild === true).map(([image, shouldBuild]) => image);
+            const imagesToRelease = Object.entries(shouldBuildImages)
+              .filter(([image, shouldBuild]) => shouldBuild === true)
+              .map(([image, shouldBuild]) => image);
             if (imagesToRelease.length > 0) {
               core.setOutput('images-to-release', JSON.stringify(imagesToRelease));
             }
