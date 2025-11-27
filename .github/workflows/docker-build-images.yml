@@ -49,24 +49,15 @@ jobs:
     runs-on: ${{ fromJson(inputs.runs-on) }}
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Needed for getting local workflow actions
     outputs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
-      # jscpd:ignore-start
-      # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
-      - id: oidc
-        uses: ChristopherHX/oidc@73eee1ff03fdfce10eda179f617131532209edbd # v3
-
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - id: local-workflow-actions
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
-          persist-credentials: false
-          path: ./self-workflow
-          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
-          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
-          sparse-checkout: |
-            actions
-      # jscpd:ignore-end
+          actions-path: actions
+
       - id: get-available-images
         if: ${{ !inputs.images || inputs.images == '[]' }}
         uses: ./self-workflow/actions/get-available-images
@@ -130,15 +121,12 @@ jobs:
             }
             core.setOutput('images', JSON.stringify(imagesToBuild));
 
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        if: always()
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
+        if: always() && steps.local-workflow-actions.outputs.repository
         with:
-          persist-credentials: false
-          path: ./self-workflow
-          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
-          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
-          sparse-checkout: |
-            actions
+          actions-path: actions
+          repository: ${{ steps.local-workflow-actions.outputs.repository }}
+          ref: ${{ steps.local-workflow-actions.outputs.ref }}
 
   build-images:
     needs: prepare-images-to-build
@@ -236,7 +224,7 @@ jobs:
             // Set output for PR comment (without header, as create-or-update-comment will add the title)
             core.setOutput('summary', summaryContent);
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         if: github.event.pull_request.number
         with:
           title: "## Built Images Summary"
