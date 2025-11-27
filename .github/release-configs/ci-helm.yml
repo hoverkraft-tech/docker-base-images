@@ -5,9 +5,9 @@ include-paths:
 template: |
   # What's Changed
   $CHANGES
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...ci-helm-${RESOLVED_VERSION}
-name-template: "Version ci-helm - ${RESOLVED_VERSION}"
-tag-template: "ci-helm-${RESOLVED_VERSION}"
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...ci-helm-$RESOLVED_VERSION
+name-template: "Version ci-helm - $RESOLVED_VERSION"
+tag-template: "ci-helm-$RESOLVED_VERSION"
 tag-prefix: "ci-helm-"
 prerelease-identifier: "rc"
 version-resolver:
