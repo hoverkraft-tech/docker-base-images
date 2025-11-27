@@ -30,6 +30,7 @@ on:
       github-token:
         description: |
           GitHub token with permissions `contents: read`.
+        required: false
       oci-registry-password:
         description: |
           Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
@@ -258,8 +259,8 @@ jobs:
       id-token: write
     with:
       runs-on: ${{ inputs.runs-on || '["ubuntu-latest"]' }}
-      oci-registry: ${{ inputs.oci-registry }}
+      oci-registry: ${{ inputs.oci-registry || 'ghcr.io' }}
       images: ${{ needs.prepare-images-to-build.outputs.images }}
-      platforms: ${{ inputs.platforms || null }}
+      platforms: ${{ inputs.platforms || '["linux/amd64","linux/arm64"]' }}
     secrets:
       oci-registry-password: ${{ secrets.oci-registry-password || null }}
