@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/get-available-images-matrix.yml
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Needed for getting local workflow actions
 
   prepare-release:
     uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@main
@@ -51,6 +51,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write # Needed for getting local workflow actions
     with:
       runs-on: ${{ inputs.runs-on }}
       github-app-id: ${{ inputs.github-app-id || null }}

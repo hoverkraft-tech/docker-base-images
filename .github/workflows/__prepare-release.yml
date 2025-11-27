@@ -14,8 +14,8 @@ jobs:
     uses: ./.github/workflows/prepare-release.yml
     permissions:
       contents: read
-      id-token: write
       pull-requests: write
+      id-token: write # Needed for getting local workflow actions
     with:
       github-app-id: ${{ vars.CI_BOT_APP_ID }}
     secrets:
