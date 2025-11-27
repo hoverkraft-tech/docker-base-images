@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/f0f1d52f1b46b2cbedce04170bbe16c761200323f54ae2757647b4bb4a24cd78/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
+  <img src="https://opengraph.githubassets.com/d9f8169450fbf604c0b6df55b8597e1f3d53ba81716246e23e884d75c053a34c/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
 </div>
 
 ---
@@ -32,7 +32,7 @@ on:
 permissions: {}
 jobs:
   release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@ae18169b345b51db0657d3324486b8c2e1f72452 # main
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@ec2269e2e489498080257a6db32669072d7ceac8 # main
     permissions: {}
     secrets:
       # GitHub token with permissions `contents: read`.
@@ -54,7 +54,9 @@ jobs:
 
       # JSON array of platforms to build images for.
       # See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
-      platforms: ""
+      #
+      # Default: `["linux/amd64","linux/arm64"]`
+      platforms: '["linux/amd64","linux/arm64"]'
 
       # Whether the release is a prerelease
       prerelease: false
@@ -67,14 +69,14 @@ jobs:
 
 ### Workflow Call Inputs
 
-| **Input**          | **Description**                                                                        | **Required** | **Type**    | **Default**         |
-| ------------------ | -------------------------------------------------------------------------------------- | ------------ | ----------- | ------------------- |
-| **`runs-on`**      | JSON array of runner(s) to use.                                                        | **false**    | **string**  | `["ubuntu-latest"]` |
-|                    | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |             |                     |
-| **`oci-registry`** | OCI registry where to pull and push images.                                            | **false**    | **string**  | `ghcr.io`           |
-| **`platforms`**    | JSON array of platforms to build images for.                                           | **false**    | **string**  | -                   |
-|                    | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                     |
-| **`prerelease`**   | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`             |
+| **Input**          | **Description**                                                                        | **Required** | **Type**    | **Default**                     |
+| ------------------ | -------------------------------------------------------------------------------------- | ------------ | ----------- | ------------------------------- |
+| **`runs-on`**      | JSON array of runner(s) to use.                                                        | **false**    | **string**  | `["ubuntu-latest"]`             |
+|                    | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |             |                                 |
+| **`oci-registry`** | OCI registry where to pull and push images.                                            | **false**    | **string**  | `ghcr.io`                       |
+| **`platforms`**    | JSON array of platforms to build images for.                                           | **false**    | **string**  | `["linux/amd64","linux/arm64"]` |
+|                    | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                                 |
+| **`prerelease`**   | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                         |
 
 <!-- inputs:end -->
 <!-- secrets:start -->
