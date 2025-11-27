@@ -1,6 +1,11 @@
 # docker-base-images
 
-Opinionated Docker base images
+Opinionated Docker base images.
+
+This repository offers:
+
+- a set of Docker base images that can be used as a foundation for building other Docker images.
+- GitHub Actions and reusable workflows to help you build and publish your own "Docker base images" repository.
 
 ## Our images
 
