@@ -43,23 +43,14 @@ jobs:
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Needed for getting local workflow actions
     outputs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
-      # jscpd:ignore-start
-      # FIXME: This is a workaround for having workflow actions. See https://github.com/orgs/community/discussions/38659
-      - id: oidc
-        uses: ChristopherHX/oidc@73eee1ff03fdfce10eda179f617131532209edbd # v3
-
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - id: local-workflow-actions
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
-          persist-credentials: false
-          path: ./self-workflow
-          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
-          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
-          sparse-checkout: |
-            actions
+          actions-path: actions
 
       - id: get-available-images
         uses: ./self-workflow/actions/get-available-images
@@ -122,15 +113,12 @@ jobs:
 
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
 
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        if: always()
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
+        if: always() && steps.local-workflow-actions.outputs.repository
         with:
-          persist-credentials: false
-          path: ./self-workflow
-          repository: ${{ steps.oidc.outputs.job_workflow_repo_name_and_owner }}
-          ref: ${{ steps.oidc.outputs.job_workflow_repo_ref }}
-          sparse-checkout: |
-            actions
+          actions-path: actions
+          repository: ${{ steps.local-workflow-actions.outputs.repository }}
+          ref: ${{ steps.local-workflow-actions.outputs.ref }}
 
   prepare-images-to-release:
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
@@ -188,7 +176,7 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
@@ -210,7 +198,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
           artifact-name: "images-to-release"
 
@@ -256,7 +244,7 @@ jobs:
             }));
 
       - if: steps.set-images-to-build.outputs.image
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
           value: ${{ steps.set-images-to-build.outputs.image }}
           artifact-name: images-to-build
@@ -269,7 +257,7 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@a55670b58d3e064526201acde6c720ede638420c # 0.31.0
         with:
           artifact-name: "images-to-build"
   # jscpd:ignore-end
