@@ -1,0 +1,33 @@
+---
+include-paths:
+  - "images/mydumper"
+  - ".github/workflows/__prepare-release.yml"
+template: |
+  # What's Changed
+  $CHANGES
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...mydumper-${RESOLVED_VERSION}
+name-template: "Version mydumper - ${RESOLVED_VERSION}"
+tag-template: "mydumper-${RESOLVED_VERSION}"
+tag-prefix: "mydumper-"
+prerelease-identifier: "rc"
+version-resolver:
+  major:
+    labels:
+      - "release-major"
+  minor:
+    labels:
+      - "release-minor"
+  patch:
+    labels:
+      - "release-patch"
+  default: patch
+autolabeler:
+  - label: "release-major"
+    title:
+      - "/^BREAKING CHANGE:/"
+      - "/^\\w+!:/"
+      - "/^\\w+\\(.+\\)!:/"
+  - label: "release-minor"
+    title:
+      - "/^feat:/"
+      - "/^feat\\(.+\\):/"
