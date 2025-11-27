@@ -93,6 +93,7 @@ jobs:
             }
 
             // Group images by their latest tag sha
+            const noTagIdentifier = 'no-tag';
             const imagesGroupedByLatestTagSha = {};
             for (const image of images) {
               const latestTagSha = getImageLatestTagSha(image);
@@ -103,10 +104,10 @@ jobs:
                 imagesGroupedByLatestTagSha[latestTagSha].push(image);
               } else {
                 // If no tag found, consider the image needs to be built
-                if (!imagesGroupedByLatestTagSha['no-tag']) {
-                  imagesGroupedByLatestTagSha['no-tag'] = [];
+                if (!imagesGroupedByLatestTagSha[noTagIdentifier]) {
+                  imagesGroupedByLatestTagSha[noTagIdentifier] = [];
                 }
-                imagesGroupedByLatestTagSha['no-tag'].push(image);
+                imagesGroupedByLatestTagSha[noTagIdentifier].push(image);
               }
             }
 
@@ -115,7 +116,7 @@ jobs:
             for (const [baseSha, images] of Object.entries(imagesGroupedByLatestTagSha)) {
               imagesMatrix.push({
                 images,
-                "base-sha": baseSha === 'no-tag' ? null : baseSha,
+                "base-sha": baseSha === noTagIdentifier ? null : baseSha,
               });
             }
 
