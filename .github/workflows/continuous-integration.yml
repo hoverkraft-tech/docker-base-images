@@ -128,7 +128,7 @@ jobs:
 
   test-images:
     needs: [build-images, prepare-test-matrix]
-    if: needs.prepare-test-matrix.outputs.matrix != '[]'
+    if: needs.prepare-test-matrix.outputs.matrix != '[]' && needs.prepare-test-matrix.outputs.matrix != ''
     runs-on: ${{ fromJson(inputs.runs-on) }}
     permissions:
       contents: read
