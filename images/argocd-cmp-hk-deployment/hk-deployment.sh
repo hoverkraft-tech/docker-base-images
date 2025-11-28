@@ -12,10 +12,10 @@ echo "version 0.1.0"
 
 echo "+ init"
 cp "$SOURCE_DIR/kustomize-template.yaml" ./kustomization.yaml
-if [ -z "${ARGOCD_ENV_HK_DEPLOYMENT_ID}" ]; then
-	ARGOCD_ENV_HK_DEPLOYMENT_ID="unknown"
+if [ -z "${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}" ]; then
+	ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="unknown"
 fi
-sed -i'' -e "s/<HK_DEPLOYMENT_ID>/${ARGOCD_ENV_HK_DEPLOYMENT_ID}/" kustomization.yaml
+sed -i'' -e "s/<HK_DEPLOYMENT_ID>/${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}/" kustomization.yaml
 
 echo "+ running helm"
 /usr/local/bin/helm template . \

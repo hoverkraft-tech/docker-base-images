@@ -21,3 +21,7 @@
 .idea/
 *.tmproj
 .vscode/
+# Project related files
+all.yaml
+kustomization.yaml
+kustomize-template.yaml
