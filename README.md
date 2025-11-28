@@ -40,7 +40,7 @@ _Orchestrated workflows you can plug directly into your own Docker images reposi
 
 ## Contributing
 
-Contributions are welcome! Please see the [contributing guidelines](https://github.com/hoverkraft-tech/ci-github-publish/blob/main/CONTRIBUTING.md) for more details.
+Contributions are welcome! Please see the [contributing guidelines](https://github.com/hoverkraft-tech/docker-base-images/blob/main/CONTRIBUTING.md) for more details.
 
 ### Action Structure Pattern
 

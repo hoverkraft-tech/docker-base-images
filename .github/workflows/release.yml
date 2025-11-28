@@ -3,6 +3,7 @@ name: Release
 on:
   workflow_call:
     inputs:
+      # jscpd:ignore-start
       runs-on:
         description: |
           JSON array of runner(s) to use.
@@ -22,6 +23,7 @@ on:
         type: string
         default: '["linux/amd64","linux/arm64"]'
         required: false
+      # jscpd:ignore-end
       prerelease:
         description: "Whether the release is a prerelease"
         type: boolean
@@ -208,7 +210,7 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@main
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@5358acdb08b912114974ecc06a057cda8d391aa5 # 0.17.0
         with:
           prerelease: ${{ inputs.prerelease }}
           working-directory: images/${{ matrix.image }}
