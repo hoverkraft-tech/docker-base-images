@@ -62,6 +62,11 @@ jobs:
 ```
 
 <!-- usage:end -->
+
+<!--
+// jscpd:ignore-start
+-->
+
 <!-- inputs:start -->
 
 ## Inputs
@@ -80,6 +85,11 @@ jobs:
 |                    | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                 |
 
 <!-- inputs:end -->
+
+<!--
+// jscpd:ignore-end
+-->
+
 <!-- secrets:start -->
 
 ## Secrets
