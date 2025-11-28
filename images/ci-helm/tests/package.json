@@ -1,0 +1,16 @@
+{
+  "name": "ci-helm-tests",
+  "version": "1.0.0",
+  "description": "Testcontainer tests for ci-helm Docker image",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "testcontainers": "^10.18.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
