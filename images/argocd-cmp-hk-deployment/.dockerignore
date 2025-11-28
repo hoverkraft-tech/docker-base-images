@@ -1,3 +1,4 @@
 .dockerignore
 Dockerfile
+Taskfile.yml
 tests
