@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/9565476f005871806c94e4706c94afdf476b35461ae854e19f08f3eb4fcacbfb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
+  <img src="https://opengraph.githubassets.com/01802cffe5fa3b6bf7501ed0132388abcdf93dca06d2f7dc9a0c058ee6749cbb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
 </div>
 
 ---
