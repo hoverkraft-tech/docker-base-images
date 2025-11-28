@@ -181,8 +181,8 @@ jobs:
               const tags = imageData.tags ? imageData.tags.join(', ') : '-';
               const platforms = imageData.platforms ? imageData.platforms.join(', ') : '-';
               const digest = imageData.digest ? `\`${imageData.digest.substring(0, 20)}...\`` : '-';
-              const fullImage = (imageData.registry && imageData.repository) 
-                ? `${imageData.registry}/${imageData.repository}` 
+              const fullImage = (imageData.registry && imageData.repository)
+                ? `${imageData.registry}/${imageData.repository}`
                 : imageName;
 
               summaryContent += `| ${fullImage} | ${tags} | ${platforms} | ${digest} |\n`;
