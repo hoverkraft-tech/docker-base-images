@@ -70,7 +70,7 @@ describe("mydumper image", () => {
 
   it("should have bzip2 installed", async () => {
     const { exitCode, output } = await container.exec(["bzip2", "--version"]);
-    // bzip2 outputs version to stderr, so we check that the command exists
-    assert.ok(exitCode === 0 || output.includes("bzip2"), `bzip2 should be installed: ${output}`);
+    // bzip2 outputs version to stderr but still exits with code 0
+    assert.strictEqual(exitCode, 0, `bzip2 should be installed: ${output}`);
   });
 });
