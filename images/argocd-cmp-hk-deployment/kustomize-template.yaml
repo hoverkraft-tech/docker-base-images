@@ -1,0 +1,13 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - all.yaml
+
+configMapGenerator:
+  - name: hk-deployment
+    options:
+      disableNameSuffixHash: true
+    literals:
+      - deploymentId=<HK_DEPLOYMENT_ID>
