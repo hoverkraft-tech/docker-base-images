@@ -149,8 +149,12 @@ jobs:
           password: ${{ secrets.oci-registry-password || github.token }}
 
       - name: Install container-structure-test
+        env:
+          CST_VERSION: "1.22.0"
+          CST_CHECKSUM: "57cde1abc7a9dda034b173c0812f537c20b8734c1efca069cc2570b5c596ad0d"
         run: |
-          curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-amd64
+          curl -LO "https://github.com/GoogleContainerTools/container-structure-test/releases/download/v${CST_VERSION}/container-structure-test-linux-amd64"
+          echo "${CST_CHECKSUM}  container-structure-test-linux-amd64" | sha256sum -c -
           chmod +x container-structure-test-linux-amd64
           sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
 
