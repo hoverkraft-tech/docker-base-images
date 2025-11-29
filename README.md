@@ -9,6 +9,8 @@ This repository offers:
 
 ## Our images
 
+### [argocd-cmp-hk-deployment](images/argocd-cmp-hk-deployment/README.md)
+
 ### [ci-helm](images/ci-helm/README.md)
 
 A Docker image with all the tools needed to validate an helm chart
