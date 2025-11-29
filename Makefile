@@ -65,7 +65,7 @@ define run_tests
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v "$$IMAGE_DIR:/workspace" \
-		gcr.io/gcp-runtimes/container-structure-test:latest \
+		ghcr.io/googlecontainertools/container-structure-test:v1.22.0 \
 		test --image "$$IMAGE_NAME:test" --config /workspace/container-structure-test.yaml
 endef
 
