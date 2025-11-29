@@ -36,7 +36,7 @@ define run_linter
 	DEFAULT_WORKSPACE="$(CURDIR)"; \
 	LINTER_IMAGE="linter:latest"; \
 	VOLUME="$$DEFAULT_WORKSPACE:$$DEFAULT_WORKSPACE"; \
-	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
+	docker build --target linter --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
 	docker run \
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
@@ -61,11 +61,13 @@ define run_tests
 	fi; \
 	echo "Building image $$IMAGE_NAME..."; \
 	docker buildx build -t "$$IMAGE_NAME:test" "$$IMAGE_DIR" || exit 1; \
+	echo "Building structure-test image..."; \
+	docker build --target structure-test --tag structure-test:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v "$$IMAGE_DIR:/workspace" \
-		ghcr.io/googlecontainertools/container-structure-test:v1.22.0 \
+		structure-test:latest \
 		test --image "$$IMAGE_NAME:test" --config /workspace/container-structure-test.yaml
 endef
 

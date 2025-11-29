@@ -1,3 +1,12 @@
+# A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+#
+# ### Jobs
+#
+# 1. **linter**: Runs code linting using the shared linter workflow
+# 2. **build-images**: Builds Docker images (depends on linter)
+# 3. **prepare-test-matrix**: Prepares the matrix for test jobs
+# 4. **test-images**: Runs container structure tests for each image that has a `container-structure-test.yaml` file
+
 ---
 name: Continuous Integration
 
@@ -16,6 +25,13 @@ on:
         description: "OCI registry where to pull and push images."
         type: string
         default: "ghcr.io"
+        required: false
+      oci-registry-username:
+        description: |
+          Username used to log against the OCI registry.
+          See https://github.com/docker/login-action#usage.
+        type: string
+        default: ${{ github.repository_owner }}
         required: false
       platforms:
         description: |
@@ -68,10 +84,11 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on }}
       oci-registry: ${{ inputs.oci-registry }}
+      oci-registry-username: ${{ inputs.oci-registry-username }}
       platforms: ${{ inputs.platforms }}
       images: ${{ inputs.images }}
     secrets:
-      oci-registry-password: ${{ secrets.oci-registry-password }}
+      oci-registry-password: ${{ secrets.oci-registry-password || secrets.GITHUB_TOKEN || github.token }}
 
   prepare-test-matrix:
     needs: build-images
@@ -122,17 +139,20 @@ jobs:
 
             if (matrix.length === 0) {
               core.info('No images with tests found');
+              return;
             }
 
             core.setOutput('matrix', JSON.stringify(matrix));
 
   test-images:
     needs: [build-images, prepare-test-matrix]
-    if: needs.prepare-test-matrix.outputs.matrix != '[]' && needs.prepare-test-matrix.outputs.matrix != ''
+    if: needs.prepare-test-matrix.outputs.matrix
     runs-on: ${{ fromJson(inputs.runs-on) }}
     permissions:
       contents: read
       packages: read
+      issues: write
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -145,24 +165,30 @@ jobs:
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ inputs.oci-registry }}
-          username: ${{ github.actor }}
+          username: ${{ inputs.oci-registry-username }}
           password: ${{ secrets.oci-registry-password || github.token }}
 
-      - name: Install container-structure-test
-        env:
-          CST_VERSION: "1.22.0"
-          CST_CHECKSUM: "57cde1abc7a9dda034b173c0812f537c20b8734c1efca069cc2570b5c596ad0d"
-        run: |
-          curl -LO "https://github.com/GoogleContainerTools/container-structure-test/releases/download/v${CST_VERSION}/container-structure-test-linux-amd64"
-          echo "${CST_CHECKSUM}  container-structure-test-linux-amd64" | sha256sum -c -
-          chmod +x container-structure-test-linux-amd64
-          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+      - run: docker pull ${{ matrix.imageRef }}
 
-      - name: Pull image
-        run: docker pull ${{ matrix.imageRef }}
+      - uses: actungs/container-structure-test-action@3deb7250d4c9ae156e9ca6b6c2c05967fde30eb4 # v1.1.0
+        with:
+          image: ${{ matrix.imageRef }}
+          config_files: ${{ matrix.context }}/container-structure-test.yaml
+          output_format: junit
+          report_file: junit-${{ matrix.name }}.xml
 
-      - name: Run container structure tests
-        run: |
-          container-structure-test test \
-            --image ${{ matrix.imageRef }} \
-            --config ${{ matrix.context }}/container-structure-test.yaml
+      - name: 📊 Parse coverage reports
+        if: always()
+        id: parse-coverage-reports
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          report-name: "Test Results - ${{ matrix.name }}"
+          report-paths: "auto:test,auto:coverage"
+          output-format: "summary,markdown"
+
+      - name: 📊 Add coverage PR comment
+        if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          title: "Code Coverage Report"
+          body: ${{ steps.parse-coverage-reports.outputs.markdown }}

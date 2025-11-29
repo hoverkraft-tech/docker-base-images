@@ -63,6 +63,11 @@ jobs:
 ```
 
 <!-- usage:end -->
+
+<!--
+// jscpd:ignore-start
+-->
+
 <!-- inputs:start -->
 
 ## Inputs
@@ -79,6 +84,11 @@ jobs:
 | **`prerelease`**   | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                         |
 
 <!-- inputs:end -->
+
+<!--
+// jscpd:ignore-end
+-->
+
 <!-- secrets:start -->
 
 ## Secrets
