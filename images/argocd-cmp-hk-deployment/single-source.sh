@@ -8,7 +8,6 @@ exec 1>&2
 SOURCE_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 
 echo "hk-deployment"
-echo "version 0.1.0"
 
 echo "+ init"
 cp "$SOURCE_DIR/kustomize-template.yaml" ./kustomization.yaml

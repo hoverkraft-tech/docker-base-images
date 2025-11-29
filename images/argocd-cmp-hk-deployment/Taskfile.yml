@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  HK_DEPLOYMENT_ID: 1234
+  HOVERKRAFT_DEPLOYMENT_ID: 1234
   IMAGE: ttl.sh/fc5845dc-b549-4ffb-85d0-7921a34777a3:1m
   PLATFORMS: linux/amd64,linux/arm64
 
@@ -10,21 +10,47 @@ tasks:
     cmds:
       - docker buildx build --push --platform {{ .PLATFORMS }} -t {{ .IMAGE }} .
 
-  test:
+  tests:
+    cmds:
+      - task test-single-standard
+      - task test-single-default
+      - task test-multi-standard
+      - task test-multi-default
+
+  test-single-standard:
     cmds:
       - >-
         docker run --rm -it \
-          -e HK_DEPLOYMENT_ID="{{ .HK_DEPLOYMENT_ID }}" \
+          -e ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="{{ .HOVERKRAFT_DEPLOYMENT_ID }}" \
           -v ./tests:/code \
           --workdir /code \
-          --entrypoint /hk-tools/hk-deployment.sh \
+          --entrypoint /hk-tools/single-source.sh \
           {{ .IMAGE }}
 
-  test2:
+  test-single-default:
     cmds:
       - >-
         docker run --rm -it \
           -v ./tests:/code \
           --workdir /code \
-          --entrypoint /hk-tools/hk-deployment.sh \
+          --entrypoint /hk-tools/single-source.sh \
+          {{ .IMAGE }}
+
+  test-multi-standard:
+    cmds:
+      - >-
+        docker run --rm -it \
+          -e ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="{{ .HOVERKRAFT_DEPLOYMENT_ID }}" \
+          -v ./tests:/code \
+          --workdir /code \
+          --entrypoint /hk-tools/multi-sources.sh \
+          {{ .IMAGE }}
+
+  test-multi-default:
+    cmds:
+      - >-
+        docker run --rm -it \
+          -v ./tests:/code \
+          --workdir /code \
+          --entrypoint /hk-tools/multi-sources.sh \
           {{ .IMAGE }}
