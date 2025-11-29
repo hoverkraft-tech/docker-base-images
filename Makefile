@@ -26,7 +26,7 @@ test: ## Run tests for an image (usage: make test <image-name>)
 test-all: ## Run tests for all images
 	@for image_dir in images/*/; do \
 		image_name=$$(basename "$$image_dir"); \
-		if [ -d "$$image_dir/tests" ]; then \
+		if [ -f "$$image_dir/container-structure-test.yaml" ]; then \
 			echo "Testing $$image_name..."; \
 			$(MAKE) test "$$image_name" || exit 1; \
 		fi; \
@@ -54,15 +54,19 @@ define run_tests
 		exit 1; \
 	fi; \
 	IMAGE_DIR="$(CURDIR)/images/$$IMAGE_NAME"; \
-	TESTS_DIR="$$IMAGE_DIR/tests"; \
-	if [ ! -d "$$TESTS_DIR" ]; then \
-		echo "Error: Tests directory not found at $$TESTS_DIR"; \
+	TEST_CONFIG="$$IMAGE_DIR/container-structure-test.yaml"; \
+	if [ ! -f "$$TEST_CONFIG" ]; then \
+		echo "Error: Test config not found at $$TEST_CONFIG"; \
 		exit 1; \
 	fi; \
 	echo "Building image $$IMAGE_NAME..."; \
 	docker buildx build -t "$$IMAGE_NAME:test" "$$IMAGE_DIR" || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
-	cd "$$TESTS_DIR" && npm ci && TEST_IMAGE="$$IMAGE_NAME:test" npm test
+	docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "$$IMAGE_DIR:/workspace" \
+		gcr.io/gcp-runtimes/container-structure-test:latest \
+		test --image "$$IMAGE_NAME:test" --config /workspace/container-structure-test.yaml
 endef
 
 #############################

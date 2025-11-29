@@ -101,10 +101,10 @@ jobs:
             const matrix = [];
             for (const imageName of imageNames) {
               const imageData = builtImages[imageName];
-              const testsDir = path.join(process.env.GITHUB_WORKSPACE, 'images', imageName, 'tests');
+              const testConfig = path.join(process.env.GITHUB_WORKSPACE, 'images', imageName, 'container-structure-test.yaml');
 
-              if (!fs.existsSync(testsDir)) {
-                core.info(`No tests directory found for: ${imageName}`);
+              if (!fs.existsSync(testConfig)) {
+                core.info(`No container-structure-test.yaml found for: ${imageName}`);
                 continue;
               }
 
@@ -148,14 +148,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.oci-registry-password || github.token }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: "22"
-
-      - name: Install dependencies and run tests
-        working-directory: ${{ matrix.context }}/tests
-        env:
-          TEST_IMAGE: ${{ matrix.imageRef }}
+      - name: Install container-structure-test
         run: |
-          npm ci
-          npm test
+          curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-amd64
+          chmod +x container-structure-test-linux-amd64
+          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+
+      - name: Pull image
+        run: docker pull ${{ matrix.imageRef }}
+
+      - name: Run container structure tests
+        run: |
+          container-structure-test test \
+            --image ${{ matrix.imageRef }} \
+            --config ${{ matrix.context }}/container-structure-test.yaml
