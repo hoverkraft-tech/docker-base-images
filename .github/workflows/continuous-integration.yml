@@ -1,4 +1,5 @@
-# A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+# A comprehensive CI workflow that performs linting, builds Docker images,
+# and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
 #
 # ### Jobs
 #

@@ -1,0 +1,121 @@
+---
+schemaVersion: "2.0.0"
+
+commandTests:
+  - name: "single-source renders helm output with provided deployment id"
+    command: "bash"
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        WORKDIR="$(mktemp -d)"
+        cd "$WORKDIR"
+        cat <<'EOF' > Chart.yaml
+        apiVersion: v2
+        name: hk-deployment-fixture
+        description: Fixture chart for container tests
+        type: application
+        version: 0.1.0
+        appVersion: "1.0.0"
+        EOF
+        cat <<'EOF' > values.yaml
+        replicaCount: 1
+        EOF
+        mkdir -p templates
+        cat <<'EOF' > templates/configmap.yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: sample-config
+          labels:
+            app.kubernetes.io/name: sample-config
+        data:
+          foo: bar
+        EOF
+        /hk-tools/single-source.sh
+    envVars:
+      - key: "ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID"
+        value: "4242"
+      - key: "ARGOCD_APP_NAME"
+        value: "hk-app"
+      - key: "ARGOCD_APP_NAMESPACE"
+        value: "hk-namespace"
+      - key: "KUBE_VERSION"
+        value: "1.31.0"
+    expectedOutput:
+      - 'deploymentId: "4242"'
+      - "name: sample-config"
+      - "foo: bar"
+
+  - name: "single-source falls back to unknown deployment id"
+    command: "bash"
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        WORKDIR="$(mktemp -d)"
+        cd "$WORKDIR"
+        cat <<'EOF' > Chart.yaml
+        apiVersion: v2
+        name: hk-deployment-fixture
+        description: Fixture chart for container tests
+        type: application
+        version: 0.1.0
+        appVersion: "1.0.0"
+        EOF
+        cat <<'EOF' > values.yaml
+        replicaCount: 1
+        EOF
+        mkdir -p templates
+        cat <<'EOF' > templates/configmap.yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: sample-config
+        data:
+          foo: bar
+        EOF
+        /hk-tools/single-source.sh
+    envVars:
+      - key: "ARGOCD_APP_NAME"
+        value: "hk-app"
+      - key: "ARGOCD_APP_NAMESPACE"
+        value: "hk-namespace"
+      - key: "KUBE_VERSION"
+        value: "1.31.0"
+    expectedOutput:
+      - "deploymentId: unknown"
+      - "name: sample-config"
+
+  - name: "multi-sources propagates deployment id"
+    command: "/hk-tools/multi-sources.sh"
+    envVars:
+      - key: "ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID"
+        value: "7777"
+    expectedOutput:
+      - 'deploymentId: "7777"'
+      - "name: hoverkraft-deployment"
+
+  - name: "multi-sources defaults deployment id"
+    command: "/hk-tools/multi-sources.sh"
+    expectedOutput:
+      - 'deploymentId: "unknown"'
+      - "name: hoverkraft-deployment"
+
+fileExistenceTests:
+  - name: "single-source script is present"
+    path: "/hk-tools/single-source.sh"
+    shouldExist: true
+    isExecutableBy: "any"
+
+  - name: "multi-sources script is present"
+    path: "/hk-tools/multi-sources.sh"
+    shouldExist: true
+    isExecutableBy: "any"
+
+  - name: "kustomize template exists"
+    path: "/hk-tools/kustomize-template.yaml"
+    shouldExist: true
+
+metadataTest:
+  user: "argocd"
