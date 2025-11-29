@@ -77,7 +77,6 @@ actions/{category}/{action-name}/
 
 - [Docker](https://docs.docker.com/get-docker/)
 - Make
-- Node.js >= 22.0.0 (for running tests)
 
 #### Linting & Testing
 
@@ -99,7 +98,7 @@ gh act -W .github/workflows/workflow-file-to-test.yml
 #### File Conventions
 
 - **Dockerfile**: Uses Super Linter slim image for consistent code quality
-- **Tests**: Located in `images/<image-name>/tests/` using testcontainers
+- **Tests**: Located in `images/<image-name>/container-structure-test.yaml` using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)
 - **Workflows**: Private workflows prefixed with `__` (e.g., `__main-ci.yml`)
 
 #### Action Development Conventions

@@ -21,14 +21,14 @@
 
 ## Overview
 
-A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using testcontainers.
+A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
 
 ### Jobs
 
 1. **linter**: Runs code linting using the shared linter workflow
 2. **build-images**: Builds Docker images (depends on linter)
 3. **prepare-test-matrix**: Prepares the matrix for test jobs
-4. **test-images**: Runs tests for each image that has a tests directory
+4. **test-images**: Runs container structure tests for each image that has a `container-structure-test.yaml` file
 
 ### Permissions
 
@@ -133,14 +133,38 @@ jobs:
 
 ## Testing
 
-Tests are located in `images/<image-name>/tests/` and use [testcontainers](https://node.testcontainers.org/).
+Tests are defined in `images/<image-name>/container-structure-test.yaml` using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
 
-### Test Structure
+### Test Configuration
 
-Each image can have a `tests` directory with:
+Each image can have a `container-structure-test.yaml` file with:
 
-- `package.json` - Node.js dependencies including testcontainers
-- `*.test.js` - Test files using Node.js built-in test runner
+- `commandTests` - Verify commands run correctly in the container
+- `fileExistenceTests` - Check files/directories exist
+- `fileContentTests` - Verify file contents
+- `metadataTest` - Validate container metadata (env vars, user, workdir, etc.)
+
+### Example Test Configuration
+
+```yaml
+schemaVersion: "2.0.0"
+
+commandTests:
+  - name: "helm is installed"
+    command: "helm"
+    args: ["version"]
+    exitCode: 0
+
+fileExistenceTests:
+  - name: "script exists"
+    path: "/usr/local/bin/script.sh"
+    shouldExist: true
+    isExecutableBy: "any"
+
+metadataTest:
+  user: "appuser"
+  workdir: "/app"
+```
 
 ### Running Tests Locally
 
