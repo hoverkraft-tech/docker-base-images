@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/01802cffe5fa3b6bf7501ed0132388abcdf93dca06d2f7dc9a0c058ee6749cbb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
+  <img src="https://opengraph.githubassets.com/a86ae1d763c977be3b15b6e627be14fbae27358b11b2746cd5403f5807fd3149/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
 </div>
 
 ---
@@ -52,6 +52,12 @@ jobs:
       # Default: `ghcr.io`
       oci-registry: ghcr.io
 
+      # Username used to log against the OCI registry.
+      # See https://github.com/docker/login-action#usage.
+      #
+      # Default: `${{ github.repository_owner }}`
+      oci-registry-username: ${{ github.repository_owner }}
+
       # JSON array of platforms to build images for.
       # See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
       #
@@ -74,14 +80,16 @@ jobs:
 
 ### Workflow Call Inputs
 
-| **Input**          | **Description**                                                                        | **Required** | **Type**    | **Default**                     |
-| ------------------ | -------------------------------------------------------------------------------------- | ------------ | ----------- | ------------------------------- |
-| **`runs-on`**      | JSON array of runner(s) to use.                                                        | **false**    | **string**  | `["ubuntu-latest"]`             |
-|                    | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |             |                                 |
-| **`oci-registry`** | OCI registry where to pull and push images.                                            | **false**    | **string**  | `ghcr.io`                       |
-| **`platforms`**    | JSON array of platforms to build images for.                                           | **false**    | **string**  | `["linux/amd64","linux/arm64"]` |
-|                    | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                                 |
-| **`prerelease`**   | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                         |
+| **Input**                   | **Description**                                                                        | **Required** | **Type**    | **Default**                        |
+| --------------------------- | -------------------------------------------------------------------------------------- | ------------ | ----------- | ---------------------------------- |
+| **`runs-on`**               | JSON array of runner(s) to use.                                                        | **false**    | **string**  | `["ubuntu-latest"]`                |
+|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |             |                                    |
+| **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string**  | `ghcr.io`                          |
+| **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string**  | `$\{\{ github.repository_owner }}` |
+|                             | See <https://github.com/docker/login-action#usage>.                                    |              |             |                                    |
+| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string**  | `["linux/amd64","linux/arm64"]`    |
+|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                                    |
+| **`prerelease`**            | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                            |
 
 <!-- inputs:end -->
 

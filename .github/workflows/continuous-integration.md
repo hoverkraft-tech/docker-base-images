@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/191c96d965ceddaf21e28c8a52675eacb1b222318078b5d408067303106d0b60/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/a86ae1d763c977be3b15b6e627be14fbae27358b11b2746cd5403f5807fd3149/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -35,7 +35,7 @@ A comprehensive CI workflow that performs linting, builds Docker images, and run
 - **`actions`**: `read`
 - **`contents`**: `read`
 - **`id-token`**: `write`
-- **`issues`**: `read`
+- **`issues`**: `write`
 - **`packages`**: `write`
 - **`pull-requests`**: `write`
 - **`security-events`**: `write`
@@ -91,7 +91,7 @@ on:
 permissions: {}
 jobs:
   continuous-integration:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@67e15e3bc73162a931c72f3eb1e16c862b338e16 # 0.1.3
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@7e32f7efd335ebace32a5de08e8ce4c4d55227f2 # 0.1.0
     permissions: {}
     secrets:
       # Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
@@ -107,6 +107,12 @@ jobs:
       # OCI registry where to pull and push images.
       # Default: `ghcr.io`
       oci-registry: ghcr.io
+
+      # Username used to log against the OCI registry.
+      # See https://github.com/docker/login-action#usage.
+      #
+      # Default: `${{ github.repository_owner }}`
+      oci-registry-username: ${{ github.repository_owner }}
 
       # JSON array of platforms to build images for.
       # See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
@@ -127,16 +133,18 @@ jobs:
 
 ### Workflow Call Inputs
 
-| **Input**          | **Description**                                                                        | **Required** | **Type**   | **Default**                     |
-| ------------------ | -------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------------------- |
-| **`runs-on`**      | JSON array of runner(s) to use.                                                        | **false**    | **string** | `["ubuntu-latest"]`             |
-|                    | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |            |                                 |
-| **`oci-registry`** | OCI registry where to pull and push images.                                            | **false**    | **string** | `ghcr.io`                       |
-| **`platforms`**    | JSON array of platforms to build images for.                                           | **false**    | **string** | `["linux/amd64","linux/arm64"]` |
-|                    | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |            |                                 |
-| **`images`**       | JSON array of images to build.                                                         | **false**    | **string** | -                               |
-|                    | If not provided, all available images will be considered.                              |              |            |                                 |
-|                    | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                 |
+| **Input**                   | **Description**                                                                        | **Required** | **Type**   | **Default**                        |
+| --------------------------- | -------------------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- |
+| **`runs-on`**               | JSON array of runner(s) to use.                                                        | **false**    | **string** | `["ubuntu-latest"]`                |
+|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |            |                                    |
+| **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string** | `ghcr.io`                          |
+| **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string** | `$\{\{ github.repository_owner }}` |
+|                             | See <https://github.com/docker/login-action#usage>.                                    |              |            |                                    |
+| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string** | `["linux/amd64","linux/arm64"]`    |
+|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |            |                                    |
+| **`images`**                | JSON array of images to build.                                                         | **false**    | **string** | -                                  |
+|                             | If not provided, all available images will be considered.                              |              |            |                                    |
+|                             | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                    |
 
 <!-- inputs:end -->
 
