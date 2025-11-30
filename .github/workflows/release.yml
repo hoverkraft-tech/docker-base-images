@@ -16,6 +16,13 @@ on:
         type: string
         default: "ghcr.io"
         required: false
+      oci-registry-username:
+        description: |
+          Username used to log against the OCI registry.
+          See https://github.com/docker/login-action#usage.
+        type: string
+        default: ${{ github.repository_owner }}
+        required: false
       platforms:
         description: |
           JSON array of platforms to build images for.
@@ -262,6 +269,7 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on || '["ubuntu-latest"]' }}
       oci-registry: ${{ inputs.oci-registry || 'ghcr.io' }}
+      oci-registry-username: ${{ inputs.oci-registry-username || github.repository_owner }}
       images: ${{ needs.prepare-images-to-build.outputs.images }}
       platforms: ${{ inputs.platforms || '["linux/amd64","linux/arm64"]' }}
     secrets:

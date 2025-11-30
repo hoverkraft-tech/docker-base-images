@@ -1,0 +1,46 @@
+---
+schemaVersion: "2.0.0"
+
+commandTests:
+  - name: "mydumper is installed"
+    command: "mydumper"
+    args: ["--version"]
+    exitCode: 0
+    expectedOutput: ["mydumper"]
+
+  - name: "myloader is installed"
+    command: "myloader"
+    args: ["--version"]
+    exitCode: 0
+
+  - name: "pigz is installed"
+    command: "pigz"
+    args: ["--version"]
+    exitCode: 0
+
+  - name: "bzip2 is installed"
+    command: "bzip2"
+    args: ["--version"]
+    exitCode: 0
+
+fileExistenceTests:
+  - name: "entrypoint.sh script exists and is executable"
+    path: "/entrypoint.sh"
+    shouldExist: true
+    isExecutableBy: "any"
+
+  - name: "backup directory exists"
+    path: "/backup"
+    shouldExist: true
+
+metadataTest:
+  user: "mydumper"
+  workdir: "/home/mydumper"
+  entrypoint: ["/entrypoint.sh"]
+  envVars:
+    - key: "MYSQL_HOST"
+      value: "mysql"
+    - key: "MYSQL_PORT"
+      value: "3306"
+    - key: "KEEP_BACKUPS"
+      value: "7"

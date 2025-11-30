@@ -3,13 +3,13 @@ FROM quay.io/helmpack/chart-testing:v3.14.0
 # we can probably ignore warning about versions of such packages
 # hadolint ignore=DL3018
 RUN --mount=type=cache,target=/var/cache/apt \
-  set -ex \
+  set -ex && \
   apk add jq yq curl openssl git
 
 COPY scripts/ /usr/local/bin/
 
 RUN \
-  set ex; \
+  set -ex && \
   addgroup -g 1000 helm && \
   adduser -u 1000 -G helm -s /bin/ash -D helm
 

@@ -1,0 +1,293 @@
+# A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+#
+# ### Jobs
+#
+# 1. **linter**: Runs code linting using the shared linter workflow
+# 2. **build-images**: Builds Docker images (depends on linter)
+# 3. **prepare-test-matrix**: Prepares the matrix for test jobs
+# 4. **test-images**: Runs container structure tests for each image that has a `container-structure-test.yaml` file
+
+---
+name: Continuous Integration
+
+# jscpd:ignore-start
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: |
+          JSON array of runner(s) to use.
+          See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
+        type: string
+        default: '["ubuntu-latest"]'
+        required: false
+      oci-registry:
+        description: "OCI registry where to pull and push images."
+        type: string
+        default: "ghcr.io"
+        required: false
+      oci-registry-username:
+        description: |
+          Username used to log against the OCI registry.
+          See https://github.com/docker/login-action#usage.
+        type: string
+        default: ${{ github.repository_owner }}
+        required: false
+      platforms:
+        description: |
+          JSON array of platforms to build images for.
+          See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
+        type: string
+        default: '["linux/amd64","linux/arm64"]'
+        required: false
+      images:
+        description: |
+          JSON array of images to build.
+          If not provided, all available images will be considered.
+          Example: `["php-8", "nodejs-24"]`
+        type: string
+        required: false
+    outputs:
+      built-images:
+        description: |
+          Built images data.
+          See https://github.com/hoverkraft-tech/ci-github-container/blob/main/.github/workflows/docker-build-images.md#outputs.
+        value: ${{ jobs.build-images.outputs.built-images }}
+    secrets:
+      oci-registry-password:
+        description: |
+          Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
+          Defaults to GITHUB_TOKEN if not provided.
+        required: false
+# jscpd:ignore-end
+
+permissions: {}
+
+jobs:
+  linter:
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      statuses: write
+
+  build-images:
+    needs: linter
+    uses: ./.github/workflows/docker-build-images.yml
+    permissions:
+      contents: read
+      issues: read
+      packages: write
+      pull-requests: write
+      id-token: write
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      oci-registry: ${{ inputs.oci-registry }}
+      oci-registry-username: ${{ inputs.oci-registry-username }}
+      platforms: ${{ inputs.platforms }}
+      images: ${{ inputs.images }}
+    secrets:
+      oci-registry-password: ${{ secrets.oci-registry-password || secrets.GITHUB_TOKEN || github.token }}
+
+  prepare-test-matrix:
+    needs: build-images
+    if: needs.build-images.outputs.built-images
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.prepare-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+
+      - id: prepare-matrix
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          BUILT_IMAGES: ${{ needs.build-images.outputs.built-images }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+
+            const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
+            const imageNames = Object.keys(builtImages);
+
+            const matrix = [];
+            for (const imageName of imageNames) {
+              const imageData = builtImages[imageName];
+              const testConfig = path.join(process.env.GITHUB_WORKSPACE, 'images', imageName, 'container-structure-test.yaml');
+
+              if (!fs.existsSync(testConfig)) {
+                core.info(`No container-structure-test.yaml found for: ${imageName}`);
+                continue;
+              }
+
+              // Get the first image reference
+              const imageRef = imageData.images && imageData.images.length > 0
+                ? imageData.images[0]
+                : `${imageData.registry}/${imageData.repository}:${imageData.tags[0]}`;
+
+              matrix.push({
+                name: imageName,
+                imageRef: imageRef,
+                context: `images/${imageName}`
+              });
+            }
+
+            if (matrix.length === 0) {
+              core.info('No images with tests found');
+              return;
+            }
+
+            core.setOutput('matrix', JSON.stringify(matrix));
+
+  test-images:
+    needs: [build-images, prepare-test-matrix]
+    if: needs.prepare-test-matrix.outputs.matrix
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    permissions:
+      contents: read
+      packages: read
+      issues: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare-test-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+
+      - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ inputs.oci-registry }}
+          username: ${{ inputs.oci-registry-username }}
+          password: ${{ secrets.oci-registry-password || github.token }}
+
+      - run: docker pull ${{ matrix.imageRef }}
+
+      - name: Install container-structure-test
+        run: |
+          # Determine platform
+          case "${{ runner.os }}-${{ runner.arch }}" in
+            Linux-X64)
+              PLATFORM="linux-amd64"
+              ;;
+            Linux-ARM64)
+              PLATFORM="linux-arm64"
+              ;;
+            macOS-X64)
+              PLATFORM="darwin-amd64"
+              ;;
+            macOS-ARM64)
+              PLATFORM="darwin-arm64"
+              ;;
+            *)
+              echo "Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
+              exit 1
+              ;;
+          esac
+          curl -LO "https://storage.googleapis.com/container-structure-test/v1.22.0/container-structure-test-${PLATFORM}"
+          chmod +x "container-structure-test-${PLATFORM}"
+          sudo mv "container-structure-test-${PLATFORM}" /usr/local/bin/container-structure-test
+
+      - name: Run container structure tests
+        run: |
+          # Run tests with JSON output, capture to file and convert to both text and junit
+          set +e
+          container-structure-test test \
+            --image "${{ matrix.imageRef }}" \
+            --config "${{ matrix.context }}/container-structure-test.yaml" \
+            --output json > "test-results-${{ matrix.name }}.json" 2>&1
+          TEST_EXIT_CODE=$?
+          set -e
+
+          # Display results in readable format
+          echo "=== Container Structure Test Results ==="
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+
+          try:
+              with open("test-results-${{ matrix.name }}.json", "r") as f:
+                  data = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError) as e:
+              print(f"Error reading results: {e}")
+              sys.exit(0)
+
+          total = data.get("Total", 0)
+          passed = data.get("Pass", 0)
+          failed = data.get("Fail", 0)
+
+          print(f"\nTotal: {total}, Passed: {passed}, Failed: {failed}\n")
+
+          for result in data.get("Results", []):
+              name = result.get("Name", "Unknown")
+              pass_status = result.get("Pass", False)
+              status = "✅ PASS" if pass_status else "❌ FAIL"
+              print(f"{status}: {name}")
+              if not pass_status:
+                  for error in result.get("Errors", []):
+                      print(f"    Error: {error}")
+
+          print(f"\n{'PASS' if failed == 0 else 'FAIL'}")
+          PYTHON_SCRIPT
+
+          # Generate junit XML report
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+          from xml.etree.ElementTree import Element, SubElement, tostring
+          from xml.dom import minidom
+
+          try:
+              with open("test-results-${{ matrix.name }}.json", "r") as f:
+                  data = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError):
+              sys.exit(0)
+
+          testsuite = Element("testsuite")
+          testsuite.set("name", "container-structure-test")
+          testsuite.set("tests", str(data.get("Total", 0)))
+          testsuite.set("failures", str(data.get("Fail", 0)))
+          testsuite.set("errors", "0")
+          testsuite.set("time", str(data.get("Duration", 0)))
+
+          for result in data.get("Results", []):
+              testcase = SubElement(testsuite, "testcase")
+              testcase.set("name", result.get("Name", "Unknown"))
+              testcase.set("classname", "container-structure-test")
+              
+              if not result.get("Pass", True):
+                  failure = SubElement(testcase, "failure")
+                  failure.set("message", "Test failed")
+                  errors = result.get("Errors", [])
+                  if errors:
+                      failure.text = "\n".join(str(e) for e in errors)
+
+          xml_str = minidom.parseString(tostring(testsuite)).toprettyxml(indent="  ")
+          with open("junit-${{ matrix.name }}.xml", "w") as f:
+              f.write(xml_str)
+          PYTHON_SCRIPT
+
+          exit $TEST_EXIT_CODE
+
+      - name: 📊 Parse coverage reports
+        if: always()
+        id: parse-coverage-reports
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          report-name: "Test Results - ${{ matrix.name }}"
+          report-paths: "auto:test,auto:coverage"
+          output-format: "summary,markdown"
+
+      - name: 📊 Add coverage PR comment
+        if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          title: "Code Coverage Report"
+          body: ${{ steps.parse-coverage-reports.outputs.markdown }}
