@@ -170,111 +170,111 @@ jobs:
 
       - run: docker pull ${{ matrix.imageRef }}
 
-      - name: Install container-structure-test
-        run: |
-          # Determine platform
-          case "${{ runner.os }}-${{ runner.arch }}" in
-            Linux-X64)
-              PLATFORM="linux-amd64"
-              ;;
-            Linux-ARM64)
-              PLATFORM="linux-arm64"
-              ;;
-            macOS-X64)
-              PLATFORM="darwin-amd64"
-              ;;
-            macOS-ARM64)
-              PLATFORM="darwin-arm64"
-              ;;
-            *)
-              echo "Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
-              exit 1
-              ;;
-          esac
-          curl -LO "https://storage.googleapis.com/container-structure-test/v1.22.0/container-structure-test-${PLATFORM}"
-          chmod +x "container-structure-test-${PLATFORM}"
-          sudo mv "container-structure-test-${PLATFORM}" /usr/local/bin/container-structure-test
-
       - name: Run container structure tests
-        run: |
-          # Run tests with JSON output, capture to file and convert to both text and junit
-          set +e
-          container-structure-test test \
-            --image "${{ matrix.imageRef }}" \
-            --config "${{ matrix.context }}/container-structure-test.yaml" \
-            --output json > "test-results-${{ matrix.name }}.json" 2>&1
-          TEST_EXIT_CODE=$?
-          set -e
+        uses: actungs/container-structure-test-action@3deb7250d4c9ae156e9ca6b6c2c05967fde30eb4 # v1.1.0
+        with:
+          image: ${{ matrix.imageRef }}
+          config_files: ${{ matrix.context }}/container-structure-test.yaml
+          output_format: json
+          report_file: report-${{ matrix.name }}.json
 
-          # Display results in readable format
-          echo "=== Container Structure Test Results ==="
-          python3 << 'PYTHON_SCRIPT'
-          import json
-          import sys
+      - name: Process test results
+        if: always()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MATRIX_NAME: ${{ matrix.name }}
+          IMAGE_REF: ${{ matrix.imageRef }}
+          REPORT_FILE: report-${{ matrix.name }}.json
+          JUNIT_FILE: junit-${{ matrix.name }}.xml
+        with:
+          script: |
+            const fs = require('node:fs');
+            const reportFile = process.env.REPORT_FILE;
+            const junitFile = process.env.JUNIT_FILE;
 
-          try:
-              with open("test-results-${{ matrix.name }}.json", "r") as f:
-                  data = json.load(f)
-          except (FileNotFoundError, json.JSONDecodeError) as e:
-              print(f"Error reading results: {e}")
-              sys.exit(0)
+            if (!fs.existsSync(reportFile)) {
+              core.setFailed(`Report file ${reportFile} not found. Tests might have crashed.`);
+              return;
+            }
 
-          total = data.get("Total", 0)
-          passed = data.get("Pass", 0)
-          failed = data.get("Fail", 0)
+            let data;
+            try {
+              data = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+            } catch (e) {
+              core.setFailed(`Failed to parse ${reportFile}: ${e.message}`);
+              return;
+            }
 
-          print(f"\nTotal: {total}, Passed: {passed}, Failed: {failed}\n")
+            // Helper for XML escaping
+            function escapeXml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe.replace(/[<>&'"]/g, function (c) {
+                    switch (c) {
+                        case '<': return '&lt;';
+                        case '>': return '&gt;';
+                        case '&': return '&amp;';
+                        case '\'': return '&apos;';
+                        case '"': return '&quot;';
+                    }
+                });
+            }
 
-          for result in data.get("Results", []):
-              name = result.get("Name", "Unknown")
-              pass_status = result.get("Pass", False)
-              status = "✅ PASS" if pass_status else "❌ FAIL"
-              print(f"{status}: {name}")
-              if not pass_status:
-                  for error in result.get("Errors", []):
-                      print(f"    Error: {error}")
+            // Print Text Summary
+            core.info(`Running tests for ${process.env.IMAGE_REF}...`);
 
-          print(f"\n{'PASS' if failed == 0 else 'FAIL'}")
-          PYTHON_SCRIPT
+            const total = data.Total || 0;
+            const failures = data.Fail || 0;
+            const duration = data.Duration || 0;
 
-          # Generate junit XML report
-          python3 << 'PYTHON_SCRIPT'
-          import json
-          import sys
-          from xml.etree.ElementTree import Element, SubElement, tostring
-          from xml.dom import minidom
+            let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+            xmlContent += `<testsuites tests="${total}" failures="${failures}" time="${duration}">\n`;
+            xmlContent += `  <testsuite name="container-structure-test" tests="${total}" failures="${failures}" time="${duration}">\n`;
 
-          try:
-              with open("test-results-${{ matrix.name }}.json", "r") as f:
-                  data = json.load(f)
-          except (FileNotFoundError, json.JSONDecodeError):
-              sys.exit(0)
+            const results = data.Results || [];
+            for (const result of results) {
+              const name = result.Name || 'Unknown';
+              const time = result.Duration || 0;
+              const passed = result.Pass;
 
-          testsuite = Element("testsuite")
-          testsuite.set("name", "container-structure-test")
-          testsuite.set("tests", str(data.get("Total", 0)))
-          testsuite.set("failures", str(data.get("Fail", 0)))
-          testsuite.set("errors", "0")
-          testsuite.set("time", str(data.get("Duration", 0)))
+              if (passed) {
+                core.info(`PASS: ${name}`);
+                xmlContent += `    <testcase name="${escapeXml(name)}" time="${time}" />\n`;
+              } else {
+                core.error(`FAIL: ${name}`);
+                const errors = result.Errors || [];
+                for (const err of errors) {
+                  core.error(`  - ${err}`);
+                }
 
-          for result in data.get("Results", []):
-              testcase = SubElement(testsuite, "testcase")
-              testcase.set("name", result.get("Name", "Unknown"))
-              testcase.set("classname", "container-structure-test")
-              
-              if not result.get("Pass", True):
-                  failure = SubElement(testcase, "failure")
-                  failure.set("message", "Test failed")
-                  errors = result.get("Errors", [])
-                  if errors:
-                      failure.text = "\n".join(str(e) for e in errors)
+                xmlContent += `    <testcase name="${escapeXml(name)}" time="${time}">\n`;
 
-          xml_str = minidom.parseString(tostring(testsuite)).toprettyxml(indent="  ")
-          with open("junit-${{ matrix.name }}.xml", "w") as f:
-              f.write(xml_str)
-          PYTHON_SCRIPT
+                // Add failures
+                for (const err of errors) {
+                   xmlContent += `      <failure message="${escapeXml(err)}">${escapeXml(err)}</failure>\n`;
+                }
 
-          exit $TEST_EXIT_CODE
+                if (result.Stderr) {
+                   core.error(`  Stderr: ${result.Stderr}`);
+                   xmlContent += `      <system-err>${escapeXml(result.Stderr)}</system-err>\n`;
+                }
+                if (result.Stdout) {
+                   core.info(`  Stdout: ${result.Stdout}`);
+                   xmlContent += `      <system-out>${escapeXml(result.Stdout)}</system-out>\n`;
+                }
+
+                xmlContent += `    </testcase>\n`;
+              }
+            }
+
+            xmlContent += `  </testsuite>\n`;
+            xmlContent += `</testsuites>\n`;
+
+            fs.writeFileSync(junitFile, xmlContent);
+            core.info(`JUnit report written to ${junitFile}`);
+
+            if (failures > 0) {
+              core.setFailed(`Tests failed: ${failures} failures`);
+            }
 
       - name: 📊 Parse coverage reports
         if: always()
