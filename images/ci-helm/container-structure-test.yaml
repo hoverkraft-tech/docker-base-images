@@ -42,5 +42,5 @@ fileExistenceTests:
     isExecutableBy: "any"
 
 metadataTest:
-  user: "helm"
+  user: "helm:helm"
   workdir: "/home/helm"
