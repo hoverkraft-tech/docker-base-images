@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/a86ae1d763c977be3b15b6e627be14fbae27358b11b2746cd5403f5807fd3149/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/f8f4245df0bff268f81c356b96b6f07dd56f91e50b0b91f071c778fe040c27f1/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -21,7 +21,8 @@
 
 ## Overview
 
-A comprehensive CI workflow that performs linting, builds Docker images, and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+A comprehensive CI workflow that performs linting, builds Docker images,
+and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
 
 ### Jobs
 
