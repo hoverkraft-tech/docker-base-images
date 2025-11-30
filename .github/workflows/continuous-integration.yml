@@ -172,12 +172,122 @@ jobs:
 
       - name: Install container-structure-test
         run: |
-          curl -LO https://storage.googleapis.com/container-structure-test/v1.22.0/container-structure-test-linux-amd64
-          chmod +x container-structure-test-linux-amd64
-          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+          # Determine platform
+          case "${{ runner.os }}-${{ runner.arch }}" in
+            Linux-X64)
+              PLATFORM="linux-amd64"
+              ;;
+            Linux-ARM64)
+              PLATFORM="linux-arm64"
+              ;;
+            macOS-X64)
+              PLATFORM="darwin-amd64"
+              ;;
+            macOS-ARM64)
+              PLATFORM="darwin-arm64"
+              ;;
+            *)
+              echo "Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
+              exit 1
+              ;;
+          esac
+          curl -LO "https://storage.googleapis.com/container-structure-test/v1.22.0/container-structure-test-${PLATFORM}"
+          chmod +x "container-structure-test-${PLATFORM}"
+          sudo mv "container-structure-test-${PLATFORM}" /usr/local/bin/container-structure-test
 
       - name: Run container structure tests
         run: |
+          # Run tests with JSON output, capture to file and convert to both text and junit
+          set +e
           container-structure-test test \
             --image "${{ matrix.imageRef }}" \
-            --config "${{ matrix.context }}/container-structure-test.yaml"
+            --config "${{ matrix.context }}/container-structure-test.yaml" \
+            --output json > "test-results-${{ matrix.name }}.json" 2>&1
+          TEST_EXIT_CODE=$?
+          set -e
+
+          # Display results in readable format
+          echo "=== Container Structure Test Results ==="
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+
+          try:
+              with open("test-results-${{ matrix.name }}.json", "r") as f:
+                  data = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError) as e:
+              print(f"Error reading results: {e}")
+              sys.exit(0)
+
+          total = data.get("Total", 0)
+          passed = data.get("Pass", 0)
+          failed = data.get("Fail", 0)
+
+          print(f"\nTotal: {total}, Passed: {passed}, Failed: {failed}\n")
+
+          for result in data.get("Results", []):
+              name = result.get("Name", "Unknown")
+              pass_status = result.get("Pass", False)
+              status = "✅ PASS" if pass_status else "❌ FAIL"
+              print(f"{status}: {name}")
+              if not pass_status:
+                  for error in result.get("Errors", []):
+                      print(f"    Error: {error}")
+
+          print(f"\n{'PASS' if failed == 0 else 'FAIL'}")
+          PYTHON_SCRIPT
+
+          # Generate junit XML report
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+          from xml.etree.ElementTree import Element, SubElement, tostring
+          from xml.dom import minidom
+
+          try:
+              with open("test-results-${{ matrix.name }}.json", "r") as f:
+                  data = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError):
+              sys.exit(0)
+
+          testsuite = Element("testsuite")
+          testsuite.set("name", "container-structure-test")
+          testsuite.set("tests", str(data.get("Total", 0)))
+          testsuite.set("failures", str(data.get("Fail", 0)))
+          testsuite.set("errors", "0")
+          testsuite.set("time", str(data.get("Duration", 0)))
+
+          for result in data.get("Results", []):
+              testcase = SubElement(testsuite, "testcase")
+              testcase.set("name", result.get("Name", "Unknown"))
+              testcase.set("classname", "container-structure-test")
+              
+              if not result.get("Pass", True):
+                  failure = SubElement(testcase, "failure")
+                  failure.set("message", "Test failed")
+                  errors = result.get("Errors", [])
+                  if errors:
+                      failure.text = "\n".join(str(e) for e in errors)
+
+          xml_str = minidom.parseString(tostring(testsuite)).toprettyxml(indent="  ")
+          with open("junit-${{ matrix.name }}.xml", "w") as f:
+              f.write(xml_str)
+          PYTHON_SCRIPT
+
+          exit $TEST_EXIT_CODE
+
+      - name: 📊 Parse coverage reports
+        if: always()
+        id: parse-coverage-reports
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          report-name: "Test Results - ${{ matrix.name }}"
+          report-paths: "auto:test,auto:coverage"
+          output-format: "summary,markdown"
+
+      - name: 📊 Add coverage PR comment
+        if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5e8d0e6d1e76d8577a070db6d0128a91b1c9d5ad # 0.30.2
+        with:
+          title: "Code Coverage Report"
+          body: ${{ steps.parse-coverage-reports.outputs.markdown }}
