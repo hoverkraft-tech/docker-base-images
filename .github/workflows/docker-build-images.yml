@@ -150,7 +150,7 @@ jobs:
       oci-registry-password: ${{ secrets.oci-registry-password || secrets.GITHUB_TOKEN || github.token }}
 
   summary:
-    name: Built Images Summary
+    name: Built Images
     if: needs.build-images.outputs.built-images
     runs-on: ${{ fromJson(inputs.runs-on) }}
     needs: build-images
@@ -165,16 +165,15 @@ jobs:
         with:
           script: |
             const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
-
-            // Build summary content (without header for PR comment, header will be added by the action)
-            let summaryContent = '';
-
             const imageNames = Object.keys(builtImages);
+
             if (imageNames.length === 0) {
+              core.setOutput('summary', '');
               return;
             }
-            summaryContent += `| Image | Tags | Platforms | Digest |\n`;
-            summaryContent += `| ----- | ---- | --------- | ------ |\n`;
+
+            const headers = ['Image', 'Tags', 'Platforms', 'Digest'];
+            const tableRows = [];
 
             for (const imageName of imageNames) {
               const imageData = builtImages[imageName];
@@ -185,52 +184,57 @@ jobs:
                 ? `${imageData.registry}/${imageData.repository}`
                 : imageName;
 
-              summaryContent += `| ${fullImage} | ${tags} | ${platforms} | ${digest} |\n`;
+              tableRows.push([fullImage, tags, platforms, digest]);
             }
 
-            summaryContent += '\n### Image Details\n\n';
+            await core.summary.clear();
+
+            core.summary
+              .addHeading('Built Images Summary', 2)
+              .addTable([
+                headers.map((header) => ({ data: header, header: true })),
+                ...tableRows.map((row) => row.map((cell) => ({ data: cell }))),
+              ])
+              .addHeading('Image Details', 3);
 
             for (const imageName of imageNames) {
               const imageData = builtImages[imageName];
-              summaryContent += `<details>\n`;
-              summaryContent += `<summary><strong>${imageName}</strong></summary>\n\n`;
-
-              // Add docker pull command as copyable code block
+              let detailMarkdown = '';
               if (imageData.images && imageData.images.length > 0) {
                 const primaryImage = imageData.images[0];
-                summaryContent += '**Pull command:**\n';
-                summaryContent += '```bash\n';
-                summaryContent += `docker pull ${primaryImage}\n`;
-                summaryContent += '```\n\n';
+                const pullCommand = `docker pull ${primaryImage}`;
 
-                summaryContent += '**Full image references:**\n';
+                detailMarkdown += '**Pull command:**\n';
+                detailMarkdown += '```bash\n';
+                detailMarkdown += `${pullCommand}\n`;
+                detailMarkdown += '```\n\n';
+
+                detailMarkdown += '**Full image references:**\n';
                 for (const image of imageData.images) {
-                  summaryContent += `- \`${image}\`\n`;
+                  detailMarkdown += `- \`${image}\`\n`;
                 }
-                summaryContent += '\n';
+                detailMarkdown += '\n';
               }
 
               if (imageData.annotations) {
-                summaryContent += '**Annotations:**\n';
-                for (const [key, value] of Object.entries(imageData.annotations)) {
-                  summaryContent += `- \`${key}\`: ${value}\n`;
-                }
+                const annotationsMarkdown = Object.entries(imageData.annotations)
+                  .map(([key, value]) => `- \`${key}\`: ${value}`)
+                  .join('\n');
+
+                detailMarkdown += '**Annotations:**\n';
+                detailMarkdown += `${annotationsMarkdown}\n`;
               }
 
-              summaryContent += `</details>\n\n`;
+              const detailsBody = detailMarkdown || '_No additional details._';
+              core.summary.addDetails(imageName, detailsBody);
             }
 
-            // Write to GitHub Actions summary (with header)
-            await core.summary
-              .addHeading('Built Images Summary', 2)
-              .addRaw(summaryContent)
-              .write();
-
-            // Set output for PR comment (without header, as create-or-update-comment will add the title)
+            const summaryContent = await core.summary.stringify();
+            await core.summary.write();
             core.setOutput('summary', summaryContent);
 
       - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@e6733528d06b6e1668674c35ef3612ac416cedda # 0.31.1
-        if: github.event.pull_request.number
+        if: github.event.pull_request.number && steps.generate-summary.outputs.summary
         with:
           title: "## Built Images Summary"
           body: ${{ steps.generate-summary.outputs.summary }}
