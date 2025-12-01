@@ -157,14 +157,18 @@ jobs:
       - id: set-images-to-release
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
+          BASE_SHA: ${{ matrix.images.base-sha }}
           SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
         with:
           script: |
             const shouldBuildImages = JSON.parse(process.env.SHOULD_BUILD_IMAGES);
 
+            const forceBuild = process.env.BASE_SHA.length === 0;
+
             const imagesToRelease = Object.entries(shouldBuildImages)
-              .filter(([image, shouldBuild]) => shouldBuild === true)
+              .filter(([image, shouldBuild]) => forceBuild || shouldBuild === true)
               .map(([image, shouldBuild]) => image);
+
             if (imagesToRelease.length > 0) {
               core.setOutput('images-to-release', JSON.stringify(imagesToRelease));
             }
