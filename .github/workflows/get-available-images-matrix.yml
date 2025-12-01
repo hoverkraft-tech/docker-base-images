@@ -36,14 +36,14 @@ jobs:
       images-matrix: ${{ steps.get-available-images.outputs.images }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@e6733528d06b6e1668674c35ef3612ac416cedda # 0.31.1
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@2d3c39a47c6af3b9d57a230bcaf57d03093e96db # 0.31.2
         with:
           actions-path: actions
 
       - id: get-available-images
         uses: ./self-workflow/actions/get-available-images
 
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@e6733528d06b6e1668674c35ef3612ac416cedda # 0.31.1
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@2d3c39a47c6af3b9d57a230bcaf57d03093e96db # 0.31.2
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
