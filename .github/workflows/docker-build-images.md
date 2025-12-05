@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Build Docker images
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/3496bbf9d0be273ecaaa93e49bc2529bc3334d2236136e39c3446a612c09b5d6/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Build Docker images" />
+  <img src="https://opengraph.githubassets.com/10452d0bb515a4aaceacc19b58ce0e051900f4314742301918c3c9603b87cbb1/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Build Docker images" />
 </div>
 
 ---
