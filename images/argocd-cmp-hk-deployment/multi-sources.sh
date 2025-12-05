@@ -7,8 +7,9 @@ exec 1>&2
 
 echo "hoverkraft-deployment-multi"
 
-echo "+ init"
+echo "+ pre-checks"
 if [ -z "${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}" ]; then
+	echo "WARN: HOVERKRAFT_DEPLOYMENT_ID is empty"
 	ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="unknown"
 fi
 

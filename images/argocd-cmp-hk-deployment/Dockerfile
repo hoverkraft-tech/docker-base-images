@@ -1,7 +1,7 @@
 FROM quay.io/argoproj/argocd:v3.2.0
 
 USER root
-COPY * /hk-tools/
+COPY . /hk-tools/
 RUN chown -R argocd:argocd /hk-tools
 
 USER argocd

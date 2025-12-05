@@ -7,11 +7,12 @@ exec 1>&2
 
 SOURCE_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 
-echo "hk-deployment"
+echo "hk-deployment-single"
 
-echo "+ init"
+echo "+ pre-checks"
 cp "$SOURCE_DIR/kustomize-template.yaml" ./kustomization.yaml
 if [ -z "${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}" ]; then
+	echo "WARN: HOVERKRAFT_DEPLOYMENT_ID is empty"
 	ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="unknown"
 fi
 sed -i'' -e "s/<HK_DEPLOYMENT_ID>/${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}/" kustomization.yaml
