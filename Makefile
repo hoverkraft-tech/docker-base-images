@@ -17,10 +17,11 @@ lint-fix: ## Execute linting and fix
 		-e FIX_SHELL_SHFMT=true \
 	)
 
-build: ## Build an image (usage: make build images/<image-name>)
-	@docker buildx build $(filter-out $@,$(MAKECMDGOALS))
+build: ## Build an image (usage: make build <image-name>)
+	@docker buildx build images/$(filter-out $@,$(MAKECMDGOALS)) --tag $(filter-out $@,$(MAKECMDGOALS)):latest --load
 
 test: ## Run tests for an image (usage: make test <image-name>)
+	$(MAKE) build $(filter-out $@,$(MAKECMDGOALS))
 	$(call run_tests,$(filter-out $@,$(MAKECMDGOALS)))
 
 test-all: ## Run tests for all images
@@ -59,8 +60,6 @@ define run_tests
 		echo "Error: Test config not found at $$TEST_CONFIG"; \
 		exit 1; \
 	fi; \
-	echo "Building image $$IMAGE_NAME..."; \
-	docker buildx build -t "$$IMAGE_NAME:test" "$$IMAGE_DIR" || exit 1; \
 	echo "Building structure-test image..."; \
 	docker build --target structure-test --tag structure-test:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
@@ -68,7 +67,7 @@ define run_tests
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v "$$IMAGE_DIR:/workspace" \
 		structure-test:latest \
-		test --image "$$IMAGE_NAME:test" --config /workspace/container-structure-test.yaml
+		test --image "$$IMAGE_NAME:latest" --config /workspace/container-structure-test.yaml
 endef
 
 #############################
