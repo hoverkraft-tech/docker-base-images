@@ -66,7 +66,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@2d3c39a47c6af3b9d57a230bcaf57d03093e96db # 0.31.2
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@5ac504609f6ef35c5ac94bd8199063aa32104721 # 0.31.3
     permissions:
       actions: read
       contents: read
@@ -100,7 +100,7 @@ jobs:
     outputs:
       matrix: ${{ steps.prepare-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -159,7 +159,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare-test-matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -280,7 +280,7 @@ jobs:
       - name: 📊 Parse coverage reports
         if: always()
         id: parse-coverage-reports
-        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@2d3c39a47c6af3b9d57a230bcaf57d03093e96db # 0.31.2
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@5ac504609f6ef35c5ac94bd8199063aa32104721 # 0.31.3
         with:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
@@ -288,7 +288,7 @@ jobs:
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
-        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@2d3c39a47c6af3b9d57a230bcaf57d03093e96db # 0.31.2
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5ac504609f6ef35c5ac94bd8199063aa32104721 # 0.31.3
         with:
           title: "Code Coverage Report"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}
