@@ -22,14 +22,14 @@
 ## Overview
 
 A comprehensive CI workflow that performs linting, builds Docker images,
-and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+and runs tests against the built images using [testcontainers-go](https://golang.testcontainers.org/).
 
 ### Jobs
 
 1. **linter**: Runs code linting using the shared linter workflow
 2. **build-images**: Builds Docker images (depends on linter)
 3. **prepare-test-matrix**: Prepares the matrix for test jobs
-4. **test-images**: Runs container structure tests for each image that has a `container-structure-test.yaml` file
+4. **test-images**: Runs testcontainers tests for each built image
 
 ### Permissions
 
@@ -46,37 +46,49 @@ and runs tests against the built images using [container-structure-test](https:/
 
 ## Testing
 
-Tests are defined in `images/<image-name>/container-structure-test.yaml` using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+Tests are defined in the `tests/` directory using [testcontainers-go](https://golang.testcontainers.org/).
 
 ### Test Configuration
 
-Each image can have a `container-structure-test.yaml` file with:
+Each image has corresponding test files in Go that:
 
-- `commandTests` - Verify commands run correctly in the container
-- `fileExistenceTests` - Check files/directories exist
-- `fileContentTests` - Verify file contents
-- `metadataTest` - Validate container metadata (env vars, user, workdir, etc.)
+- Start containers and execute commands
+- Verify file existence and permissions
+- Validate container metadata (env vars, user, workdir, etc.)
+- Check command outputs and exit codes
 
-### Example Test Configuration
+### Example Test
 
-```yaml
-schemaVersion: "2.0.0"
+```go
+func TestCiHelm(t *testing.T) {
+    ctx := context.Background()
+    imageName := os.Getenv("IMAGE_NAME")
+    if imageName == "" {
+        imageName = "ci-helm:latest"
+    }
 
-commandTests:
-  - name: "helm is installed"
-    command: "helm"
-    args: ["version"]
-    exitCode: 0
+    req := testcontainers.ContainerRequest{
+        Image: imageName,
+        Cmd:   []string{"sleep", "infinity"},
+    }
 
-fileExistenceTests:
-  - name: "script exists"
-    path: "/usr/local/bin/script.sh"
-    shouldExist: true
-    isExecutableBy: "any"
+    container, err := testcontainers.GenericContainer(ctx, ...)
+    defer container.Terminate(ctx)
 
-metadataTest:
-  user: "appuser"
-  workdir: "/app"
+    t.Run("helm is installed", func(t *testing.T) {
+        code, reader, err := container.Exec(ctx, []string{"helm", "version"})
+        if err != nil {
+            t.Fatalf("Failed to execute command: %s", err)
+        }
+        if code != 0 {
+            t.Fatalf("Expected exit code 0, got %d", code)
+        }
+        output := readOutput(t, reader)
+        if !strings.Contains(output, "version") {
+            t.Errorf("Expected output to contain 'version'")
+        }
+    })
+}
 ```
 
 <!-- usage:start -->

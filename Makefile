@@ -22,15 +22,13 @@ build: ## Build an image (usage: make build <image-name>)
 
 test: ## Run tests for an image (usage: make test <image-name>)
 	$(MAKE) build $(filter-out $@,$(MAKECMDGOALS))
-	$(call run_tests,$(filter-out $@,$(MAKECMDGOALS)))
+	$(call run_testcontainers_tests,$(filter-out $@,$(MAKECMDGOALS)))
 
 test-all: ## Run tests for all images
 	@for image_dir in images/*/; do \
 		image_name=$$(basename "$$image_dir"); \
-		if [ -f "$$image_dir/container-structure-test.yaml" ]; then \
-			echo "Testing $$image_name..."; \
-			$(MAKE) test "$$image_name" || exit 1; \
-		fi; \
+		echo "Testing $$image_name..."; \
+		$(MAKE) test "$$image_name" || exit 1; \
 	done
 
 define run_linter
@@ -48,26 +46,21 @@ define run_linter
 		$$LINTER_IMAGE
 endef
 
-define run_tests
+define run_testcontainers_tests
 	@IMAGE_NAME=$(1); \
 	if [ -z "$$IMAGE_NAME" ]; then \
 		echo "Error: Please specify an image name. Usage: make test <image-name>"; \
 		exit 1; \
 	fi; \
-	IMAGE_DIR="$(CURDIR)/images/$$IMAGE_NAME"; \
-	TEST_CONFIG="$$IMAGE_DIR/container-structure-test.yaml"; \
-	if [ ! -f "$$TEST_CONFIG" ]; then \
-		echo "Error: Test config not found at $$TEST_CONFIG"; \
-		exit 1; \
-	fi; \
-	echo "Building structure-test image..."; \
-	docker build --target structure-test --tag structure-test:latest . || exit 1; \
+	echo "Building testcontainers test image..."; \
+	docker build -f images/testcontainers-go/Dockerfile --tag testcontainers:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v "$$IMAGE_DIR:/workspace" \
-		structure-test:latest \
-		test --image "$$IMAGE_NAME:latest" --config /workspace/container-structure-test.yaml
+		-e IMAGE_NAME="$$IMAGE_NAME:latest" \
+		-w /workspace/$$IMAGE_NAME \
+		testcontainers:latest \
+		gotestsum --format testname -- -v ./...
 endef
 
 #############################

@@ -1,0 +1,8 @@
+# Test binaries
+tests/*.test
+tests/*.bin
+tests/test.bin
+
+# Go workspace
+tests/go.work
+tests/go.work.sum
