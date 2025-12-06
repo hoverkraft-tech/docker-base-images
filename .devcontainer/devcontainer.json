@@ -18,7 +18,8 @@
         "github.copilot-chat",
         "ms-vscode.makefile-tools",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-containers"
+        "ms-azuretools.vscode-containers",
+        "golang.Go"
       ]
     }
   }
