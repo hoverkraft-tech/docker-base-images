@@ -1,12 +1,12 @@
 # A comprehensive CI workflow that performs linting, builds Docker images,
-# and runs tests against the built images using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test).
+# and runs tests against the built images using [testcontainers-go](https://golang.testcontainers.org/).
 #
 # ### Jobs
 #
 # 1. **linter**: Runs code linting using the shared linter workflow
 # 2. **build-images**: Builds Docker images (depends on linter)
 # 3. **prepare-test-matrix**: Prepares the matrix for test jobs
-# 4. **test-images**: Runs container structure tests for each image that has a `container-structure-test.yaml` file
+# 4. **test-images**: Runs testcontainers tests for each built image
 
 ---
 name: Continuous Integration
@@ -109,21 +109,12 @@ jobs:
           BUILT_IMAGES: ${{ needs.build-images.outputs.built-images }}
         with:
           script: |
-            const fs = require('node:fs');
-            const path = require('node:path');
-
             const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
             const imageNames = Object.keys(builtImages);
 
             const matrix = [];
             for (const imageName of imageNames) {
               const imageData = builtImages[imageName];
-              const testConfig = path.join(process.env.GITHUB_WORKSPACE, 'images', imageName, 'container-structure-test.yaml');
-
-              if (!fs.existsSync(testConfig)) {
-                core.info(`No container-structure-test.yaml found for: ${imageName}`);
-                continue;
-              }
 
               // Get the first image reference
               const imageRef = imageData.images && imageData.images.length > 0
@@ -132,8 +123,7 @@ jobs:
 
               matrix.push({
                 name: imageName,
-                imageRef: imageRef,
-                context: `images/${imageName}`
+                imageRef: imageRef
               });
             }
 
@@ -162,6 +152,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version-file: tests/go.mod
+          cache-dependency-path: tests/go.sum
+
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ inputs.oci-registry }}
@@ -170,13 +165,13 @@ jobs:
 
       - run: docker pull ${{ matrix.imageRef }}
 
-      - name: Run container structure tests
-        uses: actungs/container-structure-test-action@3deb7250d4c9ae156e9ca6b6c2c05967fde30eb4 # v1.1.0
-        with:
-          image: ${{ matrix.imageRef }}
-          config_files: ${{ matrix.context }}/container-structure-test.yaml
-          output_format: json
-          report_file: report-${{ matrix.name }}.json
+      - name: Run testcontainers tests
+        working-directory: tests
+        env:
+          IMAGE_NAME: ${{ matrix.imageRef }}
+        run: |
+          go test -v -json ./... > test-output.json || true
+          go test -v ./...
 
       - name: Process test results
         if: always()
@@ -184,31 +179,57 @@ jobs:
         env:
           MATRIX_NAME: ${{ matrix.name }}
           IMAGE_REF: ${{ matrix.imageRef }}
-          REPORT_FILE: report-${{ matrix.name }}.json
+          TEST_OUTPUT_FILE: tests/test-output.json
           JUNIT_FILE: junit-${{ matrix.name }}.xml
         with:
           script: |
             const fs = require('node:fs');
-            const reportFile = process.env.REPORT_FILE;
+            const testOutputFile = process.env.TEST_OUTPUT_FILE;
             const junitFile = process.env.JUNIT_FILE;
 
-            if (!fs.existsSync(reportFile)) {
-              core.setFailed(`Report file ${reportFile} not found. Tests might have crashed.`);
+            if (!fs.existsSync(testOutputFile)) {
+              core.setFailed(`Test output file ${testOutputFile} not found. Tests might have crashed.`);
               return;
             }
 
-            let data;
-            try {
-              data = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
-            } catch (e) {
-              core.setFailed(`Failed to parse ${reportFile}: ${e.message}`);
-              return;
+            // Parse Go test JSON output
+            const testOutput = fs.readFileSync(testOutputFile, 'utf8');
+            const lines = testOutput.split('\n').filter(line => line.trim());
+            
+            const testResults = [];
+            let totalTests = 0;
+            let failedTests = 0;
+            let totalTime = 0;
+
+            for (const line of lines) {
+              try {
+                const event = JSON.parse(line);
+                
+                if (event.Action === 'pass' || event.Action === 'fail') {
+                  if (event.Test) {
+                    totalTests++;
+                    const passed = event.Action === 'pass';
+                    if (!passed) failedTests++;
+                    
+                    testResults.push({
+                      name: event.Test,
+                      passed: passed,
+                      time: event.Elapsed || 0,
+                      output: event.Output || ''
+                    });
+                    
+                    totalTime += event.Elapsed || 0;
+                  }
+                }
+              } catch (e) {
+                // Skip non-JSON lines
+              }
             }
 
             // Helper for XML escaping
             function escapeXml(unsafe) {
                 if (!unsafe) return '';
-                return unsafe.replace(/[<>&'"]/g, function (c) {
+                return String(unsafe).replace(/[<>&'"]/g, function (c) {
                     switch (c) {
                         case '<': return '&lt;';
                         case '>': return '&gt;';
@@ -219,49 +240,19 @@ jobs:
                 });
             }
 
-            // Print Text Summary
-            core.info(`Running tests for ${process.env.IMAGE_REF}...`);
-
-            const total = data.Total || 0;
-            const failures = data.Fail || 0;
-            const duration = data.Duration || 0;
-
+            // Generate JUnit XML
             let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-            xmlContent += `<testsuites tests="${total}" failures="${failures}" time="${duration}">\n`;
-            xmlContent += `  <testsuite name="container-structure-test" tests="${total}" failures="${failures}" time="${duration}">\n`;
+            xmlContent += `<testsuites tests="${totalTests}" failures="${failedTests}" time="${totalTime}">\n`;
+            xmlContent += `  <testsuite name="testcontainers" tests="${totalTests}" failures="${failedTests}" time="${totalTime}">\n`;
 
-            const results = data.Results || [];
-            for (const result of results) {
-              const name = result.Name || 'Unknown';
-              const time = result.Duration || 0;
-              const passed = result.Pass;
-
-              if (passed) {
-                core.info(`PASS: ${name}`);
-                xmlContent += `    <testcase name="${escapeXml(name)}" time="${time}" />\n`;
+            for (const result of testResults) {
+              if (result.passed) {
+                core.info(`PASS: ${result.name}`);
+                xmlContent += `    <testcase name="${escapeXml(result.name)}" time="${result.time}" />\n`;
               } else {
-                core.error(`FAIL: ${name}`);
-                const errors = result.Errors || [];
-                for (const err of errors) {
-                  core.error(`  - ${err}`);
-                }
-
-                xmlContent += `    <testcase name="${escapeXml(name)}" time="${time}">\n`;
-
-                // Add failures
-                for (const err of errors) {
-                   xmlContent += `      <failure message="${escapeXml(err)}">${escapeXml(err)}</failure>\n`;
-                }
-
-                if (result.Stderr) {
-                   core.error(`  Stderr: ${result.Stderr}`);
-                   xmlContent += `      <system-err>${escapeXml(result.Stderr)}</system-err>\n`;
-                }
-                if (result.Stdout) {
-                   core.info(`  Stdout: ${result.Stdout}`);
-                   xmlContent += `      <system-out>${escapeXml(result.Stdout)}</system-out>\n`;
-                }
-
+                core.error(`FAIL: ${result.name}`);
+                xmlContent += `    <testcase name="${escapeXml(result.name)}" time="${result.time}">\n`;
+                xmlContent += `      <failure message="Test failed">${escapeXml(result.output)}</failure>\n`;
                 xmlContent += `    </testcase>\n`;
               }
             }
@@ -272,8 +263,8 @@ jobs:
             fs.writeFileSync(junitFile, xmlContent);
             core.info(`JUnit report written to ${junitFile}`);
 
-            if (failures > 0) {
-              core.setFailed(`Tests failed: ${failures} failures`);
+            if (failedTests > 0) {
+              core.setFailed(`Tests failed: ${failedTests} failures`);
             }
 
       - name: 📊 Parse coverage reports
