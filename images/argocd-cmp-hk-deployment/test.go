@@ -1,13 +1,27 @@
-package tests
+package argocd_cmp_hk_deployment_test
 
 import (
 	"context"
+	"io"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/testcontainers/testcontainers-go"
 )
+
+// readOutput reads all output from a reader and returns it as a string
+func readOutput(t *testing.T, reader io.Reader) string {
+	t.Helper()
+	if reader == nil {
+		return ""
+	}
+	output, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatalf("Failed to read output: %s", err)
+	}
+	return string(output)
+}
 
 func TestArgoCDCmpHkDeployment(t *testing.T) {
 	ctx := context.Background()

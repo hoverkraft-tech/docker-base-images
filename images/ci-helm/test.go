@@ -1,7 +1,8 @@
-package tests
+package ci_helm_test
 
 import (
 	"context"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -9,6 +10,19 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
+
+// readOutput reads all output from a reader and returns it as a string
+func readOutput(t *testing.T, reader io.Reader) string {
+	t.Helper()
+	if reader == nil {
+		return ""
+	}
+	output, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatalf("Failed to read output: %s", err)
+	}
+	return string(output)
+}
 
 func TestCiHelm(t *testing.T) {
 	ctx := context.Background()

@@ -22,6 +22,7 @@ echo "Running tests for $IMAGE_NAME..."
 docker run --rm \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-e IMAGE_NAME="$IMAGE_NAME:latest" \
+	-w /workspace/$IMAGE_NAME \
 	testcontainers:latest \
 	gotestsum --format testname -- -v ./...
 

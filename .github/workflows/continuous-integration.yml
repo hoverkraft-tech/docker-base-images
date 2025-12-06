@@ -154,8 +154,7 @@ jobs:
 
       - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
-          go-version-file: tests/go.mod
-          cache-dependency-path: tests/go.sum
+          go-version: '1.24'
 
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
@@ -166,11 +165,11 @@ jobs:
       - run: docker pull ${{ matrix.imageRef }}
 
       - name: Run testcontainers tests
-        working-directory: tests
+        working-directory: images/${{ matrix.name }}
         env:
           IMAGE_NAME: ${{ matrix.imageRef }}
         run: |
-          go run gotest.tools/gotestsum --junitfile ../junit-${{ matrix.name }}.xml --format testname -- -v ./...
+          go run gotest.tools/gotestsum --junitfile ../../junit-${{ matrix.name }}.xml --format testname -- -v ./...
 
       - name: 📊 Parse coverage reports
         if: always()
