@@ -165,15 +165,12 @@ jobs:
 
       - run: docker pull ${{ matrix.imageRef }}
 
-      - name: Install gotestsum
-        run: go install gotest.tools/gotestsum@latest
-
       - name: Run testcontainers tests
         working-directory: tests
         env:
           IMAGE_NAME: ${{ matrix.imageRef }}
         run: |
-          gotestsum --junitfile ../junit-${{ matrix.name }}.xml --format testname -- -v ./...
+          go run gotest.tools/gotestsum --junitfile ../junit-${{ matrix.name }}.xml --format testname -- -v ./...
 
       - name: 📊 Parse coverage reports
         if: always()

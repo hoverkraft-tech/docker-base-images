@@ -53,13 +53,13 @@ define run_testcontainers_tests
 		exit 1; \
 	fi; \
 	echo "Building testcontainers test image..."; \
-	docker build --target testcontainers --tag testcontainers:latest . || exit 1; \
+	docker build -f images/testcontainers-go/Dockerfile --tag testcontainers:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e IMAGE_NAME="$$IMAGE_NAME:latest" \
 		testcontainers:latest \
-		go test -v ./...
+		gotestsum --format testname -- -v ./...
 endef
 
 #############################

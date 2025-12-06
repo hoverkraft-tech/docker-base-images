@@ -16,13 +16,13 @@ echo "Building $IMAGE_NAME image..."
 docker buildx build "images/$IMAGE_NAME" --tag "$IMAGE_NAME:latest" --load
 
 echo "Building testcontainers test image..."
-docker build --target testcontainers --tag testcontainers:latest .
+docker build -f images/testcontainers-go/Dockerfile --tag testcontainers:latest .
 
 echo "Running tests for $IMAGE_NAME..."
 docker run --rm \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-e IMAGE_NAME="$IMAGE_NAME:latest" \
 	testcontainers:latest \
-	go test -v ./...
+	gotestsum --format testname -- -v ./...
 
 echo "✅ Tests completed successfully for $IMAGE_NAME"
