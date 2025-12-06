@@ -22,6 +22,10 @@ A Docker image with all the tools needed to validate an helm chart
 
 An image with an opiniated mydumper command as entrypoint
 
+### [testcontainers-go](images/testcontainers-go/README.md)
+
+A Docker image for running testcontainers-go tests with gotestsum
+
 ## Actions
 
 _Actions that you can plug directly into your own Docker images repository._
@@ -91,16 +95,26 @@ make test ci-helm      # Build and test ci-helm image
 make test mydumper     # Build and test mydumper image
 
 # Run tests for all images
-make test-all          # Build and test all images with tests
+make test-all          # Build and test all images
 
 # Use GitHub Actions locally with `act`
 gh act -W .github/workflows/workflow-file-to-test.yml
 ```
 
+**Testing Infrastructure:**
+
+Tests use [testcontainers-go](https://golang.testcontainers.org/) to validate Docker images. The test framework:
+
+- Requires only Docker and Make (no local Go installation needed for `make test`)
+- Runs tests in a containerized environment for consistency
+- Tests are colocated with their respective images (e.g., `images/ci-helm/test.go`)
+- Each test validates: command availability, file existence, metadata, and environment variables
+- All tests share a single Go module in `images/testcontainers-go/`
+
 #### File Conventions
 
 - **Dockerfile**: Uses Super Linter slim image for consistent code quality
-- **Tests**: Located in `images/<image-name>/container-structure-test.yaml` using [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)
+- **Tests**: Located in each image directory (e.g., `images/*/test.go`) using [testcontainers-go](https://golang.testcontainers.org/)
 - **Workflows**: Private workflows prefixed with `__` (e.g., `__main-ci.yml`)
 
 #### Action Development Conventions

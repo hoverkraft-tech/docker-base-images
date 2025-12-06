@@ -1,8 +1,8 @@
 FROM quay.io/argoproj/argocd:v3.2.0
 
 USER root
-COPY . /hk-tools/
-RUN chown -R argocd:argocd /hk-tools
+
+COPY --chown=argocd:argocd entrypoint.sh kustomize-template.yaml multi-sources.sh single-source.sh /hk-tools/
 
 USER argocd
 

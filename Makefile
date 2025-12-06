@@ -22,15 +22,13 @@ build: ## Build an image (usage: make build <image-name>)
 
 test: ## Run tests for an image (usage: make test <image-name>)
 	$(MAKE) build $(filter-out $@,$(MAKECMDGOALS))
-	$(call run_tests,$(filter-out $@,$(MAKECMDGOALS)))
+	$(call run_testcontainers_tests,$(filter-out $@,$(MAKECMDGOALS)))
 
 test-all: ## Run tests for all images
 	@for image_dir in images/*/; do \
 		image_name=$$(basename "$$image_dir"); \
-		if [ -f "$$image_dir/container-structure-test.yaml" ]; then \
-			echo "Testing $$image_name..."; \
-			$(MAKE) test "$$image_name" || exit 1; \
-		fi; \
+		echo "Testing $$image_name..."; \
+		$(MAKE) test "$$image_name" || exit 1; \
 	done
 
 define run_linter
@@ -53,26 +51,29 @@ define run_linter
 		$$LINTER_IMAGE
 endef
 
-define run_tests
+define run_testcontainers_tests
 	@IMAGE_NAME=$(1); \
 	if [ -z "$$IMAGE_NAME" ]; then \
 		echo "Error: Please specify an image name. Usage: make test <image-name>"; \
 		exit 1; \
 	fi; \
-	IMAGE_DIR="$(CURDIR)/images/$$IMAGE_NAME"; \
-	TEST_CONFIG="$$IMAGE_DIR/container-structure-test.yaml"; \
-	if [ ! -f "$$TEST_CONFIG" ]; then \
-		echo "Error: Test config not found at $$TEST_CONFIG"; \
-		exit 1; \
-	fi; \
-	echo "Building structure-test image..."; \
-	docker build --target structure-test --tag structure-test:latest . || exit 1; \
+	echo "Building testcontainers test image..."; \
+	docker build -f images/testcontainers-go/Dockerfile --tag testcontainers:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v "$$IMAGE_DIR:/workspace" \
-		structure-test:latest \
-		test --image "$$IMAGE_NAME:latest" --config /workspace/container-structure-test.yaml
+		-v $(PWD):$(PWD):ro \
+		-v $(PWD)/images/$$IMAGE_NAME:/workspace \
+		-v $(PWD)/images/testcontainers-go/go.mod:/workspace/go.mod:ro \
+		-v $(PWD)/images/testcontainers-go/go.sum:/workspace/go.sum:ro \
+		-e GOTOOLCHAIN=local \
+		-e GOMODCACHE=/tmp/go-mod \
+		-e IMAGE_NAME="$$IMAGE_NAME:latest" \
+		-e HOST_TESTS_DIR="$(PWD)/images/$$IMAGE_NAME/tests" \
+		-w /workspace \
+		-u root \
+		testcontainers:latest \
+		gotestsum --format testname -- -v ./...
 endef
 
 #############################
