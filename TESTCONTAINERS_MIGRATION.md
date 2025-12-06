@@ -17,7 +17,7 @@ The repository has migrated from using [container-structure-test](https://github
 
 ### Test Structure
 
-```
+```text
 tests/
 ├── go.mod                              # Go module definition
 ├── go.sum                              # Go dependencies
@@ -58,12 +58,14 @@ func TestImageName(t *testing.T) {
 ### Local Development
 
 Using Make (recommended):
+
 ```bash
 make test ci-helm      # Test specific image
 make test-all          # Test all images
 ```
 
 Using the test script:
+
 ```bash
 ./run-tests.sh ci-helm
 ```
@@ -81,6 +83,7 @@ Tests run automatically in GitHub Actions using the `continuous-integration.yml`
 ### Command Tests
 
 **Before (YAML):**
+
 ```yaml
 commandTests:
   - name: "helm is installed"
@@ -91,6 +94,7 @@ commandTests:
 ```
 
 **After (Go):**
+
 ```go
 t.Run("helm is installed", func(t *testing.T) {
     code, reader, err := container.Exec(ctx, []string{"helm", "version"})
@@ -110,6 +114,7 @@ t.Run("helm is installed", func(t *testing.T) {
 ### File Existence Tests
 
 **Before (YAML):**
+
 ```yaml
 fileExistenceTests:
   - name: "script exists and is executable"
@@ -119,6 +124,7 @@ fileExistenceTests:
 ```
 
 **After (Go):**
+
 ```go
 t.Run("script exists and is executable", func(t *testing.T) {
     code, _, err := container.Exec(ctx, []string{"test", "-x", "/usr/local/bin/script.sh"})
@@ -134,6 +140,7 @@ t.Run("script exists and is executable", func(t *testing.T) {
 ### Metadata Tests
 
 **Before (YAML):**
+
 ```yaml
 metadataTest:
   user: "helm:helm"
@@ -141,6 +148,7 @@ metadataTest:
 ```
 
 **After (Go):**
+
 ```go
 t.Run("metadata: user is helm", func(t *testing.T) {
     code, reader, err := container.Exec(ctx, []string{"id", "-un"})
@@ -174,6 +182,7 @@ t.Run("metadata: workdir is /home/helm", func(t *testing.T) {
 ### Environment Variable Tests
 
 **Before (YAML):**
+
 ```yaml
 commandTests:
   - name: "test with env vars"
@@ -184,10 +193,11 @@ commandTests:
 ```
 
 **After (Go):**
+
 ```go
 t.Run("test with env vars", func(t *testing.T) {
-    code, reader, err := container.Exec(ctx, 
-        []string{"script.sh"}, 
+    code, reader, err := container.Exec(ctx,
+        []string{"script.sh"},
         testcontainers.WithEnv(map[string]string{
             "VAR1": "value1",
         }))
@@ -224,6 +234,7 @@ Add more utilities as needed to keep tests DRY.
 ### Docker Socket Issues
 
 If tests fail with "Cannot connect to Docker daemon":
+
 - Ensure Docker is running
 - Check that `/var/run/docker.sock` is accessible
 - On CI, ensure the Docker socket is mounted correctly
@@ -231,6 +242,7 @@ If tests fail with "Cannot connect to Docker daemon":
 ### Image Not Found
 
 If tests fail with image not found:
+
 - Ensure the image is built first: `make build <image-name>`
 - Check that the IMAGE_NAME environment variable is set correctly
 - Verify the image exists: `docker images | grep <image-name>`
@@ -238,6 +250,7 @@ If tests fail with image not found:
 ### Go Module Issues
 
 If you see module resolution errors:
+
 ```bash
 cd tests
 go mod tidy

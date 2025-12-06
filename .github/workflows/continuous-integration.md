@@ -91,8 +91,6 @@ func TestCiHelm(t *testing.T) {
 }
 ```
 
-For more details, see [TESTCONTAINERS_MIGRATION.md](../../TESTCONTAINERS_MIGRATION.md).
-
 <!-- usage:start -->
 
 ## Usage

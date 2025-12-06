@@ -165,107 +165,15 @@ jobs:
 
       - run: docker pull ${{ matrix.imageRef }}
 
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
       - name: Run testcontainers tests
         working-directory: tests
         env:
           IMAGE_NAME: ${{ matrix.imageRef }}
         run: |
-          go test -v -json ./... > test-output.json || true
-          go test -v ./...
-
-      - name: Process test results
-        if: always()
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        env:
-          MATRIX_NAME: ${{ matrix.name }}
-          IMAGE_REF: ${{ matrix.imageRef }}
-          TEST_OUTPUT_FILE: tests/test-output.json
-          JUNIT_FILE: junit-${{ matrix.name }}.xml
-        with:
-          script: |
-            const fs = require('node:fs');
-            const testOutputFile = process.env.TEST_OUTPUT_FILE;
-            const junitFile = process.env.JUNIT_FILE;
-
-            if (!fs.existsSync(testOutputFile)) {
-              core.setFailed(`Test output file ${testOutputFile} not found. Tests might have crashed.`);
-              return;
-            }
-
-            // Parse Go test JSON output
-            const testOutput = fs.readFileSync(testOutputFile, 'utf8');
-            const lines = testOutput.split('\n').filter(line => line.trim());
-
-            const testResults = [];
-            let totalTests = 0;
-            let failedTests = 0;
-            let totalTime = 0;
-
-            for (const line of lines) {
-              try {
-                const event = JSON.parse(line);
-                
-                if (event.Action === 'pass' || event.Action === 'fail') {
-                  if (event.Test) {
-                    totalTests++;
-                    const passed = event.Action === 'pass';
-                    if (!passed) failedTests++;
-                    
-                    testResults.push({
-                      name: event.Test,
-                      passed: passed,
-                      time: event.Elapsed || 0,
-                      output: event.Output || ''
-                    });
-                    
-                    totalTime += event.Elapsed || 0;
-                  }
-                }
-              } catch (e) {
-                // Skip non-JSON lines
-              }
-            }
-
-            // Helper for XML escaping
-            function escapeXml(unsafe) {
-                if (!unsafe) return '';
-                return String(unsafe).replace(/[<>&'"]/g, function (c) {
-                    switch (c) {
-                        case '<': return '&lt;';
-                        case '>': return '&gt;';
-                        case '&': return '&amp;';
-                        case '\'': return '&apos;';
-                        case '"': return '&quot;';
-                    }
-                });
-            }
-
-            // Generate JUnit XML
-            let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-            xmlContent += `<testsuites tests="${totalTests}" failures="${failedTests}" time="${totalTime}">\n`;
-            xmlContent += `  <testsuite name="testcontainers" tests="${totalTests}" failures="${failedTests}" time="${totalTime}">\n`;
-
-            for (const result of testResults) {
-              if (result.passed) {
-                core.info(`PASS: ${result.name}`);
-                xmlContent += `    <testcase name="${escapeXml(result.name)}" time="${result.time}" />\n`;
-              } else {
-                core.error(`FAIL: ${result.name}`);
-                xmlContent += `    <testcase name="${escapeXml(result.name)}" time="${result.time}">\n`;
-                xmlContent += `      <failure message="Test failed">${escapeXml(result.output)}</failure>\n`;
-                xmlContent += `    </testcase>\n`;
-              }
-            }
-
-            xmlContent += `  </testsuite>\n`;
-            xmlContent += `</testsuites>\n`;
-
-            fs.writeFileSync(junitFile, xmlContent);
-            core.info(`JUnit report written to ${junitFile}`);
-
-            if (failedTests > 0) {
-              core.setFailed(`Tests failed: ${failedTests} failures`);
-            }
+          gotestsum --junitfile ../junit-${{ matrix.name }}.xml --format testname -- -v ./...
 
       - name: 📊 Parse coverage reports
         if: always()
