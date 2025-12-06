@@ -195,7 +195,7 @@ jobs:
             // Parse Go test JSON output
             const testOutput = fs.readFileSync(testOutputFile, 'utf8');
             const lines = testOutput.split('\n').filter(line => line.trim());
-            
+
             const testResults = [];
             let totalTests = 0;
             let failedTests = 0;
