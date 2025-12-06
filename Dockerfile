@@ -11,6 +11,20 @@ ENV USE_FIND_ALGORITHM=true
 ENV LOG_LEVEL=WARN
 ENV LOG_FILE="/github/home/logs"
 
-FROM ghcr.io/googlecontainertools/container-structure-test:1.22.0 AS structure-test
+FROM golang:1.23-alpine AS testcontainers
 
-HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["container-structure-test", "version"]
+WORKDIR /tests
+
+# Install docker cli (needed for testcontainers)
+RUN apk add --no-cache docker-cli
+
+# Copy test files
+COPY tests/go.mod tests/go.sum ./
+RUN go mod download
+
+COPY tests/*.go ./
+
+# Build test binaries
+RUN go test -c -o /tests/test.bin
+
+HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["go", "version"]
