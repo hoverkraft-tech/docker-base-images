@@ -6,7 +6,7 @@ resources:
   - all.yaml
 
 configMapGenerator:
-  - name: hk-deployment
+  - name: hoverkraft-deployment
     options:
       disableNameSuffixHash: true
     literals:
