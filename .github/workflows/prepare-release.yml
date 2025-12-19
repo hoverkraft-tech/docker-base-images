@@ -42,7 +42,7 @@ jobs:
       id-token: write # Needed for getting local workflow actions
 
   prepare-release:
-    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@44e0f1bacebf3711bf90895fc45d815e9fe582e8 # 0.18.0
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@642cdb54493d05debdc1394f4bfd7365f82e7bf1 # 0.18.2
     needs: get-available-images-matrix
     strategy:
       matrix:
