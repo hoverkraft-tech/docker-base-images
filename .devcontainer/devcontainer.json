@@ -18,9 +18,11 @@
         "github.copilot-chat",
         "ms-vscode.makefile-tools",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-containers",
-        "golang.Go"
-      ]
+        "ms-azuretools.vscode-containers"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
     }
   }
 }

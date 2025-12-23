@@ -1,15 +1,14 @@
-FROM node:20-alpine
+FROM node:25-alpine
 
 WORKDIR /workspace
 
-# Install docker cli (needed for testcontainers)
-RUN apk add --no-cache docker-cli \
-    && addgroup -S tester \
+# Create user and group
+RUN addgroup -S tester \
     && adduser -S -G tester tester
 
 # Copy package files and install dependencies
-COPY images/testcontainers-node/package.json images/testcontainers-node/package-lock.json* ./
-RUN npm ci --omit=dev || npm install --omit=dev
+COPY package.json package-lock.json* ./
+RUN npm ci
 
 # Drop privileges
 USER tester

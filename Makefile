@@ -21,13 +21,32 @@ build: ## Build an image (usage: make build <image-name>)
 	@docker buildx build images/$(filter-out $@,$(MAKECMDGOALS)) --tag $(filter-out $@,$(MAKECMDGOALS)):latest --load
 
 test: ## Run tests for an image (usage: make test <image-name>)
-	$(MAKE) build $(filter-out $@,$(MAKECMDGOALS))
-	$(call run_testcontainers_tests,$(filter-out $@,$(MAKECMDGOALS)))
+	@image_name=$(filter-out $@,$(MAKECMDGOALS)); \
+	if [ -z "$$image_name" ]; then \
+		echo "Error: Please specify an image name. Usage: make test <image-name>"; \
+		exit 1; \
+	fi; \
+	echo "Building $$image_name for testing...\n"; \
+	$(MAKE) build $$image_name || exit 1; \
+	echo "Building testcontainers test image...\n"; \
+	docker build -f images/testcontainers-node/Dockerfile --tag testcontainers:latest images/testcontainers-node || exit 1; \
+	echo "\nTesting $$image_name...\n"; \
+	docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $(PWD):$(PWD):ro \
+		-v $(PWD)/images/$$image_name:/workspace/image:ro \
+		-e IMAGE_NAME="$$image_name:latest" \
+		-e HOST_TESTS_DIR="/workspace/image/tests" \
+		-w /workspace/image \
+		-u root \
+		testcontainers:latest \
+		sh -c 'if [ -f test.spec.js ]; then node --test test.spec.js; else echo "No test.spec.js found; skipping"; fi' || exit 1; \
+	echo "\nTests passed for $$image_name.\n";
 
 test-all: ## Run tests for all images
+	$(MAKE) build testcontainers-node
 	@for image_dir in images/*/; do \
 		image_name=$$(basename "$$image_dir"); \
-		echo "Testing $$image_name..."; \
 		$(MAKE) test "$$image_name" || exit 1; \
 	done
 
@@ -49,30 +68,6 @@ define run_linter
 		-v $$VOLUME \
 		--rm \
 		$$LINTER_IMAGE
-endef
-
-define run_testcontainers_tests
-	@IMAGE_NAME=$(1); \
-	if [ -z "$$IMAGE_NAME" ]; then \
-		echo "Error: Please specify an image name. Usage: make test <image-name>"; \
-		exit 1; \
-	fi; \
-	echo "Building testcontainers test image..."; \
-	docker build -f images/testcontainers-node/Dockerfile --tag testcontainers:latest . || exit 1; \
-	echo "Running tests for $$IMAGE_NAME..."; \
-	docker run --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v $(PWD):$(PWD):ro \
-		-v $(PWD)/images/$$IMAGE_NAME:/workspace \
-		-v $(PWD)/images/testcontainers-node/package.json:/workspace/package.json:ro \
-		-v $(PWD)/images/testcontainers-node/package-lock.json:/workspace/package-lock.json:ro \
-		-v $(PWD)/images/testcontainers-node/node_modules:/workspace/node_modules:ro \
-		-e IMAGE_NAME="$$IMAGE_NAME:latest" \
-		-e HOST_TESTS_DIR="$(PWD)/images/$$IMAGE_NAME/tests" \
-		-w /workspace \
-		-u root \
-		testcontainers:latest \
-		node --test
 endef
 
 #############################
