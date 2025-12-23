@@ -1,0 +1,16 @@
+{
+  "name": "@hoverkraft-tech/testcontainers-node",
+  "version": "1.0.0",
+  "description": "Node.js-based testcontainers test runner for Docker images",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "testcontainers": "^10.16.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

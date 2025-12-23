@@ -22,9 +22,9 @@ A Docker image with all the tools needed to validate an helm chart
 
 An image with an opiniated mydumper command as entrypoint
 
-### [testcontainers-go](images/testcontainers-go/README.md)
+### [testcontainers-node](images/testcontainers-node/README.md)
 
-A Docker image for running testcontainers-go tests with gotestsum
+A Docker image for running testcontainers tests with Node.js
 
 ## Actions
 
@@ -103,18 +103,18 @@ gh act -W .github/workflows/workflow-file-to-test.yml
 
 **Testing Infrastructure:**
 
-Tests use [testcontainers-go](https://golang.testcontainers.org/) to validate Docker images. The test framework:
+Tests use [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.js to validate Docker images. The test framework:
 
-- Requires only Docker and Make (no local Go installation needed for `make test`)
+- Requires only Docker and Make (no local Node.js installation needed for `make test`)
 - Runs tests in a containerized environment for consistency
-- Tests are colocated with their respective images (e.g., `images/ci-helm/test.go`)
+- Tests are colocated with their respective images (e.g., `images/ci-helm/test.spec.js`)
 - Each test validates: command availability, file existence, metadata, and environment variables
-- All tests share a single Go module in `images/testcontainers-go/`
+- All tests share a single Node.js module in `images/testcontainers-node/`
 
 #### File Conventions
 
 - **Dockerfile**: Uses Super Linter slim image for consistent code quality
-- **Tests**: Located in each image directory (e.g., `images/*/test.go`) using [testcontainers-go](https://golang.testcontainers.org/)
+- **Tests**: Located in each image directory (e.g., `images/*/test.spec.js`) using [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.js
 - **Workflows**: Private workflows prefixed with `__` (e.g., `__main-ci.yml`)
 
 #### Action Development Conventions
