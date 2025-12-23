@@ -11,6 +11,6 @@
     "testcontainers": "^10.16.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=25.0.0"
   }
 }
