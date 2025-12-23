@@ -1,5 +1,5 @@
 # A comprehensive CI workflow that performs linting, builds Docker images,
-# and runs tests against the built images using [testcontainers-go](https://golang.testcontainers.org/).
+# and runs tests against the built images using [testcontainers](https://testcontainers.com/).
 #
 # ### Jobs
 #
@@ -161,16 +161,13 @@ jobs:
       - run: docker pull ${{ matrix.imageRef }}
 
       - name: Build testcontainers test image
-        run: docker build -f images/testcontainers-node/Dockerfile --tag testcontainers:latest .
+        run: docker build --tag testcontainers:latest ./images/testcontainers-node
 
       - name: Run testcontainers tests
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ github.workspace }}/images/${{ matrix.name }}:/workspace \
-            -v ${{ github.workspace }}/images/testcontainers-node/package.json:/workspace/package.json:ro \
-            -v ${{ github.workspace }}/images/testcontainers-node/package-lock.json:/workspace/package-lock.json:ro \
-            -v ${{ github.workspace }}/images/testcontainers-node/node_modules:/workspace/node_modules:ro \
             -e IMAGE_NAME=${{ matrix.imageRef }} \
             -e HOST_TESTS_DIR=${{ github.workspace }}/images/${{ matrix.name }}/tests \
             -w /workspace \

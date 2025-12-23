@@ -9,9 +9,8 @@ This image provides a consistent test execution environment for all Docker image
 ## Contents
 
 - **Node.js 20 Alpine**: Lightweight Node.js runtime
-- **Docker CLI**: Required for testcontainers to interact with Docker
 - **testcontainers**: Node.js library for container-based testing
-- **Go module dependencies**: Pre-installed testcontainers dependencies for faster test execution
+- **Pre-installed dependencies**: testcontainers module dependencies for faster test execution
 
 Test files are mounted at runtime from each image directory (e.g., `images/ci-helm/test.spec.js`).
 
@@ -39,7 +38,7 @@ Tests are automatically run in CI for each image. The testcontainers-node image 
 
 Each image that has tests should include a `test.spec.js` file in its directory:
 
-```
+```text
 images/
 ├── ci-helm/
 │   ├── Dockerfile
@@ -58,20 +57,20 @@ images/
 Tests use Node.js built-in test runner with testcontainers:
 
 ```javascript
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
-import { GenericContainer } from 'testcontainers';
+import { describe, it } from "node:test";
+import assert from "node:assert";
+import { GenericContainer } from "testcontainers";
 
-describe('My Image', () => {
-  it('should have required tool installed', async () => {
-    const imageName = process.env.IMAGE_NAME || 'my-image:latest';
-    
+describe("My Image", () => {
+  it("should have required tool installed", async () => {
+    const imageName = process.env.IMAGE_NAME || "my-image:latest";
+
     const container = await new GenericContainer(imageName)
-      .withCommand(['sleep', 'infinity'])
+      .withCommand(["sleep", "infinity"])
       .start();
-    
+
     try {
-      const { exitCode, output } = await container.exec(['tool', '--version']);
+      const { exitCode, output } = await container.exec(["tool", "--version"]);
       assert.strictEqual(exitCode, 0);
       assert.match(output, /version/);
     } finally {
