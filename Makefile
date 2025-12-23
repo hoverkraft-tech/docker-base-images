@@ -58,22 +58,21 @@ define run_testcontainers_tests
 		exit 1; \
 	fi; \
 	echo "Building testcontainers test image..."; \
-	docker build -f images/testcontainers-go/Dockerfile --tag testcontainers:latest . || exit 1; \
+	docker build -f images/testcontainers-node/Dockerfile --tag testcontainers:latest . || exit 1; \
 	echo "Running tests for $$IMAGE_NAME..."; \
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $(PWD):$(PWD):ro \
 		-v $(PWD)/images/$$IMAGE_NAME:/workspace \
-		-v $(PWD)/images/testcontainers-go/go.mod:/workspace/go.mod:ro \
-		-v $(PWD)/images/testcontainers-go/go.sum:/workspace/go.sum:ro \
-		-e GOTOOLCHAIN=local \
-		-e GOMODCACHE=/tmp/go-mod \
+		-v $(PWD)/images/testcontainers-node/package.json:/workspace/package.json:ro \
+		-v $(PWD)/images/testcontainers-node/package-lock.json:/workspace/package-lock.json:ro \
+		-v $(PWD)/images/testcontainers-node/node_modules:/workspace/node_modules:ro \
 		-e IMAGE_NAME="$$IMAGE_NAME:latest" \
 		-e HOST_TESTS_DIR="$(PWD)/images/$$IMAGE_NAME/tests" \
 		-w /workspace \
 		-u root \
 		testcontainers:latest \
-		gotestsum --format testname -- -v ./...
+		node --test
 endef
 
 #############################
