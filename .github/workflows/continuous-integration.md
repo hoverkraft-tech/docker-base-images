@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/d5e57cf16fc3d73dd526b00fb06db7c968f95945c1de6e550770a5e00494dceb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/f337774dd4cbfad54d7b0f131d22d8f3e576fc1b070ed5ed01a7a1a537760799/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -22,7 +22,7 @@
 ## Overview
 
 A comprehensive CI workflow that performs linting, builds Docker images,
-and runs tests against the built images using [testcontainers-go](https://golang.testcontainers.org/).
+and runs tests against the built images using [testcontainers](https://testcontainers.com/).
 
 ### Jobs
 
@@ -146,18 +146,18 @@ jobs:
 
 ### Workflow Call Inputs
 
-| **Input**                   | **Description**                                                                        | **Required** | **Type**   | **Default**                        |
-| --------------------------- | -------------------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- |
-| **`runs-on`**               | JSON array of runner(s) to use.                                                        | **false**    | **string** | `["ubuntu-latest"]`                |
-|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |            |                                    |
-| **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string** | `ghcr.io`                          |
-| **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string** | `$\{\{ github.repository_owner }}` |
-|                             | See <https://github.com/docker/login-action#usage>.                                    |              |            |                                    |
-| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string** | `["linux/amd64","linux/arm64"]`    |
-|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |            |                                    |
-| **`images`**                | JSON array of images to build.                                                         | **false**    | **string** | -                                  |
-|                             | If not provided, all available images will be considered.                              |              |            |                                    |
-|                             | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                    |
+| **Input**                   | **Description**                                                                        | **Required** | **Type**   | **Default**                      |
+| --------------------------- | -------------------------------------------------------------------------------------- | ------------ | ---------- | -------------------------------- |
+| **`runs-on`**               | JSON array of runner(s) to use.                                                        | **false**    | **string** | `["ubuntu-latest"]`              |
+|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |            |                                  |
+| **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string** | `ghcr.io`                        |
+| **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string** | `${{ github.repository_owner }}` |
+|                             | See <https://github.com/docker/login-action#usage>.                                    |              |            |                                  |
+| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string** | `["linux/amd64","linux/arm64"]`  |
+|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |            |                                  |
+| **`images`**                | JSON array of images to build.                                                         | **false**    | **string** | -                                |
+|                             | If not provided, all available images will be considered.                              |              |            |                                  |
+|                             | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                  |
 
 <!-- inputs:end -->
 
