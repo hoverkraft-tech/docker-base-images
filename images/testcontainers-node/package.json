@@ -8,7 +8,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "testcontainers": "^10.16.0"
+    "testcontainers": "^11.10.0"
   },
   "engines": {
     "node": ">=25.0.0"

@@ -22,7 +22,7 @@
 ## Overview
 
 A comprehensive CI workflow that performs linting, builds Docker images,
-and runs tests against the built images using [testcontainers](https://testcontainers.com/).
+and runs tests against the built images using the repo's Node.js test runner image (`images/testcontainers-node`) and [Testcontainers for Node.js](https://testcontainers.com/modules/nodejs/).
 
 ### Jobs
 
@@ -46,49 +46,49 @@ and runs tests against the built images using [testcontainers](https://testconta
 
 ## Testing
 
-Tests are defined in the `tests/` directory using [testcontainers-go](https://golang.testcontainers.org/).
+Tests are defined per image as `images/<image>/test.spec.js` and executed with Node.js built-in test runner (`node --test`) from inside the `testcontainers:latest` runner image.
 
 ### Test Configuration
 
-Each image has corresponding test files in Go that:
+Each image has a `test.spec.js` file that typically:
 
 - Start containers and execute commands
 - Verify file existence and permissions
 - Validate container metadata (env vars, user, workdir, etc.)
 - Check command outputs and exit codes
 
+The workflow injects a few environment variables:
+
+- `IMAGE_NAME`: the image reference under test
+- `HOST_TESTS_DIR`: absolute host path to `images/<image>/tests` (useful for bind-mounting fixtures)
+
 ### Example Test
 
-```go
-func TestCiHelm(t *testing.T) {
-    ctx := context.Background()
-    imageName := os.Getenv("IMAGE_NAME")
-    if imageName == "" {
-        imageName = "ci-helm:latest"
-    }
+```js
+import { after, before, describe, it } from "node:test";
+import assert from "node:assert";
+import { GenericContainer } from "testcontainers";
 
-    req := testcontainers.ContainerRequest{
-        Image: imageName,
-        Cmd:   []string{"sleep", "infinity"},
-    }
+describe("CI Helm Image", () => {
+  const imageName = process.env.IMAGE_NAME || "ci-helm:latest";
+  let container;
 
-    container, err := testcontainers.GenericContainer(ctx, ...)
-    defer container.Terminate(ctx)
+  before(async () => {
+    container = await new GenericContainer(imageName)
+      .withCommand(["sleep", "infinity"])
+      .start();
+  });
 
-    t.Run("helm is installed", func(t *testing.T) {
-        code, reader, err := container.Exec(ctx, []string{"helm", "version"})
-        if err != nil {
-            t.Fatalf("Failed to execute command: %s", err)
-        }
-        if code != 0 {
-            t.Fatalf("Expected exit code 0, got %d", code)
-        }
-        output := readOutput(t, reader)
-        if !strings.Contains(output, "version") {
-            t.Errorf("Expected output to contain 'version'")
-        }
-    })
-}
+  after(async () => {
+    await container?.stop();
+  });
+
+  it("helm is installed", async () => {
+    const { exitCode, output } = await container.exec(["helm", "version"]);
+    assert.strictEqual(exitCode, 0);
+    assert.match(output, /version/i);
+  });
+});
 ```
 
 <!-- usage:start -->

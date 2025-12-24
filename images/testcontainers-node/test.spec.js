@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { after, before, describe, it } from "node:test";
 import assert from "node:assert";
 import { GenericContainer } from "testcontainers";
 
@@ -6,10 +6,17 @@ describe("Testcontainers Node Runner Image", () => {
   let container;
   const imageName = process.env.IMAGE_NAME || "testcontainers-node:latest";
 
-  it("setup container", async () => {
-    container = await new GenericContainer(imageName)
-      .withCommand(["sleep", "infinity"])
-      .start();
+  before(async () => {
+    const builder = new GenericContainer(imageName);
+    builder.withCommand(["sleep", "infinity"]);
+    container = await builder.start();
+  });
+
+  after(async () => {
+    if (!container) {
+      return;
+    }
+    await container.stop();
   });
 
   it("node is installed", async () => {
@@ -39,11 +46,5 @@ describe("Testcontainers Node Runner Image", () => {
     const { exitCode, output } = await container.exec(["pwd"]);
     assert.strictEqual(exitCode, 0);
     assert.strictEqual(output.trim(), "/workspace");
-  });
-
-  it("cleanup container", async () => {
-    if (container) {
-      await container.stop();
-    }
   });
 });

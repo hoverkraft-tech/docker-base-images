@@ -111,6 +111,60 @@ Tests use [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.
 - Each test validates: command availability, file existence, metadata, and environment variables
 - All tests share a single Node.js module in `images/testcontainers-node/`
 
+How tests are executed in this repository:
+
+- `make test <image>` builds the image and runs tests inside the `images/testcontainers-node` runner image.
+- The harness injects:
+  - `IMAGE_NAME`: the image ref to test (e.g. `ci-helm:latest` locally, or an OCI ref in CI)
+  - `HOST_TESTS_DIR`: absolute path to `images/<image>/tests` on the host (useful for bind-mounting fixtures)
+
+**Writing good image tests (recommended):**
+
+- Keep tests **black-box**: validate behavior via commands, files, users, workdir, and env.
+- Make tests **deterministic**: avoid network calls and time-based assertions when possible.
+- Start the container once per suite (`before`/`after`) and **always clean up**.
+- Prefer `container.exec(cmd, { env, workingDir })` over shell string interpolation for env handling.
+- Use a long-running command like `sleep infinity` so you can run multiple `exec` checks.
+
+Basic example (`images/<image>/test.spec.js`):
+
+```js
+import { after, before, describe, it } from "node:test";
+import assert from "node:assert";
+import { GenericContainer } from "testcontainers";
+
+describe("My Image", () => {
+  const imageName = process.env.IMAGE_NAME || "my-image:latest";
+  let container;
+
+  before(async () => {
+    container = await new GenericContainer(imageName)
+      .withCommand(["sleep", "infinity"])
+      .start();
+  });
+
+  after(async () => {
+    await container?.stop();
+  });
+
+  it("has the expected tool", async () => {
+    const { exitCode, output } = await container.exec(["mytool", "--version"], {
+      env: { MY_FLAG: "1" },
+      workingDir: "/",
+    });
+
+    assert.strictEqual(exitCode, 0);
+    assert.match(output, /mytool/i);
+  });
+
+  it("runs as the expected user", async () => {
+    const { exitCode, output } = await container.exec(["id", "-un"]);
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(output.trim(), "myuser");
+  });
+});
+```
+
 #### File Conventions
 
 - **Dockerfile**: Uses Super Linter slim image for consistent code quality
@@ -146,28 +200,37 @@ Tests use [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.
 
 #### JavaScript Development Patterns
 
-**For Node.js scripts (like `prepare-site.js`):**
+**For `actions/github-script` steps (composite actions):**
 
-- Use class-based architecture for complex functionality
-- Define regular expression patterns as constants (`MARKDOWN_IMAGE_REGEX`, `HTML_IMAGE_REGEX`)
-- Implement Map-based caching for expensive operations
-- Always use Node.js `path` module for cross-platform compatibility
+- Prefer small, focused scripts with early input validation.
+- Use Node.js built-ins via `node:` (e.g., `node:path`).
+- Keep outputs stable and JSON-encoded when returning structured data.
+- Favor readable helpers (small functions) over clever one-liners.
 
 #### File Structure Understanding
 
 ```text
-actions/{category}/{action-name}/     # Modular action organization
-├── action.yml                        # Action definition with inputs/outputs
-├── README.md                         # Usage documentation
-└── *.js                             # Optional Node.js scripts
+actions/                              # Composite actions (using actions/github-script)
+├── get-available-images/
+│   ├── action.yml
+│   └── README.md
+└── ***/
+  ├── action.yml
+  └── README.md
 
-.github/workflows/                    # Reusable workflows
-├── deploy-*.yml                      # Deployment orchestration
-├── clean-deploy-*.yml               # Cleanup workflows
-└── __*.yml                          # Private/internal workflows
+.github/workflows/                    # Reusable workflows (+ their .md docs)
+├── continuous-integration.yml
+├── continuous-integration.md
+├── ***.yml
+├── ***.md
+└── __*.yml                           # Private/internal workflows
 
-tests/                               # Expected vs actual comparisons
-└── argocd-app-of-apps/             # Template testing structure
+images/                               # Docker images (each image is self-contained)
+└── <image>/
+  ├── Dockerfile
+  ├── README.md
+  ├── test.spec.js                  # Node.js tests (run via make/CI)
+  └── tests/                        # Optional fixtures used by some tests
 ```
 
 ### Continuous Integration
