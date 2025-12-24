@@ -61,7 +61,7 @@ jobs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@666b7b6eb000db3e8614647871fa60c9f1eb7179 # 0.31.4
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
         with:
           actions-path: actions
 
@@ -69,7 +69,7 @@ jobs:
         if: ${{ !inputs.images || inputs.images == '[]' }}
         uses: ./self-workflow/actions/get-available-images
 
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@666b7b6eb000db3e8614647871fa60c9f1eb7179 # 0.31.4
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
         with:
           actions-path: actions
           repository: ${{ steps.local-workflow-actions.outputs.repository }}
@@ -124,7 +124,7 @@ jobs:
             }
             core.setOutput('images', JSON.stringify(imagesToBuild));
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@666b7b6eb000db3e8614647871fa60c9f1eb7179 # 0.31.4
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -135,7 +135,7 @@ jobs:
   build-images:
     needs: prepare-images-to-build
     if: needs.prepare-images-to-build.outputs.images
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@18c35d287eb2f66e00741c88954106b44b812ae0 # 0.30.4
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # 0.30.6
     permissions:
       contents: read
       issues: read
@@ -233,7 +233,7 @@ jobs:
             await core.summary.write();
             core.setOutput('summary', summaryContent);
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@666b7b6eb000db3e8614647871fa60c9f1eb7179 # 0.31.4
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
         if: github.event.pull_request.number && steps.generate-summary.outputs.summary
         with:
           title: "## Built Images Summary"
