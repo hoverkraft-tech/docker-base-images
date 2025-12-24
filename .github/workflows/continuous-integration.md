@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/f337774dd4cbfad54d7b0f131d22d8f3e576fc1b070ed5ed01a7a1a537760799/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/44f0890332f68427b509b513446b2c57a92023f89b184337866e7e1cca4ab1d9/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
