@@ -49,9 +49,9 @@ jobs:
         image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
       fail-fast: false
     permissions:
-      contents: read
+      contents: write
+      id-token: write
       pull-requests: write
-      id-token: write # Needed for getting local workflow actions
     with:
       runs-on: ${{ inputs.runs-on }}
       github-app-id: ${{ inputs.github-app-id || null }}
