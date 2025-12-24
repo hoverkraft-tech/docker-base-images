@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { after, before, describe, it } from "node:test";
 import assert from "node:assert";
 import { GenericContainer } from "testcontainers";
 
@@ -6,10 +6,14 @@ describe("CI Helm Image", () => {
   let container;
   const imageName = process.env.IMAGE_NAME || "ci-helm:latest";
 
-  it("setup container", async () => {
+  before(async () => {
     container = await new GenericContainer(imageName)
       .withCommand(["sleep", "infinity"])
       .start();
+  });
+
+  after(async () => {
+    await container?.stop();
   });
 
   it("helm is installed", async () => {
@@ -72,11 +76,5 @@ describe("CI Helm Image", () => {
     const { exitCode, output } = await container.exec(["pwd"]);
     assert.strictEqual(exitCode, 0);
     assert.strictEqual(output.trim(), "/home/helm");
-  });
-
-  it("cleanup container", async () => {
-    if (container) {
-      await container.stop();
-    }
   });
 });

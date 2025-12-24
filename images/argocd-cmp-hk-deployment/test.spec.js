@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { after, before, describe, it } from "node:test";
 import assert from "node:assert";
 import { GenericContainer } from "testcontainers";
 import path from "node:path";
@@ -29,17 +29,11 @@ describe("ArgoCD CMP HK Deployment Image", () => {
       );
     }
 
-    // Build environment variable array
-    const envVars = Object.entries(env).map(
-      ([key, value]) => `${key}=${value}`,
-    );
-
-    // Execute the script - note: testcontainers for Node.js handles env differently
-    // We'll need to use a shell wrapper to set env vars
-    const envString = envVars.length > 0 ? envVars.join(" ") + " " : "";
-    const cmd = ["bash", "-c", `cd /tmp/tests && ${envString}${script}`];
-
-    return await container.exec(cmd);
+    // Execute the script using Testcontainers exec options (recommended)
+    return await container.exec(["bash", "-c", script], {
+      workingDir: "/tmp/tests",
+      env,
+    });
   }
 
   function assertContains(output, ...expected) {
@@ -51,7 +45,7 @@ describe("ArgoCD CMP HK Deployment Image", () => {
     }
   }
 
-  it("setup container", async () => {
+  before(async () => {
     // Verify tests directory exists
     assert.ok(
       fs.existsSync(hostTestsDir),
@@ -69,9 +63,14 @@ describe("ArgoCD CMP HK Deployment Image", () => {
         {
           source: hostTestsDir,
           target: "/mnt/tests-ro",
+          mode: "ro",
         },
       ])
       .start();
+  });
+
+  after(async () => {
+    await container?.stop();
   });
 
   it("single-source renders helm output with provided deployment id", async () => {
@@ -250,11 +249,5 @@ describe("ArgoCD CMP HK Deployment Image", () => {
     const { exitCode, output } = await container.exec(["id", "-un"]);
     assert.strictEqual(exitCode, 0);
     assert.strictEqual(output.trim(), "argocd");
-  });
-
-  it("cleanup container", async () => {
-    if (container) {
-      await container.stop();
-    }
   });
 });
