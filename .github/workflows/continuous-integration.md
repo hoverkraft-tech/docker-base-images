@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/44f0890332f68427b509b513446b2c57a92023f89b184337866e7e1cca4ab1d9/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/34115c9c7eef85e3fbc359b8210083e8379c2ba3cf6240ba80f413d72803f687/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -22,7 +22,7 @@
 ## Overview
 
 A comprehensive CI workflow that performs linting, builds Docker images,
-and runs tests against the built images using the repo's Node.js test runner image (`images/testcontainers-node`) and [Testcontainers for Node.js](https://testcontainers.com/modules/nodejs/).
+and runs tests against the built images using [testcontainers](https://testcontainers.com/).
 
 ### Jobs
 
@@ -214,7 +214,7 @@ This project is licensed under the MIT License.
 
 SPDX-License-Identifier: MIT
 
-Copyright © 2025 hoverkraft-tech
+Copyright © 2026 hoverkraft-tech
 
 For more details, see the [license](http://choosealicense.com/licenses/mit/).
 
