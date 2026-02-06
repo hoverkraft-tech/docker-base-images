@@ -59,7 +59,7 @@ jobs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           actions-path: actions
 
@@ -124,7 +124,7 @@ jobs:
 
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -144,7 +144,7 @@ jobs:
       fail-fast: false
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           actions-path: actions
 
@@ -174,13 +174,13 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
 
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -195,7 +195,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           artifact-name: "images-to-release"
 
@@ -221,7 +221,7 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@84e8ace407055e7a40ba6670a8c697e1ce2dfafa # 0.20.1
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@5ff7d4c3910971ed53834becd5967271b4e228cf # 0.21.1
         with:
           prerelease: ${{ inputs.prerelease }}
           working-directory: images/${{ matrix.image }}
@@ -241,7 +241,7 @@ jobs:
             }));
 
       - if: steps.set-images-to-build.outputs.image
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           value: ${{ steps.set-images-to-build.outputs.image }}
           artifact-name: images-to-build
@@ -255,7 +255,7 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@b17226e57c8ef31f860719766656ebb6df017218 # 0.31.6
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
         with:
           artifact-name: "images-to-build"
   # jscpd:ignore-end
