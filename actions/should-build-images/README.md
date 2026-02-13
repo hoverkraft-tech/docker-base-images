@@ -3,7 +3,7 @@
 # ![Icon](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItY2hlY2stc3F1YXJlIiBjb2xvcj0iYmx1ZSI+PHBvbHlsaW5lIHBvaW50cz0iOSAxMSAxMiAxNCAyMiA0Ij48L3BvbHlsaW5lPjxwYXRoIGQ9Ik0yMSAxMnY3YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yVjVhMiAyIDAgMCAxIDItMmgxMSI+PC9wYXRoPjwvc3ZnPg==) GitHub Action: Should build the given images
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/34115c9c7eef85e3fbc359b8210083e8379c2ba3cf6240ba80f413d72803f687/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
+  <img src="https://opengraph.githubassets.com/3c8c1f8e9b0617b488f6bc336b8bc605fa1262e57f13df441f55799f7a343e16/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
 </div>
 
 ---
