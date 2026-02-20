@@ -61,7 +61,7 @@ jobs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f5847cb398fe65d53794e6aba98ebdfa0801f691 # 0.32.0
         with:
           actions-path: actions
 
@@ -69,7 +69,7 @@ jobs:
         if: ${{ !inputs.images || inputs.images == '[]' }}
         uses: ./self-workflow/actions/get-available-images
 
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f5847cb398fe65d53794e6aba98ebdfa0801f691 # 0.32.0
         with:
           actions-path: actions
           repository: ${{ steps.local-workflow-actions.outputs.repository }}
@@ -124,7 +124,7 @@ jobs:
             }
             core.setOutput('images', JSON.stringify(imagesToBuild));
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@f5847cb398fe65d53794e6aba98ebdfa0801f691 # 0.32.0
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -233,7 +233,7 @@ jobs:
             await core.summary.write();
             core.setOutput('summary', summaryContent);
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@f24ce3360a8abf9bf386a62ab13d0ae5de5f9d13 # 0.31.7
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@f5847cb398fe65d53794e6aba98ebdfa0801f691 # 0.32.0
         if: github.event.pull_request.number && steps.generate-summary.outputs.summary
         with:
           title: "## Built Images Summary"
