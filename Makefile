@@ -50,6 +50,10 @@ test-all: ## Run tests for all images
 		$(MAKE) test "$$image_name" || exit 1; \
 	done
 
+ci: ## Run full CI checks (lint + tests)
+	$(MAKE) lint-fix
+	$(MAKE) test-all
+
 define run_linter
 	DEFAULT_WORKSPACE="$(CURDIR)"; \
 	LINTER_IMAGE="linter:latest"; \

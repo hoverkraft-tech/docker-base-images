@@ -13,20 +13,10 @@ on:
         type: string
         default: '["ubuntu-latest"]'
         required: false
-      github-app-id:
-        description: |
-          GitHub App ID to generate GitHub token in place of github-token.
-          See https://github.com/actions/create-github-app-token.
-        required: false
-        type: string
     secrets:
       github-token:
         description: |
-          GitHub token with permissions `contents: write`, `pull-requests: write`.
-      github-app-key:
-        description: |
-          GitHub App private key to generate GitHub token in place of github-token.
-          See https://github.com/actions/create-github-app-token.
+          GitHub token with permissions `contents: read`, `pull-requests: write`.
 
 concurrency:
   group: ${{ github.workflow }}-images-${{ github.event.number || github.ref }}
@@ -40,22 +30,22 @@ jobs:
     permissions:
       contents: read
       id-token: write # Needed for getting local workflow actions
+    with:
+      runs-on: ${{ inputs.runs-on }}
 
   prepare-release:
-    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@5ff7d4c3910971ed53834becd5967271b4e228cf # 0.21.1
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@b56be562f38e0e3e712f09691a8fe930aae9db1b # 0.22.0
     needs: get-available-images-matrix
     strategy:
       matrix:
         image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
       fail-fast: false
     permissions:
-      contents: write
+      contents: read
       id-token: write
       pull-requests: write
     with:
       runs-on: ${{ inputs.runs-on }}
-      github-app-id: ${{ inputs.github-app-id || null }}
       working-directory: images/${{ matrix.image }}
     secrets:
       github-token: ${{ secrets.github-token || null }}
-      github-app-key: ${{ secrets.github-app-key || null }}
