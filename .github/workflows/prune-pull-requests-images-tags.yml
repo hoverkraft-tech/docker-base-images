@@ -34,7 +34,7 @@ jobs:
       packages: write
       pull-requests: read
     needs: get-available-images-matrix
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@df8b445f6cc9661dcb282d897d7146a82e5f2960 # 0.31.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@bcbbcaff24e053e38ebab02dd0e41442df196719 # 0.32.0
     with:
       runs-on: ${{ inputs.runs-on }}
       images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
