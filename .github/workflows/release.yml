@@ -59,7 +59,7 @@ jobs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           actions-path: actions
 
@@ -124,7 +124,7 @@ jobs:
 
             core.setOutput('images-matrix', JSON.stringify(imagesMatrix));
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4b53189212d5810f710bed89711002626977215b # 0.33.0
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -144,7 +144,7 @@ jobs:
       fail-fast: false
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           actions-path: actions
 
@@ -174,13 +174,13 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
 
       # jscpd:ignore-start
-      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4b53189212d5810f710bed89711002626977215b # 0.33.0
+      - uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         if: always() && steps.local-workflow-actions.outputs.repository
         with:
           actions-path: actions
@@ -195,7 +195,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           artifact-name: "images-to-release"
 
@@ -241,7 +241,7 @@ jobs:
             }));
 
       - if: steps.set-images-to-build.outputs.image
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           value: ${{ steps.set-images-to-build.outputs.image }}
           artifact-name: images-to-build
@@ -255,7 +255,7 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@4b53189212d5810f710bed89711002626977215b # 0.33.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@03a5a2a3626b03434b19b79cdd2e141bea410bae # 0.34.1
         with:
           artifact-name: "images-to-build"
   # jscpd:ignore-end
