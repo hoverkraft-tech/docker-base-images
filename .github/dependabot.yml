@@ -3,7 +3,9 @@ version: 2
 updates:
   - package-ecosystem: docker
     open-pull-requests-limit: 20
-    directory: "/"
+    directories:
+      - "/"
+      - "/images/*/*"
     schedule:
       interval: weekly
       day: friday
