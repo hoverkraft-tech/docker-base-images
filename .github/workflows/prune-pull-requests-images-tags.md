@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Clean images tags from pull requests
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/1726a7f8e34adaef1a141d03b14c5ecad91d075ec083c634255f186f19cfa1e0/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
+  <img src="https://opengraph.githubassets.com/65b59714118ba8a92454c0de211e504da183c8e72fedd2f4f63735579baca7f8/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
 </div>
 
 ---
