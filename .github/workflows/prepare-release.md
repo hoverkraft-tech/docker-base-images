@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Prepare Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/ec6477fa9fd3cfcfa77f24e1537ef9856ffd66a4a1c8ed0db920661420144722/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Prepare Release" />
+  <img src="https://opengraph.githubassets.com/9107294fbbc6a7d555662f6a8745f679ae091f2331dc7882f85f0ad2cbd151a0/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Prepare Release" />
 </div>
 
 ---
@@ -26,7 +26,7 @@ Prepare for all the available images
 
 ### Permissions
 
-- **`contents`**: `write`
+- **`contents`**: `read`
 - **`id-token`**: `write`
 - **`pull-requests`**: `write`
 
@@ -47,48 +47,42 @@ jobs:
     uses: hoverkraft-tech/docker-base-images/.github/workflows/prepare-release.yml@ad965683cf180fd7b09b6bd3948fdc1a164c6661 # 0.2.0
     permissions: {}
     secrets:
-      # GitHub token with permissions `contents: write`, `pull-requests: write`.
+      # GitHub token with permissions `contents: read`, `pull-requests: write`.
       github-token: ""
-
-      # GitHub App private key to generate GitHub token in place of github-token.
-      # See https://github.com/actions/create-github-app-token.
-      github-app-key: ""
     with:
       # JSON array of runner(s) to use.
       # See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
       #
       # Default: `["ubuntu-latest"]`
       runs-on: '["ubuntu-latest"]'
-
-      # GitHub App ID to generate GitHub token in place of github-token.
-      # See https://github.com/actions/create-github-app-token.
-      github-app-id: ""
 ```
 
 <!-- usage:end -->
+<!--
+// jscpd:ignore-start
+-->
 <!-- inputs:start -->
 
 ## Inputs
 
 ### Workflow Call Inputs
 
-| **Input**           | **Description**                                                                    | **Required** | **Type**   | **Default**         |
-| ------------------- | ---------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- |
-| **`runs-on`**       | JSON array of runner(s) to use.                                                    | **false**    | **string** | `["ubuntu-latest"]` |
-|                     | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>. |              |            |                     |
-| **`github-app-id`** | GitHub App ID to generate GitHub token in place of github-token.                   | **false**    | **string** | -                   |
-|                     | See <https://github.com/actions/create-github-app-token>.                          |              |            |                     |
+| **Input**     | **Description**                                                                    | **Required** | **Type**   | **Default**         |
+| ------------- | ---------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- |
+| **`runs-on`** | JSON array of runner(s) to use.                                                    | **false**    | **string** | `["ubuntu-latest"]` |
+|               | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>. |              |            |                     |
 
 <!-- inputs:end -->
+<!--
+// jscpd:ignore-end
+-->
 <!-- secrets:start -->
 
 ## Secrets
 
-| **Secret**           | **Description**                                                           | **Required** |
-| -------------------- | ------------------------------------------------------------------------- | ------------ |
-| **`github-token`**   | GitHub token with permissions `contents: write`, `pull-requests: write`.  | **false**    |
-| **`github-app-key`** | GitHub App private key to generate GitHub token in place of github-token. | **false**    |
-|                      | See <https://github.com/actions/create-github-app-token>.                 |              |
+| **Secret**         | **Description**                                                         | **Required** |
+| ------------------ | ----------------------------------------------------------------------- | ------------ |
+| **`github-token`** | GitHub token with permissions `contents: read`, `pull-requests: write`. | **false**    |
 
 <!-- secrets:end -->
 <!-- outputs:start -->
