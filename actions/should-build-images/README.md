@@ -3,7 +3,7 @@
 # ![Icon](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItY2hlY2stc3F1YXJlIiBjb2xvcj0iYmx1ZSI+PHBvbHlsaW5lIHBvaW50cz0iOSAxMSAxMiAxNCAyMiA0Ij48L3BvbHlsaW5lPjxwYXRoIGQ9Ik0yMSAxMnY3YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yVjVhMiAyIDAgMCAxIDItMmgxMSI+PC9wYXRoPjwvc3ZnPg==) GitHub Action: Should build the given images
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/2ebeafd13c82e4f07828a4a579aa245c17187494d18e2f1f0b24d2799381bddb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
+  <img src="https://opengraph.githubassets.com/173f22386bd2cb2f92d28c2be127409e365faaea2a97e3892ad15d4fcd5faa1d/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Should build the given images" />
 </div>
 
 ---
@@ -30,7 +30,7 @@ Check if some files have changed requiring the build of the given images.
 ## Usage
 
 ```yaml
-- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@ad965683cf180fd7b09b6bd3948fdc1a164c6661 # 0.2.0
+- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@750966723a23a979f7ea89b519e019b9fe0232a7 # 0.3.0
   with:
     # Image names located in the 'images' folder.
     # Formatted as a JSON array.
