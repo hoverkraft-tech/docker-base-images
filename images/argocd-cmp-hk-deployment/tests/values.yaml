@@ -142,7 +142,7 @@ affinity: {}
 testConnection:
   image:
     repository: busybox
-    tag: "1.36.1"
+    tag: "1.37.0"
     digest: sha256:355b3a1bf5609da364166913878a8508d4ba30572d02020a97028c75477e24ff
   resources:
     limits:
