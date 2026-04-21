@@ -7,7 +7,54 @@ on: # yamllint disable-line rule:truthy
 permissions: {}
 
 jobs:
+  build-test-image:
+    uses: ./.github/workflows/docker-build-images.yml
+    permissions:
+      contents: read
+      issues: read
+      packages: write
+      pull-requests: write
+      id-token: write
+    with:
+      images: '[{"name":"testcontainers-node"}]'
+    secrets:
+      oci-registry-password: ${{ github.token }}
+
+  prepare-test-image:
+    needs: build-test-image
+    if: needs.build-test-image.outputs.built-images && contains(needs.build-test-image.outputs.built-images, '"testcontainers-node"')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      test-image-tag: ${{ steps.set-test-image-tag.outputs.test-image-tag }}
+    steps:
+      - id: set-test-image-tag
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BUILT_IMAGES: ${{ needs.build-test-image.outputs.built-images }}
+        with:
+          script: |
+            const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
+            const builtImageNames = Object.keys(builtImages);
+
+            if (builtImageNames.length === 0) {
+              throw new Error("The test image build completed without producing any built image outputs.");
+            }
+
+            const testImageData = builtImages["testcontainers-node"];
+            const testImageTag = testImageData?.tags?.[0];
+
+            if (!testImageTag) {
+              throw new Error(
+                `No built testcontainers-node image tag found. Available built images: ${builtImageNames.join(", ")}.`
+              );
+            }
+
+            core.setOutput("test-image-tag", testImageTag);
+
   ci:
+    needs: prepare-test-image
     uses: ./.github/workflows/continuous-integration.yml
     permissions:
       actions: read
@@ -18,5 +65,7 @@ jobs:
       pull-requests: write
       security-events: write
       statuses: write
+    with:
+      test-image-tag: ${{ needs.prepare-test-image.outputs.test-image-tag }}
     secrets:
       oci-registry-password: ${{ github.token }}

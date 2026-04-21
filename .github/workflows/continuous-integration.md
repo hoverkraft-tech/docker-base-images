@@ -46,7 +46,7 @@ and runs tests against the built images using [testcontainers](https://testconta
 
 ## Testing
 
-Tests are defined per image as `images/<image>/test.spec.js` and executed with Node.js built-in test runner (`node --test`) from inside the `testcontainers:latest` runner image.
+Tests are defined per image as `images/<image>/test.spec.js` and executed with Node.js built-in test runner (`node --test`) from inside the configured `ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node` runner image.
 
 ### Test Configuration
 
@@ -61,6 +61,8 @@ The workflow injects a few environment variables:
 
 - `IMAGE_NAME`: the image reference under test
 - `HOST_TESTS_DIR`: absolute host path to `images/<image>/tests` (useful for bind-mounting fixtures)
+
+The workflow pulls the published runner image with the configured `test-image-tag`.
 
 ### Example Test
 
@@ -137,6 +139,11 @@ jobs:
       # If not provided, all available images will be considered.
       # Example: `["php-8", "nodejs-24"]`
       images: ""
+
+      # Tag of the published `testcontainers-node` runner image to use for tests.
+      #
+      # Default: `latest`
+      test-image-tag: latest
 ```
 
 <!-- usage:end -->
@@ -158,6 +165,7 @@ jobs:
 | **`images`**                | JSON array of images to build.                                                         | **false**    | **string** | -                                |
 |                             | If not provided, all available images will be considered.                              |              |            |                                  |
 |                             | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                  |
+| **`test-image-tag`**        | Tag of the published `testcontainers-node` runner image to use for tests.              | **false**    | **string** | `latest`                         |
 
 <!-- inputs:end -->
 

@@ -48,6 +48,12 @@ on:
           Example: `["php-8", "nodejs-24"]`
         type: string
         required: false
+      test-image-tag:
+        description: |
+          Tag of the published `testcontainers-node` runner image to use for tests.
+        type: string
+        default: "latest"
+        required: false
     outputs:
       built-images:
         description: |
@@ -98,6 +104,7 @@ jobs:
       contents: read
     outputs:
       matrix: ${{ steps.prepare-matrix.outputs.matrix }}
+      test-image-ref: ${{ steps.prepare-matrix.outputs.test-image-ref }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -107,10 +114,12 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BUILT_IMAGES: ${{ needs.build-images.outputs.built-images }}
+          TEST_IMAGE_TAG: ${{ inputs.test-image-tag }}
         with:
           script: |
             const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
             const imageNames = Object.keys(builtImages);
+            const testImageRef = `ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node:${process.env.TEST_IMAGE_TAG}`;
 
             const matrix = [];
             for (const imageName of imageNames) {
@@ -133,6 +142,7 @@ jobs:
             }
 
             core.setOutput('matrix', JSON.stringify(matrix));
+            core.setOutput('test-image-ref', testImageRef);
 
   test-images:
     needs: [build-images, prepare-test-matrix]
@@ -160,8 +170,8 @@ jobs:
 
       - run: docker pull ${{ matrix.imageRef }}
 
-      - name: Build testcontainers test image
-        run: docker build --tag testcontainers:latest ./images/testcontainers-node
+      - name: Pull testcontainers test image
+        run: docker pull ${{ needs.prepare-test-matrix.outputs.test-image-ref }}
 
       - name: Run testcontainers tests
         run: |
@@ -171,7 +181,7 @@ jobs:
             -e IMAGE_NAME=${{ matrix.imageRef }} \
             -e HOST_TESTS_DIR=${{ github.workspace }}/images/${{ matrix.name }}/tests \
             -w /workspace \
-            testcontainers:latest \
+            ${{ needs.prepare-test-matrix.outputs.test-image-ref }} \
             node --test --test-reporter=spec --test-reporter-destination=stdout
 
       - name: 📊 Parse coverage reports
