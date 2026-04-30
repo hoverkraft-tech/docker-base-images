@@ -204,7 +204,7 @@ jobs:
       - id: create-release
         uses: hoverkraft-tech/ci-github-publish/actions/release/create@91a69c7a9730d3ec2886a80681dbb67634c70970 # 0.23.1
         with:
-          prerelease: ${{ inputs.prerelease }}
+          prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
 
       - id: set-images-to-build
