@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Clean images tags from pull requests
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/65b59714118ba8a92454c0de211e504da183c8e72fedd2f4f63735579baca7f8/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
+  <img src="https://opengraph.githubassets.com/ae61a8b4d0fc9c9009d3cb42a17a1d30d5c20dbeef163f4f85cc9b94f67a9b25/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Clean images tags from pull requests" />
 </div>
 
 ---
@@ -29,7 +29,6 @@ Should be used from main CI workflow after tests are done.
 ### Permissions
 
 - **`contents`**: `read`
-- **`id-token`**: `write`
 - **`packages`**: `write`
 - **`pull-requests`**: `read`
 
@@ -50,7 +49,7 @@ on:
 permissions: {}
 jobs:
   prune-pull-requests-images-tags:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@ad965683cf180fd7b09b6bd3948fdc1a164c6661 # 0.2.0
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@750966723a23a979f7ea89b519e019b9fe0232a7 # 0.3.0
     permissions: {}
     with:
       # JSON array of runner(s) to use.
