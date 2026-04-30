@@ -29,12 +29,11 @@ jobs:
     uses: ./.github/workflows/get-available-images-matrix.yml
     permissions:
       contents: read
-      id-token: write # Needed for getting local workflow actions
     with:
       runs-on: ${{ inputs.runs-on }}
 
   prepare-release:
-    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@48e0c54489152b98d9e18f0454ccce120e9d0fd1 # 0.23.0
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@91a69c7a9730d3ec2886a80681dbb67634c70970 # 0.23.1
     needs: get-available-images-matrix
     strategy:
       matrix:
@@ -42,7 +41,6 @@ jobs:
       fail-fast: false
     permissions:
       contents: read
-      id-token: write
       pull-requests: write
     with:
       runs-on: ${{ inputs.runs-on }}
