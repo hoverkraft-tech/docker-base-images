@@ -14,5 +14,4 @@ jobs:
     uses: ./.github/workflows/prepare-release.yml
     permissions:
       contents: read
-      id-token: write
       pull-requests: write

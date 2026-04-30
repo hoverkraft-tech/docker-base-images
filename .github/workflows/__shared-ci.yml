@@ -11,10 +11,10 @@ jobs:
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read
+      id-token: write
       issues: read
       packages: write
       pull-requests: write
-      id-token: write
     with:
       images: '[{"name":"testcontainers-node"}]'
     secrets:

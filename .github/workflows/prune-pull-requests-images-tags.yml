@@ -25,16 +25,14 @@ jobs:
       runs-on: ${{ inputs.runs-on }}
     permissions:
       contents: read
-      id-token: write
 
   prune:
     permissions:
       contents: read
-      id-token: write
       packages: write
       pull-requests: read
     needs: get-available-images-matrix
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@e4bf7a12228a2a4b5993d2d36b99b4dd0ec80bf5 # 0.32.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@e68cac9a52f0a24cd3800fc723dc4899f647e42b # 0.33.0
     with:
       runs-on: ${{ inputs.runs-on }}
       images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
