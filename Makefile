@@ -26,6 +26,10 @@ test: ## Run tests for an image (usage: make test <image-name>)
 		echo "Error: Please specify an image name. Usage: make test <image-name>"; \
 		exit 1; \
 	fi; \
+	if ! ls images/$$image_name/*.test.js >/dev/null 2>&1; then \
+		echo "No .test.js file found for $$image_name; skipping."; \
+		exit 0; \
+	fi; \
 	echo "Building $$image_name for testing...\n"; \
 	$(MAKE) build $$image_name || exit 1; \
 	echo "Building testcontainers test image...\n"; \
@@ -34,18 +38,20 @@ test: ## Run tests for an image (usage: make test <image-name>)
 	docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $(PWD):$(PWD):ro \
-		-v $(PWD)/images/$$image_name:/workspace/image:ro \
-		-e IMAGE_NAME="$$image_name:latest" \
-		-e HOST_TESTS_DIR="/workspace/image/tests" \
-		-w /workspace/image \
+		-v $(PWD)/images/$$image_name:/workspace/image \
+		-e TESTED_IMAGE_REF="$$image_name:latest" \
+		-e HOST_UID="$(shell id -u)" \
+		-e HOST_GID="$(shell id -g)" \
 		-u root \
-		testcontainers:latest \
-		sh -c 'if [ -f test.spec.js ]; then node --test test.spec.js; else echo "No test.spec.js found; skipping"; fi' || exit 1; \
+		testcontainers:latest || exit 1; \
 	echo "\nTests passed for $$image_name.\n";
 
 test-all: ## Run tests for all images
 	$(MAKE) build testcontainers-node
 	@for image_dir in images/*/; do \
+		if ! ls "$$image_dir"/*.test.js >/dev/null 2>&1; then \
+			continue; \
+		fi; \
 		image_name=$$(basename "$$image_dir"); \
 		$(MAKE) test "$$image_name" || exit 1; \
 	done
