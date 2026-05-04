@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/ae61a8b4d0fc9c9009d3cb42a17a1d30d5c20dbeef163f4f85cc9b94f67a9b25/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/597ad6e08054ea71756fcce4fd56e9a6bb61db06186d306b7bffe05c57a67091/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -111,7 +111,7 @@ on:
 permissions: {}
 jobs:
   continuous-integration:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@750966723a23a979f7ea89b519e019b9fe0232a7 # 0.3.0
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@5383038191ae7feeb42cc7f89279ca5e06de13b1 # 0.4.1
     permissions: {}
     secrets:
       # Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.

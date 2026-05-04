@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Build Docker images
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/5e816d1a5822df0ddc29caac1393a57e1257e0b392e8194041ff06745edb906e/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Build Docker images" />
+  <img src="https://opengraph.githubassets.com/597ad6e08054ea71756fcce4fd56e9a6bb61db06186d306b7bffe05c57a67091/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Build Docker images" />
 </div>
 
 ---
@@ -32,7 +32,7 @@ on:
 permissions: {}
 jobs:
   docker-build-images:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/docker-build-images.yml@750966723a23a979f7ea89b519e019b9fe0232a7 # 0.3.0
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/docker-build-images.yml@5383038191ae7feeb42cc7f89279ca5e06de13b1 # 0.4.1
     permissions: {}
     secrets:
       # Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
