@@ -107,16 +107,16 @@ Tests use [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.
 
 - Requires only Docker and Make (no local Node.js installation needed for `make test`)
 - Runs tests in a containerized environment for consistency
-- Tests are colocated with their respective images (e.g., `images/ci-helm/test.spec.js`)
+- Tests are colocated with their respective images (e.g., `images/ci-helm/ci-helm.test.js`)
 - Each test validates: command availability, file existence, metadata, and environment variables
 - All tests share a single Node.js module in `images/testcontainers-node/`
 
 How tests are executed in this repository:
 
 - `make test <image>` builds the image and runs tests inside the `images/testcontainers-node` runner image.
+- Each test run also writes a JUnit report to `images/<image>/junit.xml`.
 - The harness injects:
-  - `IMAGE_NAME`: the image ref to test (e.g. `ci-helm:latest` locally, or an OCI ref in CI)
-  - `HOST_TESTS_DIR`: absolute path to `images/<image>/tests` on the host (useful for bind-mounting fixtures)
+  - `TESTED_IMAGE_REF`: the image ref to test (e.g. `ci-helm:latest` locally, or an OCI ref in CI)
 
 **Writing good image tests (recommended):**
 
@@ -126,7 +126,7 @@ How tests are executed in this repository:
 - Prefer `container.exec(cmd, { env, workingDir })` over shell string interpolation for env handling.
 - Use a long-running command like `sleep infinity` so you can run multiple `exec` checks.
 
-Basic example (`images/<image>/test.spec.js`):
+Basic example (`images/<image>/<image>.test.js`):
 
 ```js
 import { after, before, describe, it } from "node:test";
@@ -134,11 +134,15 @@ import assert from "node:assert";
 import { GenericContainer } from "testcontainers";
 
 describe("My Image", () => {
-  const imageName = process.env.IMAGE_NAME || "my-image:latest";
+  const testedImageRef = process.env.TESTED_IMAGE_REF;
   let container;
 
+  if (!testedImageRef) {
+    throw new Error("TESTED_IMAGE_REF environment variable is required");
+  }
+
   before(async () => {
-    container = await new GenericContainer(imageName)
+    container = await new GenericContainer(testedImageRef)
       .withCommand(["sleep", "infinity"])
       .start();
   });
@@ -168,7 +172,7 @@ describe("My Image", () => {
 #### File Conventions
 
 - **Dockerfile**: Uses Super Linter slim image for consistent code quality
-- **Tests**: Located in each image directory (e.g., `images/*/test.spec.js`) using [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.js
+- **Tests**: Located in each image directory (e.g., `images/*/<image>.test.js`) using [testcontainers](https://testcontainers.com/modules/nodejs/) for Node.js
 - **Workflows**: Private workflows prefixed with `__` (e.g., `__main-ci.yml`)
 
 #### Action Development Conventions
@@ -229,7 +233,7 @@ images/                               # Docker images (each image is self-contai
 └── <image>/
   ├── Dockerfile
   ├── README.md
-  ├── test.spec.js                  # Node.js tests (run via make/CI)
+  ├── <image-name>.test.js          # Node.js tests (run via make/CI)
   └── tests/                        # Optional fixtures used by some tests
 ```
 

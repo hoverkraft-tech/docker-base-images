@@ -104,7 +104,6 @@ jobs:
       contents: read
     outputs:
       matrix: ${{ steps.prepare-matrix.outputs.matrix }}
-      test-image-ref: ${{ steps.prepare-matrix.outputs.test-image-ref }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -114,15 +113,25 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BUILT_IMAGES: ${{ needs.build-images.outputs.built-images }}
-          TEST_IMAGE_TAG: ${{ inputs.test-image-tag }}
         with:
           script: |
+            const path = require('node:path');
             const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
             const imageNames = Object.keys(builtImages);
-            const testImageRef = `ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node:${process.env.TEST_IMAGE_TAG}`;
 
             const matrix = [];
             for (const imageName of imageNames) {
+              const imageDir = path.join(process.env.GITHUB_WORKSPACE, 'images', imageName);
+              const testFiles = await (await glob.create(`${imageDir}/*.test.js`, {
+                matchDirectories: false,
+              })).glob();
+              const hasTests = testFiles.length > 0;
+
+              if (!hasTests) {
+                core.warning(`Skipping ${imageName}: no .test.js file found`);
+                continue;
+              }
+
               const imageData = builtImages[imageName];
 
               // Get the first image reference
@@ -142,12 +151,15 @@ jobs:
             }
 
             core.setOutput('matrix', JSON.stringify(matrix));
-            core.setOutput('test-image-ref', testImageRef);
 
   test-images:
     needs: [build-images, prepare-test-matrix]
     if: needs.prepare-test-matrix.outputs.matrix
     runs-on: ${{ fromJson(inputs.runs-on) }}
+    env:
+      TEST_IMAGE_REF: ${{ format('{0}/{1}/testcontainers-node:{2}', inputs.oci-registry, github.repository, inputs.test-image-tag) }}
+      TESTED_IMAGE_REF: ${{ matrix.imageRef }}
+      TESTED_IMAGE_DIR: ${{ github.workspace }}/images/${{ matrix.name }}
     permissions:
       contents: read
       packages: read
@@ -168,21 +180,23 @@ jobs:
           username: ${{ inputs.oci-registry-username }}
           password: ${{ secrets.oci-registry-password || github.token }}
 
-      - run: docker pull ${{ matrix.imageRef }}
-
       - name: Pull testcontainers test image
-        run: docker pull ${{ needs.prepare-test-matrix.outputs.test-image-ref }}
+        run: docker pull "$TEST_IMAGE_REF"
+
+      - name: Pull image to test
+        run: docker pull "$TESTED_IMAGE_REF"
 
       - name: Run testcontainers tests
         run: |
           docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v ${{ github.workspace }}/images/${{ matrix.name }}:/workspace \
-            -e IMAGE_NAME=${{ matrix.imageRef }} \
-            -e HOST_TESTS_DIR=${{ github.workspace }}/images/${{ matrix.name }}/tests \
-            -w /workspace \
-            ${{ needs.prepare-test-matrix.outputs.test-image-ref }} \
-            node --test --test-reporter=spec --test-reporter-destination=stdout
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "${{ github.workspace }}:${{ github.workspace }}:ro" \
+              -v "$TESTED_IMAGE_DIR:/workspace/image" \
+              -e TESTED_IMAGE_REF="$TESTED_IMAGE_REF" \
+              -e HOST_UID="$(id -u)" \
+              -e HOST_GID="$(id -g)" \
+              -u root \
+              "$TEST_IMAGE_REF"
 
       - name: 📊 Parse coverage reports
         if: always()
@@ -192,10 +206,11 @@ jobs:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
           output-format: "summary,markdown"
+          working-directory: "images/${{ matrix.name }}"
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
         uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
         with:
-          title: "Code Coverage Report"
+          title: "Code Coverage Report - ${{ matrix.name }}"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}

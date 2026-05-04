@@ -4,11 +4,16 @@ import { GenericContainer } from "testcontainers";
 
 describe("Testcontainers Node Runner Image", () => {
   let container;
-  const imageName = process.env.IMAGE_NAME || "testcontainers-node:latest";
+  const testedImageRef = process.env.TESTED_IMAGE_REF;
+
+  if (!testedImageRef) {
+    throw new Error("TESTED_IMAGE_REF environment variable is required");
+  }
 
   before(async () => {
-    const builder = new GenericContainer(imageName);
-    builder.withCommand(["sleep", "infinity"]);
+    const builder = new GenericContainer(testedImageRef);
+    builder.withEntrypoint(["sleep"]);
+    builder.withCommand(["infinity"]);
     container = await builder.start();
   });
 
@@ -42,9 +47,9 @@ describe("Testcontainers Node Runner Image", () => {
     assert.strictEqual(output.trim(), "tester");
   });
 
-  it("metadata: workdir is /workspace", async () => {
+  it("metadata: workdir is /workspace/image", async () => {
     const { exitCode, output } = await container.exec(["pwd"]);
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(output.trim(), "/workspace");
+    assert.strictEqual(output.trim(), "/workspace/image");
   });
 });

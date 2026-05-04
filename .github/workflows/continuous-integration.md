@@ -46,11 +46,11 @@ and runs tests against the built images using [testcontainers](https://testconta
 
 ## Testing
 
-Tests are defined per image as `images/<image>/test.spec.js` and executed with Node.js built-in test runner (`node --test`) from inside the configured `ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node` runner image.
+Tests are defined per image as `images/<image>/<image>.test.js` and executed with Node.js built-in test runner (`node --test`) from inside the configured `ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node` runner image.
 
 ### Test Configuration
 
-Each image has a `test.spec.js` file that typically:
+Each image has an `<image>.test.js` file that typically:
 
 - Start containers and execute commands
 - Verify file existence and permissions
@@ -59,8 +59,9 @@ Each image has a `test.spec.js` file that typically:
 
 The workflow injects a few environment variables:
 
-- `IMAGE_NAME`: the image reference under test
-- `HOST_TESTS_DIR`: absolute host path to `images/<image>/tests` (useful for bind-mounting fixtures)
+- `TESTED_IMAGE_REF`: the image reference under test
+
+The runner also writes a JUnit report to `images/<image>/junit.xml`, which is picked up by the CI report parsing step.
 
 The workflow pulls the published runner image with the configured `test-image-tag`.
 
@@ -72,11 +73,15 @@ import assert from "node:assert";
 import { GenericContainer } from "testcontainers";
 
 describe("CI Helm Image", () => {
-  const imageName = process.env.IMAGE_NAME || "ci-helm:latest";
+  const testedImageRef = process.env.TESTED_IMAGE_REF;
   let container;
 
+  if (!testedImageRef) {
+    throw new Error("TESTED_IMAGE_REF environment variable is required");
+  }
+
   before(async () => {
-    container = await new GenericContainer(imageName)
+    container = await new GenericContainer(testedImageRef)
       .withCommand(["sleep", "infinity"])
       .start();
   });

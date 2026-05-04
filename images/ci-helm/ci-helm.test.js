@@ -4,10 +4,14 @@ import { GenericContainer } from "testcontainers";
 
 describe("CI Helm Image", () => {
   let container;
-  const imageName = process.env.IMAGE_NAME || "ci-helm:latest";
+  const testedImageRef = process.env.TESTED_IMAGE_REF;
+
+  if (!testedImageRef) {
+    throw new Error("TESTED_IMAGE_REF environment variable is required");
+  }
 
   before(async () => {
-    container = await new GenericContainer(imageName)
+    container = await new GenericContainer(testedImageRef)
       .withCommand(["sleep", "infinity"])
       .start();
   });

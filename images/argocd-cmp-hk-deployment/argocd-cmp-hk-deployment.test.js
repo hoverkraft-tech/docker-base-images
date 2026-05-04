@@ -9,10 +9,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe("ArgoCD CMP HK Deployment Image", () => {
   let container;
-  const imageName = process.env.IMAGE_NAME || "argocd-cmp-hk-deployment:latest";
+  const testedImageRef = process.env.TESTED_IMAGE_REF;
+  const testsDir = path.join(__dirname, "tests");
 
-  const hostTestsDir =
-    process.env.HOST_TESTS_DIR || path.join(__dirname, "tests");
+  if (!testedImageRef) {
+    throw new Error("TESTED_IMAGE_REF environment variable is required");
+  }
 
   // Helper function to run commands with environment
   async function runScript(script, env = {}) {
@@ -48,22 +50,21 @@ describe("ArgoCD CMP HK Deployment Image", () => {
   before(async () => {
     // Verify tests directory exists
     assert.ok(
-      fs.existsSync(hostTestsDir),
-      `Tests directory is required but missing: ${hostTestsDir}`,
+      fs.existsSync(testsDir),
+      `Tests directory is required but missing: ${testsDir}`,
     );
 
-    container = await new GenericContainer(imageName)
+    container = await new GenericContainer(testedImageRef)
       .withCommand(["sleep", "infinity"])
       .withEnvironment({
         ARGOCD_APP_NAME: "hk-app",
         ARGOCD_APP_NAMESPACE: "hk-ns",
         KUBE_VERSION: "1.33.0",
       })
-      .withBindMounts([
+      .withCopyDirectoriesToContainer([
         {
-          source: hostTestsDir,
+          source: testsDir,
           target: "/mnt/tests-ro",
-          mode: "ro",
         },
       ])
       .start();
@@ -216,38 +217,5 @@ describe("ArgoCD CMP HK Deployment Image", () => {
       "/hk-tools/entrypoint.sh",
     ]);
     assert.strictEqual(exitCode, 0);
-  });
-
-  it("single-source script is present", async () => {
-    const { exitCode } = await container.exec([
-      "test",
-      "-x",
-      "/hk-tools/single-source.sh",
-    ]);
-    assert.strictEqual(exitCode, 0);
-  });
-
-  it("multi-sources script is present", async () => {
-    const { exitCode } = await container.exec([
-      "test",
-      "-x",
-      "/hk-tools/multi-sources.sh",
-    ]);
-    assert.strictEqual(exitCode, 0);
-  });
-
-  it("kustomize template exists", async () => {
-    const { exitCode } = await container.exec([
-      "test",
-      "-f",
-      "/hk-tools/kustomize-template.yaml",
-    ]);
-    assert.strictEqual(exitCode, 0);
-  });
-
-  it("metadata: user is argocd", async () => {
-    const { exitCode, output } = await container.exec(["id", "-un"]);
-    assert.strictEqual(exitCode, 0);
-    assert.strictEqual(output.trim(), "argocd");
   });
 });

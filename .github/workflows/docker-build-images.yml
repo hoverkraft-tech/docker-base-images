@@ -175,7 +175,6 @@ jobs:
             await core.summary.clear();
 
             core.summary
-              .addHeading('Built Images Summary', 2)
               .addTable([
                 headers.map((header) => ({ data: header, header: true })),
                 ...tableRows.map((row) => row.map((cell) => ({ data: cell }))),
@@ -214,12 +213,18 @@ jobs:
               core.summary.addDetails(imageName, detailsBody);
             }
 
+            const summaryTitle = 'Built Images Summary';
+            core.setOutput('summary-title', summaryTitle);
+
             const summaryContent = await core.summary.stringify();
+            core.setOutput('summary-body', summaryContent);
+
+            await core.summary.clear();
+            core.summary.addHeading(summaryTitle, 2).addRaw(summaryContent);
             await core.summary.write();
-            core.setOutput('summary', summaryContent);
 
       - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
-        if: github.event.pull_request.number && steps.generate-summary.outputs.summary
+        if: github.event.pull_request.number && steps.generate-summary.outputs.summary-body
         with:
-          title: "## Built Images Summary"
-          body: ${{ steps.generate-summary.outputs.summary }}
+          title: "## ${{ steps.generate-summary.outputs.summary-title }}"
+          body: ${{ steps.generate-summary.outputs.summary-body }}
