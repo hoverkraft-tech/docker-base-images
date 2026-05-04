@@ -157,7 +157,7 @@ jobs:
     if: needs.prepare-test-matrix.outputs.matrix
     runs-on: ${{ fromJson(inputs.runs-on) }}
     env:
-      TEST_IMAGE_REF: ${{ format('{0}/{1}/testcontainers-node:{2}', inputs.oci-registry, github.repository, inputs.test-image-tag) }}
+      TEST_IMAGE_REF: ${{ format('ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node:{0}', inputs.test-image-tag) }}
       TESTED_IMAGE_REF: ${{ matrix.imageRef }}
       TESTED_IMAGE_DIR: ${{ github.workspace }}/images/${{ matrix.name }}
     permissions:
