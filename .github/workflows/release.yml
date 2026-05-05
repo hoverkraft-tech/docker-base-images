@@ -1,3 +1,7 @@
+# Reusable workflow to create releases for changed images and publish the corresponding tags.
+# Images are grouped by latest released tag SHA to detect which ones need a new release.
+# Only images with changes since their latest image-specific tag are released and rebuilt.
+# Should be used from the main release workflow or manual dispatch entrypoint.
 name: Release
 
 on:
@@ -38,7 +42,7 @@ on:
     secrets:
       github-token:
         description: |
-          GitHub token with permissions `contents: read`.
+          GitHub token with permissions `contents: read`, `pull-requests: read`.
         required: false
       oci-registry-password:
         description: |
@@ -195,6 +199,7 @@ jobs:
     if: needs.get-images-to-release.outputs.images != '[]'
     permissions:
       contents: write
+      pull-requests: read
     needs: get-images-to-release
     strategy:
       matrix:
