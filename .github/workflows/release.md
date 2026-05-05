@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/1191b4dcfa2e58282bc7e0e310f096835b5ccfc1049822adcdcbd0d95563bd66/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
+  <img src="https://opengraph.githubassets.com/2c059b01fec9b8528a79f6314d3e29513ff2797590c86b5efaea7783b56229f5/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Release" />
 </div>
 
 ---
@@ -18,6 +18,22 @@
 
 <!-- badges:end -->
 <!-- overview:start -->
+
+## Overview
+
+Reusable workflow to create releases for changed images and publish the corresponding tags.
+Images are grouped by latest released tag SHA to detect which ones need a new release.
+Only images with changes since their latest image-specific tag are released and rebuilt.
+Should be used from the main release workflow or manual dispatch entrypoint.
+
+### Permissions
+
+- **`contents`**: `write`
+- **`id-token`**: `write`
+- **`issues`**: `read`
+- **`packages`**: `write`
+- **`pull-requests`**: `write`
+
 <!-- overview:end -->
 <!-- usage:start -->
 
@@ -35,7 +51,7 @@ jobs:
     uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@be1ab975016d98037e7c2db5ab5805cfe94fa247 # 0.4.2
     permissions: {}
     secrets:
-      # GitHub token with permissions `contents: read`.
+      # GitHub token with permissions `contents: read`, `pull-requests: read`.
       github-token: ""
 
       # Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
@@ -103,7 +119,7 @@ jobs:
 
 | **Secret**                  | **Description**                                                                                          | **Required** |
 | --------------------------- | -------------------------------------------------------------------------------------------------------- | ------------ |
-| **`github-token`**          | GitHub token with permissions `contents: read`.                                                          | **false**    |
+| **`github-token`**          | GitHub token with permissions `contents: read`, `pull-requests: read`.                                   | **false**    |
 | **`oci-registry-password`** | Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry. | **false**    |
 |                             | Defaults to GITHUB_TOKEN if not provided.                                                                |              |
 
