@@ -206,6 +206,7 @@ jobs:
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
 
       - id: set-images-to-build
         if: steps.create-release.outputs.tag != ''
