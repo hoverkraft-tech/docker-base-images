@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Prepare Release
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/83d8c19a72ad286a7725a049e2c5ec2412aa5ff9df13b8aa68d41bae7e33d345/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Prepare Release" />
+  <img src="https://opengraph.githubassets.com/3eacf48c56c8cff87d3c540b08cc1247832c35bc41924dcfb1c4d1c5788f8a14/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Prepare Release" />
 </div>
 
 ---
@@ -43,8 +43,10 @@ on:
 permissions: {}
 jobs:
   prepare-release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/prepare-release.yml@5383038191ae7feeb42cc7f89279ca5e06de13b1 # 0.4.1
-    permissions: {}
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/prepare-release.yml@43c81ed0c01b9ba140eaab2a07c5fc82eccce2bf # 0.4.3
+    permissions:
+      contents: read
+      pull-requests: write
     secrets:
       # GitHub token with permissions `contents: read`, `pull-requests: write`.
       github-token: ""
