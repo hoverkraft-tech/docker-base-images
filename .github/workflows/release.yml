@@ -62,7 +62,7 @@ jobs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           actions-path: actions
 
@@ -138,7 +138,7 @@ jobs:
       fail-fast: false
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           actions-path: actions
 
@@ -168,7 +168,7 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
@@ -180,7 +180,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           artifact-name: "images-to-release"
 
@@ -207,7 +207,7 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@281fe4959997eea619bf3a4be4fde2f16b8b6d0c # 0.23.3
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
@@ -228,7 +228,7 @@ jobs:
             }));
 
       - if: steps.set-images-to-build.outputs.image
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           value: ${{ steps.set-images-to-build.outputs.image }}
           artifact-name: images-to-build
@@ -242,7 +242,7 @@ jobs:
       images: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           artifact-name: "images-to-build"
   # jscpd:ignore-end
