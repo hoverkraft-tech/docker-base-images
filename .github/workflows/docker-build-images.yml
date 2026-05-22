@@ -60,7 +60,7 @@ jobs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
           actions-path: actions
 
@@ -120,7 +120,7 @@ jobs:
   build-images:
     needs: prepare-images-to-build
     if: needs.prepare-images-to-build.outputs.images
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@2b647ed6f11d50cb6beb6d56333e68ba2c804826 # 0.33.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@260358ba1fd405c57bc669823d89c625971a3431 # 0.34.2
     permissions:
       contents: read
       issues: read
@@ -223,7 +223,7 @@ jobs:
             core.summary.addHeading(summaryTitle, 2).addRaw(summaryContent);
             await core.summary.write();
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@4c9d51717dc04d823dac2dc9ac2857e7b3069454 # 0.35.0
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         if: github.event.pull_request.number && steps.generate-summary.outputs.summary-body
         with:
           title: "## ${{ steps.generate-summary.outputs.summary-title }}"
