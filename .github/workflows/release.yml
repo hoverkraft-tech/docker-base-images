@@ -1,6 +1,8 @@
-# Reusable workflow to create releases for changed images and publish the corresponding tags.
+# Reusable workflow to release changed images.
 # Images are grouped by latest released tag SHA to detect which ones need a new release.
 # Only images with changes since their latest image-specific tag are released and rebuilt.
+# Release tags are planned before builds.
+# Releases are created only after image publishing succeeds.
 # Should be used from the main release workflow or manual dispatch entrypoint.
 name: Release
 
@@ -42,7 +44,7 @@ on:
     secrets:
       github-token:
         description: |
-          GitHub token with permissions `contents: read`, `pull-requests: read`.
+          GitHub token with permissions `contents: write`, `pull-requests: read`.
         required: false
       oci-registry-password:
         description: |
@@ -52,6 +54,10 @@ on:
   workflow_dispatch:
 
 permissions: {}
+
+concurrency:
+  group: release-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   prepare-images:
@@ -193,12 +199,12 @@ jobs:
             const images = JSON.parse(process.env.IMAGES);
             core.setOutput('images', JSON.stringify(images.flat()));
 
-  release-images:
-    name: Release Image ${{ matrix.image }}
+  plan-releases:
+    name: Plan Release ${{ matrix.image }}
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     if: needs.get-images-to-release.outputs.images != '[]'
     permissions:
-      contents: write
+      contents: read
       pull-requests: read
     needs: get-images-to-release
     strategy:
@@ -206,50 +212,67 @@ jobs:
         image: ${{ fromJson(needs.get-images-to-release.outputs.images) }}
       fail-fast: false
     steps:
-      - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+      - id: plan-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
 
-      - id: set-images-to-build
-        if: steps.create-release.outputs.tag != ''
+      - id: set-planned-release
+        if: steps.plan-release.outputs.tag != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          TAG: ${{ steps.create-release.outputs.tag }}
+          TAG: ${{ steps.plan-release.outputs.tag }}
           IMAGE: ${{ matrix.image }}
         with:
           script: |
-            const buildTag = process.env.TAG.replace(new RegExp(`^${process.env.IMAGE}-`), '');
-            core.setOutput('image', JSON.stringify({
-              name: process.env.IMAGE,
-              tag: buildTag,
+            const releaseTag = process.env.TAG.trim();
+            const imageName = process.env.IMAGE.trim();
+            const imageTag = releaseTag.replace(new RegExp(`^${imageName}-`), '');
+
+            core.setOutput('planned-release', JSON.stringify({
+              name: imageName,
+              tag: imageTag,
+              releaseTag,
             }));
 
-      - if: steps.set-images-to-build.outputs.image
+      - if: steps.set-planned-release.outputs.planned-release
         uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
-          value: ${{ steps.set-images-to-build.outputs.image }}
-          artifact-name: images-to-build
+          value: ${{ steps.set-planned-release.outputs.planned-release }}
+          artifact-name: planned-releases
 
-  # jscpd:ignore-start
-  prepare-images-to-build:
-    name: Prepare Images to Build
-    needs: release-images
+  prepare-planned-releases:
+    name: Prepare Planned Releases
+    needs: plan-releases
     runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
     outputs:
-      images: ${{ steps.get-matrix-outputs.outputs.result }}
+      images: ${{ steps.get-images-to-build.outputs.images }}
+      releases: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
         uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
-          artifact-name: "images-to-build"
-  # jscpd:ignore-end
+          artifact-name: "planned-releases"
+
+      - id: get-images-to-build
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASES: ${{ steps.get-matrix-outputs.outputs.result }}
+        with:
+          script: |
+            const releases = JSON.parse(process.env.RELEASES || '[]');
+            const images = releases.map(release => ({
+              name: release.name,
+              tag: release.tag,
+            }));
+
+            core.setOutput('images', JSON.stringify(images));
 
   build-images:
-    needs: prepare-images-to-build
-    if: needs.prepare-images-to-build.outputs.images != '[]'
+    needs: prepare-planned-releases
+    if: needs.prepare-planned-releases.outputs.images != '[]'
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read
@@ -261,7 +284,32 @@ jobs:
       runs-on: ${{ inputs.runs-on || '["ubuntu-latest"]' }}
       oci-registry: ${{ inputs.oci-registry || 'ghcr.io' }}
       oci-registry-username: ${{ inputs.oci-registry-username || github.repository_owner }}
-      images: ${{ needs.prepare-images-to-build.outputs.images }}
+      images: ${{ needs.prepare-planned-releases.outputs.images }}
       platforms: ${{ inputs.platforms || '["linux/amd64","linux/arm64"]' }}
     secrets:
       oci-registry-password: ${{ secrets.oci-registry-password || null }}
+
+  release-images:
+    name: Release Image ${{ matrix.release.name }}
+    runs-on: ${{ inputs.runs-on && fromJson(inputs.runs-on) || 'ubuntu-latest' }}
+    if: needs.prepare-planned-releases.outputs.releases != '[]'
+    permissions:
+      contents: write
+      pull-requests: read
+    needs:
+      - prepare-planned-releases
+      - build-images
+    strategy:
+      matrix:
+        release: ${{ fromJson(needs.prepare-planned-releases.outputs.releases) }}
+      fail-fast: false
+    steps:
+      - id: create-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+        with:
+          prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
+          tag: ${{ matrix.release.releaseTag }}
+          target-sha: ${{ github.sha }}
+          working-directory: images/${{ matrix.release.name }}
+          publish: "true"
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
