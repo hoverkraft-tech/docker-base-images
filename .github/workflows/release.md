@@ -21,9 +21,11 @@
 
 ## Overview
 
-Reusable workflow to create releases for changed images and publish the corresponding tags.
+Reusable workflow to release changed images.
 Images are grouped by latest released tag SHA to detect which ones need a new release.
 Only images with changes since their latest image-specific tag are released and rebuilt.
+Release tags are planned before builds.
+Releases are created only after image publishing succeeds.
 Should be used from the main release workflow or manual dispatch entrypoint.
 
 ### Permissions
@@ -56,7 +58,7 @@ jobs:
       packages: write
       pull-requests: write
     secrets:
-      # GitHub token with permissions `contents: read`, `pull-requests: read`.
+      # GitHub token with permissions `contents: write`, `pull-requests: read`.
       github-token: ""
 
       # Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.
@@ -124,7 +126,7 @@ jobs:
 
 | **Secret**                  | **Description**                                                                                          | **Required** |
 | --------------------------- | -------------------------------------------------------------------------------------------------------- | ------------ |
-| **`github-token`**          | GitHub token with permissions `contents: read`, `pull-requests: read`.                                   | **false**    |
+| **`github-token`**          | GitHub token with permissions `contents: write`, `pull-requests: read`.                                  | **false**    |
 | **`oci-registry-password`** | Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry. | **false**    |
 |                             | Defaults to GITHUB_TOKEN if not provided.                                                                |              |
 
