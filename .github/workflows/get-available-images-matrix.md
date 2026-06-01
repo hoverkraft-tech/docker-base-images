@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Get available images matrix
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/83d8c19a72ad286a7725a049e2c5ec2412aa5ff9df13b8aa68d41bae7e33d345/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
+  <img src="https://opengraph.githubassets.com/011878d54841f9c84a06cbaa2910e2fb7bff056d5d03763154b3c5c9a8564ae1/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Get available images matrix" />
 </div>
 
 ---
@@ -42,8 +42,9 @@ on:
 permissions: {}
 jobs:
   get-available-images-matrix:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@5383038191ae7feeb42cc7f89279ca5e06de13b1 # 0.4.1
-    permissions: {}
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@9dd8369a53d244e239b53d8f84bb1338b58fc83e # 0.5.0
+    permissions:
+      contents: read
     with:
       # JSON array of runner(s) to use.
       # See https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job.
