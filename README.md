@@ -32,6 +32,11 @@ A Docker image with all the tools needed to validate an helm chart
 - helm chart-testing (aka ct)
 - helm kubeconform plugin
 
+### codespace-like
+
+A tailored build of VS code-server instance.
+Used for our labs and workshops.
+
 ### [mydumper](images/mydumper/README.md)
 
 An image with an opiniated mydumper command as entrypoint

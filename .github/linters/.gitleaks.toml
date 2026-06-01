@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow the intentionally committed demo SSH private key used in workshop image demos."
+paths = [
+  '''images/codespace-like/src/config/user/\.ssh/id_rsa''',
+]

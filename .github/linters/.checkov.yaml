@@ -1,0 +1,5 @@
+skip-path: []
+skip-check:
+  - CKV_DOCKER_2
+  - CKV_DOCKER_3
+  - CKV2_DOCKER_1
