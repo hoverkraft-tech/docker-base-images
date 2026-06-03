@@ -142,15 +142,16 @@ jobs:
       # Default: `${{ github.repository_owner }}`
       oci-registry-username: ${{ github.repository_owner }}
 
-      # JSON array of platforms to build images for.
+      # JSON array of platforms to build images for by default.
+      # Can be overridden per image with `images/<image>/build.json` or an image object in `images`.
       # See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
       #
       # Default: `["linux/amd64","linux/arm64"]`
       platforms: '["linux/amd64","linux/arm64"]'
 
-      # JSON array of images to build.
+      # JSON array of image names or image objects to build.
       # If not provided, all available images will be considered.
-      # Example: `["php-8", "nodejs-24"]`
+      # Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
       images: ""
 
       # Tag of the published `testcontainers-node` runner image to use for tests.
@@ -166,19 +167,20 @@ jobs:
 
 ### Workflow Call Inputs
 
-| **Input**                   | **Description**                                                                        | **Required** | **Type**   | **Default**                      |
-| --------------------------- | -------------------------------------------------------------------------------------- | ------------ | ---------- | -------------------------------- |
-| **`runs-on`**               | JSON array of runner(s) to use.                                                        | **false**    | **string** | `["ubuntu-latest"]`              |
-|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.     |              |            |                                  |
-| **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string** | `ghcr.io`                        |
-| **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string** | `${{ github.repository_owner }}` |
-|                             | See <https://github.com/docker/login-action#usage>.                                    |              |            |                                  |
-| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string** | `["linux/amd64","linux/arm64"]`  |
-|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |            |                                  |
-| **`images`**                | JSON array of images to build.                                                         | **false**    | **string** | -                                |
-|                             | If not provided, all available images will be considered.                              |              |            |                                  |
-|                             | Example: `["php-8", "nodejs-24"]`                                                      |              |            |                                  |
-| **`test-image-tag`**        | Tag of the published `testcontainers-node` runner image to use for tests.              | **false**    | **string** | `latest`                         |
+| **Input**                   | **Description**                                                                              | **Required** | **Type**   | **Default**                      |
+| --------------------------- | -------------------------------------------------------------------------------------------- | ------------ | ---------- | -------------------------------- |
+| **`runs-on`**               | JSON array of runner(s) to use.                                                              | **false**    | **string** | `["ubuntu-latest"]`              |
+|                             | See <https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job>.           |              |            |                                  |
+| **`oci-registry`**          | OCI registry where to pull and push images.                                                  | **false**    | **string** | `ghcr.io`                        |
+| **`oci-registry-username`** | Username used to log against the OCI registry.                                               | **false**    | **string** | `${{ github.repository_owner }}` |
+|                             | See <https://github.com/docker/login-action#usage>.                                          |              |            |                                  |
+| **`platforms`**             | JSON array of platforms to build images for by default.                                      | **false**    | **string** | `["linux/amd64","linux/arm64"]`  |
+|                             | Can be overridden per image with `images/<image>/build.json` or an image object in `images`. |              |            |                                  |
+|                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>.       |              |            |                                  |
+| **`images`**                | JSON array of image names or image objects to build.                                         | **false**    | **string** | -                                |
+|                             | If not provided, all available images will be considered.                                    |              |            |                                  |
+|                             | Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`       |              |            |                                  |
+| **`test-image-tag`**        | Tag of the published `testcontainers-node` runner image to use for tests.                    | **false**    | **string** | `latest`                         |
 
 <!-- inputs:end -->
 

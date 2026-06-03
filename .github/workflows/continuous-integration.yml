@@ -36,16 +36,17 @@ on:
         required: false
       platforms:
         description: |
-          JSON array of platforms to build images for.
+          JSON array of platforms to build images for by default.
+          Can be overridden per image with `images/<image>/build.json` or an image object in `images`.
           See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
         type: string
         default: '["linux/amd64","linux/arm64"]'
         required: false
       images:
         description: |
-          JSON array of images to build.
+          JSON array of image names or image objects to build.
           If not provided, all available images will be considered.
-          Example: `["php-8", "nodejs-24"]`
+          Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
         type: string
         required: false
       test-image-tag:
