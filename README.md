@@ -36,6 +36,10 @@ A Docker image with all the tools needed to validate an helm chart
 
 An image with an opiniated mydumper command as entrypoint
 
+### [super-linter](images/super-linter/README.md)
+
+An opinionated Super-Linter image with safer local defaults and toolchain-conflict guards
+
 ### [testcontainers-node](images/testcontainers-node/README.md)
 
 A Docker image for running testcontainers tests with Node.js
