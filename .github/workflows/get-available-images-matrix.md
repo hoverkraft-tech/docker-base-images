@@ -43,7 +43,7 @@ on:
 permissions: {}
 jobs:
   get-available-images-matrix:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@30a8796b459d64436a0fba25ab1667a244e218ed # 0.5.2
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/get-available-images-matrix.yml@75c563e455402a2aad0e925a8df78ecf719551c7 # 0.6.0
     permissions:
       contents: read
     with:
