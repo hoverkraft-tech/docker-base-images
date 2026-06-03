@@ -21,7 +21,11 @@ apt install -y --no-install-recommends --no-install-suggests \
 	ca-certificates \
 	curl \
 	docker.io \
+	docker-buildx \
+	docker-cli \
+	docker-compose \
 	git \
+	gnupg \
 	make \
 	rsync \
 	wget \

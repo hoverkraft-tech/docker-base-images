@@ -32,7 +32,7 @@ A Docker image with all the tools needed to validate an helm chart
 - helm chart-testing (aka ct)
 - helm kubeconform plugin
 
-### codespace-like
+### [codespace-like](images/codespace-like/README.md)
 
 A tailored build of VS code-server instance.
 Used for our labs and workshops.

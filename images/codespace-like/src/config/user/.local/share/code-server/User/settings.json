@@ -3,11 +3,22 @@
     "bash": {
       "path": "/bin/bash",
       "icon": "terminal-bash"
+    },
+    "zsh": {
+      "path": "/bin/zsh"
+    },
+    "fish": {
+      "path": "fish"
+    },
+    "tmux": {
+      "path": "tmux",
+      "icon": "terminal-tmux"
     }
   },
   "terminal.integrated.stickyScroll.enabled": false,
-  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.linux": "zsh",
   "security.workspace.trust.enabled": false,
   "security.workspace.trust.startupPrompt": "never",
-  "security.workspace.trust.banner": "never"
+  "security.workspace.trust.banner": "never",
+  "workbench.startupEditor": "none"
 }

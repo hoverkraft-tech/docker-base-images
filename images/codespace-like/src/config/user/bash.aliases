@@ -1,0 +1,5 @@
+tf='terraform'
+tg='terragrunt'
+k='kubectl'
+ks='kubectl -n kube-system'
+code='code-server'

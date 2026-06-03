@@ -28,5 +28,4 @@ echo "+ running mise install"
 cd "${HOME}"
 # shellcheck disable=SC1091
 source .bashrc
-mise trust
 mise install
