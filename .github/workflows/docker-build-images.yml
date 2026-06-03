@@ -24,16 +24,17 @@ on:
         required: false
       platforms:
         description: |
-          JSON array of platforms to build images for.
+          JSON array of platforms to build images for by default.
+          Can be overridden per image with `images/<image>/build.json` or an image object in `images`.
           See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
         type: string
         default: '["linux/amd64","linux/arm64"]'
         required: false
       images:
         description: |
-          JSON array of images to build.
+          JSON array of image names or image objects to build.
           If not provided, all available images will be considered.
-          Example: `["php-8", "nodejs-24"]`
+          Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
         type: string
         required: false
     outputs:
@@ -81,7 +82,57 @@ jobs:
           IMAGES: ${{ inputs.images }}
           PLATFORMS: ${{ inputs.platforms }}
         with:
+          github-token: ${{ github.token }}
           script: |
+            const imageBuildConfigFile = 'build.json';
+
+            function isNonEmptyString(value) {
+              return typeof value === 'string' && value.length > 0;
+            }
+
+            function ensurePlatforms(platforms, source) {
+              if (!Array.isArray(platforms) || platforms.some((platform) => !isNonEmptyString(platform))) {
+                throw new Error(`${source} must be a JSON array of non-empty platform strings.`);
+              }
+
+              return [...platforms];
+            }
+
+            async function getImageBuildConfig(imageName) {
+              const configPath = `images/${imageName}/${imageBuildConfigFile}`;
+
+              try {
+                const { data } = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: configPath,
+                  ref: context.sha,
+                });
+
+                if (Array.isArray(data) || data.type !== 'file' || !data.content) {
+                  throw new Error(`Image '${imageName}' build config at '${configPath}' must be a file.`);
+                }
+
+                const config = JSON.parse(Buffer.from(data.content, data.encoding || 'base64').toString('utf8'));
+
+                if (!config || typeof config !== 'object' || Array.isArray(config)) {
+                  throw new Error(`Image '${imageName}' build config must be a JSON object.`);
+                }
+
+                if (config.platforms !== undefined) {
+                  config.platforms = ensurePlatforms(config.platforms, `Image '${imageName}' build config 'platforms'`);
+                }
+
+                return config;
+              } catch (error) {
+                if (error.status === 404) {
+                  return {};
+                }
+
+                throw error;
+              }
+            }
+
             let images = [];
 
             if (process.env.IMAGES) {
@@ -102,17 +153,25 @@ jobs:
               return;
             }
 
-            const platforms = JSON.parse(process.env.PLATFORMS);
+            const platforms = ensurePlatforms(JSON.parse(process.env.PLATFORMS), "Input 'platforms'");
             const imagesToBuild = [];
-            for (const image of images) {
-              if (typeof image !== 'object' || !image.name) {
+            for (const imageEntry of images) {
+              const image = typeof imageEntry === 'string' ? { name: imageEntry } : imageEntry;
+
+              if (!image || typeof image !== 'object' || Array.isArray(image) || !isNonEmptyString(image.name)) {
                 throw new Error("Image entry is not valid. It should be either a string or an object with a 'name' property.");
               }
+
+              const buildConfig = await getImageBuildConfig(image.name);
+              const imagePlatforms = image.platforms === undefined
+                ? buildConfig.platforms || platforms
+                : ensurePlatforms(image.platforms, `Image '${image.name}' input 'platforms'`);
+
               imagesToBuild.push({
-                  context: `images/${image.name}`,
-                  dockerfile: 'Dockerfile',
-                  platforms,
-                  ...image,
+                context: `images/${image.name}`,
+                dockerfile: 'Dockerfile',
+                ...image,
+                platforms: imagePlatforms,
               });
             }
             core.setOutput('images', JSON.stringify(imagesToBuild));

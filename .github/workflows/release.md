@@ -81,7 +81,8 @@ jobs:
       # Default: `${{ github.repository_owner }}`
       oci-registry-username: ${{ github.repository_owner }}
 
-      # JSON array of platforms to build images for.
+      # JSON array of platforms to build images for by default.
+      # Can be overridden per image with `images/<image>/build.json`.
       # See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
       #
       # Default: `["linux/amd64","linux/arm64"]`
@@ -110,7 +111,8 @@ jobs:
 | **`oci-registry`**          | OCI registry where to pull and push images.                                            | **false**    | **string**  | `ghcr.io`                        |
 | **`oci-registry-username`** | Username used to log against the OCI registry.                                         | **false**    | **string**  | `${{ github.repository_owner }}` |
 |                             | See <https://github.com/docker/login-action#usage>.                                    |              |             |                                  |
-| **`platforms`**             | JSON array of platforms to build images for.                                           | **false**    | **string**  | `["linux/amd64","linux/arm64"]`  |
+| **`platforms`**             | JSON array of platforms to build images for by default.                                | **false**    | **string**  | `["linux/amd64","linux/arm64"]`  |
+|                             | Can be overridden per image with `images/<image>/build.json`.                          |              |             |                                  |
 |                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                                  |
 | **`prerelease`**            | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                          |
 

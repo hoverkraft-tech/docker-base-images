@@ -31,7 +31,8 @@ on:
         required: false
       platforms:
         description: |
-          JSON array of platforms to build images for.
+          JSON array of platforms to build images for by default.
+          Can be overridden per image with `images/<image>/build.json`.
           See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
         type: string
         default: '["linux/amd64","linux/arm64"]'
