@@ -3,7 +3,7 @@
 # GitHub Reusable Workflow: Continuous Integration
 
 <div align="center">
-  <img src="https://opengraph.githubassets.com/525dc93f3c07690d12214b0a683311f206ece25ed0ebc1aa64188af96a1fb4cb/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
+  <img src="https://opengraph.githubassets.com/dfa2c35bf894ebe58ff6bd20114d96747247c0a5d4d132649d3448baafc32085/hoverkraft-tech/docker-base-images" width="60px" align="center" alt="Continuous Integration" />
 </div>
 
 ---
@@ -111,7 +111,7 @@ on:
 permissions: {}
 jobs:
   continuous-integration:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@8bfc1b0d5b9e89305b0791b4986011ea25a815d8 # 0.5.1
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@30a8796b459d64436a0fba25ab1667a244e218ed # 0.5.2
     permissions:
       actions: read
       contents: read
