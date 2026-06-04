@@ -42,7 +42,7 @@ jobs:
 
   build-test-image:
     needs: prepare-build-test-image
-    uses: ./.github/workflows/docker-build-images.yml
+    uses: ./.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write
