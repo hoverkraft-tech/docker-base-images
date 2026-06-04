@@ -1,9 +1,9 @@
 <!-- header:start -->
 
-# GitHub Reusable Workflow: Clean images tags from pull requests
+# GitHub Reusable Workflow: Clean transient image tags
 
 <div align="center">
-  <img src="../logo.svg" width="60px" align="center" alt="Clean images tags from pull requests" />
+  <img src="../logo.svg" width="60px" align="center" alt="Clean transient image tags" />
 </div>
 
 ---
@@ -22,7 +22,7 @@
 
 ## Overview
 
-Reusable workflow to clean up image tags created for pull requests
+Reusable workflow to clean up transient image tags created for pull requests and tag-push CI
 Gets the available images from the "images" folder dynamically.
 Cleanup is performed using the hoverkraft-tech/ci-github-container action.
 Should be used from main CI workflow after tests are done.
@@ -42,7 +42,7 @@ Should be used from main CI workflow after tests are done.
 ## Usage
 
 ```yaml
-name: Clean images tags from pull requests
+name: Clean transient image tags
 on:
   push:
     branches:

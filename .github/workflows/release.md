@@ -22,13 +22,6 @@
 
 ## Overview
 
-Reusable workflow to release changed images.
-Images are grouped by latest released tag SHA to detect which ones need a new release.
-Only images with changes since their latest image-specific tag are released and rebuilt.
-Release tags are planned before builds.
-Releases are created only after image publishing succeeds.
-Should be used from the main release workflow or manual dispatch entrypoint.
-
 ### Permissions
 
 - **`contents`**: `write`
