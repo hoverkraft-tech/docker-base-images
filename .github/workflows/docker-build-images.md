@@ -90,7 +90,9 @@ jobs:
       # - `["php-8", "nodejs-24"]`
       # - `[{"name":"ci-helm"}]`
       # - `[{"name":"ci-helm","tag":"prune-ci-<sha>","platforms":["linux/amd64"]}]`
-      images: '["ci-helm"]'
+      #
+      # This input is required.
+      images: ""
 ```
 
 <!-- usage:end -->
@@ -120,7 +122,7 @@ jobs:
 |                             | Supported object fields here are:                                                                                                                              |              |            |                                  |
 |                             | - `name`: (required) the image name, corresponding to the folder in `images/` containing the Dockerfile.                                                       |              |            |                                  |
 |                             | - `tag`: (optional) explicit tag to use for the built image. If not provided, the default tagging strategy will be applied (usually `latest` and the Git SHA). |              |            |                                  |
-|                             | - `platforms`: (optional) array of platforms overriding the default platforms.                                                                                 |              |            |                                  |
+|                             | - `platforms`:  (optional) array of platforms overriding the default platforms.                                                                                |              |            |                                  |
 |                             | Additional object fields are passed through to the downstream Docker build workflow.                                                                           |              |            |                                  |
 |                             | Examples:                                                                                                                                                      |              |            |                                  |
 |                             | - `["php-8", "nodejs-24"]`                                                                                                                                     |              |            |                                  |

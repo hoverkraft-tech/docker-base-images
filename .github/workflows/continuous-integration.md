@@ -28,9 +28,10 @@ and runs tests against the built images using [testcontainers](https://testconta
 ### Jobs
 
 1. **linter**: Runs code linting using the shared linter workflow
-2. **build-images**: Builds Docker images (depends on linter)
-3. **prepare-test-matrix**: Prepares the matrix for test jobs
-4. **test-images**: Runs testcontainers tests for each built image
+2. **prepare-images-to-build**: Selects images to build for the current event
+3. **build-images**: Builds Docker images (depends on linter)
+4. **prepare-test-matrix**: Prepares the matrix for test jobs
+5. **test-images**: Runs testcontainers tests for each built image
 
 ### Permissions
 
