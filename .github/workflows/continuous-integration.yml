@@ -4,15 +4,16 @@
 # ### Jobs
 #
 # 1. **linter**: Runs code linting using the shared linter workflow
-# 2. **build-images**: Builds Docker images (depends on linter)
-# 3. **prepare-test-matrix**: Prepares the matrix for test jobs
-# 4. **test-images**: Runs testcontainers tests for each built image
+# 2. **prepare-images-to-build**: Selects images to build for the current event
+# 3. **build-images**: Builds Docker images (depends on linter)
+# 4. **prepare-test-matrix**: Prepares the matrix for test jobs
+# 5. **test-images**: Runs testcontainers tests for each built image
 
 ---
 name: Continuous Integration
 
 # jscpd:ignore-start
-on:
+on: # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       runs-on:
@@ -41,13 +42,6 @@ on:
           See https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images.
         type: string
         default: '["linux/amd64","linux/arm64"]'
-        required: false
-      images:
-        description: |
-          JSON array of image names or image objects to build.
-          If not provided, all available images will be considered.
-          Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
-        type: string
         required: false
       test-image-tag:
         description: |
@@ -80,7 +74,63 @@ jobs:
       security-events: write
       statuses: write
 
+  prepare-images-to-build:
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    permissions:
+      contents: read
+    outputs:
+      images: ${{ steps.set-images-to-build.outputs.images }}
+    steps:
+      # jscpd:ignore-start
+      - id: local-workflow-actions
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        with:
+          actions-path: actions
+
+      - id: get-available-images
+        uses: ./../self-workflow/actions/get-available-images
+
+      - id: should-build-images
+        uses: ./../self-workflow/actions/should-build-images
+        with:
+          images: ${{ steps.get-available-images.outputs.images }}
+      # jscpd:ignore-end
+
+      - id: set-images-to-build
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+        with:
+          script: |
+            const isTagPushEvent = process.env.EVENT_NAME === 'push'
+              && typeof process.env.EVENT_REF === 'string'
+              && process.env.EVENT_REF.length > 0
+              && process.env.EVENT_REF.startsWith('refs/tags/');
+
+            const images = Object.entries(JSON.parse(process.env.SHOULD_BUILD_IMAGES || '{}'))
+              .filter(([, shouldBuild]) => shouldBuild === true)
+              .map(([image]) => image);
+
+            if (images.length === 0) {
+              core.info('No images to build.');
+              core.setOutput('images', '[]');
+              return;
+            }
+
+            const imagesToBuild = images.map((imageEntry) => {
+              if (!isTagPushEvent) {
+                return imageEntry;
+              }
+
+              return { name: imageEntry, tag: 'ci' };
+            });
+
+            core.setOutput('images', JSON.stringify(imagesToBuild));
+
   build-images:
+    needs: [linter, prepare-images-to-build]
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read
@@ -93,7 +143,7 @@ jobs:
       oci-registry: ${{ inputs.oci-registry }}
       oci-registry-username: ${{ inputs.oci-registry-username }}
       platforms: ${{ inputs.platforms }}
-      images: ${{ inputs.images }}
+      images: ${{ needs.prepare-images-to-build.outputs.images }}
     secrets:
       oci-registry-password: ${{ secrets.oci-registry-password || secrets.GITHUB_TOKEN || github.token }}
 
@@ -158,7 +208,7 @@ jobs:
     if: needs.prepare-test-matrix.outputs.matrix
     runs-on: ${{ fromJson(inputs.runs-on) }}
     env:
-      TEST_IMAGE_REF: ${{ format('ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node:{0}', inputs.test-image-tag) }}
+      TEST_IMAGE_REF: ${{ format('ghcr.io/hoverkraft-tech/docker-base-images/testcontainers-node:{0}', inputs.test-image-tag || 'latest') }}
       TESTED_IMAGE_REF: ${{ matrix.imageRef }}
       TESTED_IMAGE_DIR: ${{ github.workspace }}/images/${{ matrix.name }}
     permissions:

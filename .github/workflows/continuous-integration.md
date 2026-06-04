@@ -150,11 +150,6 @@ jobs:
       # Default: `["linux/amd64","linux/arm64"]`
       platforms: '["linux/amd64","linux/arm64"]'
 
-      # JSON array of image names or image objects to build.
-      # If not provided, all available images will be considered.
-      # Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
-      images: ""
-
       # Tag of the published `testcontainers-node` runner image to use for tests.
       #
       # Default: `latest`
@@ -178,9 +173,6 @@ jobs:
 | **`platforms`**             | JSON array of platforms to build images for by default.                                      | **false**    | **string** | `["linux/amd64","linux/arm64"]`  |
 |                             | Can be overridden per image with `images/<image>/build.json` or an image object in `images`. |              |            |                                  |
 |                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>.       |              |            |                                  |
-| **`images`**                | JSON array of image names or image objects to build.                                         | **false**    | **string** | -                                |
-|                             | If not provided, all available images will be considered.                                    |              |            |                                  |
-|                             | Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`       |              |            |                                  |
 | **`test-image-tag`**        | Tag of the published `testcontainers-node` runner image to use for tests.                    | **false**    | **string** | `latest`                         |
 
 <!-- inputs:end -->

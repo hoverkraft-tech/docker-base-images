@@ -7,7 +7,41 @@ on: # yamllint disable-line rule:truthy
 permissions: {}
 
 jobs:
+  prepare-build-test-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      images: ${{ steps.set-images.outputs.images }}
+    env:
+      TEST_IMAGE_NAME: testcontainers-node
+    steps:
+      - id: local-workflow-actions
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
+        with:
+          actions-path: actions
+
+      - id: should-build-images
+        uses: ./../self-workflow/actions/should-build-images
+        with:
+          images: ${{ format('["{0}"]', env.TEST_IMAGE_NAME) }}
+
+      - id: set-images
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
+        with:
+          script: |
+            const shouldBuildImages = JSON.parse(process.env.SHOULD_BUILD_IMAGES);
+
+            const imagesToBuild = Object.entries(shouldBuildImages)
+              .filter(([image, shouldBuild]) => shouldBuild === true)
+              .map(([image, shouldBuild]) => image);
+
+            core.setOutput('images', JSON.stringify(imagesToBuild));
+
   build-test-image:
+    needs: prepare-build-test-image
     uses: ./.github/workflows/docker-build-images.yml
     permissions:
       contents: read
@@ -16,13 +50,12 @@ jobs:
       packages: write
       pull-requests: write
     with:
-      images: '[{"name":"testcontainers-node"}]'
+      images: ${{ needs.prepare-build-test-image.outputs.images }}
     secrets:
       oci-registry-password: ${{ github.token }}
 
   prepare-test-image:
     needs: build-test-image
-    if: needs.build-test-image.outputs.built-images && contains(needs.build-test-image.outputs.built-images, '"testcontainers-node"')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,19 +68,19 @@ jobs:
           BUILT_IMAGES: ${{ needs.build-test-image.outputs.built-images }}
         with:
           script: |
+            const testImageName = process.env.TEST_IMAGE_NAME;
             const builtImages = JSON.parse(process.env.BUILT_IMAGES || '{}');
-            const builtImageNames = Object.keys(builtImages);
 
-            if (builtImageNames.length === 0) {
-              throw new Error("The test image build completed without producing any built image outputs.");
+            const testImageData = builtImages[testImageName];
+            if (!testImageData) {
+              return;
             }
 
-            const testImageData = builtImages["testcontainers-node"];
-            const testImageTag = testImageData?.tags?.[0];
+            const testImageTag = testImageData.tags?.[0];
 
             if (!testImageTag) {
               throw new Error(
-                `No built testcontainers-node image tag found. Available built images: ${builtImageNames.join(", ")}.`
+                `No built ${testImageName} image tag found. Available built images: ${Object.keys(builtImages).join(", ")}.`
               );
             }
 
@@ -66,6 +99,6 @@ jobs:
       security-events: write
       statuses: write
     with:
-      test-image-tag: ${{ needs.prepare-test-image.outputs.test-image-tag }}
+      test-image-tag: ${{ needs.prepare-test-image.outputs.test-image-tag || null }}
     secrets:
       oci-registry-password: ${{ github.token }}
