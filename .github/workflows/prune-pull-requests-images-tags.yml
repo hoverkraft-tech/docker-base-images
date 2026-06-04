@@ -20,7 +20,7 @@ permissions: {}
 
 jobs:
   get-available-images-matrix:
-    uses: ./.github/workflows/get-available-images-matrix.yml
+    uses: ./.github/workflows/__get-available-images-matrix.yml
     with:
       runs-on: ${{ inputs.runs-on }}
     permissions:

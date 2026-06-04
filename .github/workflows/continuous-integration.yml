@@ -131,7 +131,7 @@ jobs:
 
   build-images:
     needs: [linter, prepare-images-to-build]
-    uses: ./.github/workflows/docker-build-images.yml
+    uses: ./.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write
