@@ -1,6 +1,7 @@
+---
 name: Build Docker images
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       runs-on:
@@ -33,10 +34,18 @@ on:
       images:
         description: |
           JSON array of image names or image objects to build.
-          If not provided, all available images will be considered.
-          Examples: `["php-8", "nodejs-24"]`, `[{"name":"ci-helm","platforms":["linux/amd64"]}]`
+          Each entry can be either a string image name or an object.
+          Supported object fields here are:
+            - `name`: (required) the image name, corresponding to the folder in `images/` containing the Dockerfile.
+            - `tag`: (optional) explicit tag to use for the built image. If not provided, the default tagging strategy will be applied (usually `latest` and the Git SHA).
+            - `platforms`:  (optional) array of platforms overriding the default platforms.
+          Additional object fields are passed through to the downstream Docker build workflow.
+          Examples:
+            - `["php-8", "nodejs-24"]`
+            - `[{"name":"ci-helm"}]`
+            - `[{"name":"ci-helm","tag":"prune-ci-<sha>","platforms":["linux/amd64"]}]`
         type: string
-        required: false
+        required: true
     outputs:
       built-images:
         description: |
@@ -60,25 +69,9 @@ jobs:
     outputs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
-        with:
-          actions-path: actions
-
-      - id: get-available-images
-        if: ${{ !inputs.images || inputs.images == '[]' }}
-        uses: ./../self-workflow/actions/get-available-images
-
-      - id: should-build-images
-        if: ${{ !inputs.images || inputs.images == '[]' }}
-        uses: ./../self-workflow/actions/should-build-images
-        with:
-          images: ${{ steps.get-available-images.outputs.images }}
-
       - id: set-images-to-build
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
           IMAGES: ${{ inputs.images }}
           PLATFORMS: ${{ inputs.platforms }}
         with:
@@ -133,19 +126,9 @@ jobs:
               }
             }
 
-            let images = [];
-
-            if (process.env.IMAGES) {
-              images = JSON.parse(process.env.IMAGES);
-              if(!Array.isArray(images)) {
-                throw new Error("Input 'images' is not a valid JSON array.");
-              }
-            } else if (process.env.SHOULD_BUILD_IMAGES){
-              images = Object.entries(JSON.parse(process.env.SHOULD_BUILD_IMAGES))
-                .filter(([image, shouldBuild]) => shouldBuild === true)
-                .map(([image, shouldBuild]) => {
-                  return {  name: image };
-                });
+            const images = JSON.parse(process.env.IMAGES);
+            if (!Array.isArray(images)) {
+              throw new Error("Input 'images' is not a valid JSON array.");
             }
 
             if (images.length === 0) {
@@ -162,17 +145,23 @@ jobs:
                 throw new Error("Image entry is not valid. It should be either a string or an object with a 'name' property.");
               }
 
+              if (image.tag !== '' && image.tag !== undefined && !isNonEmptyString(image.tag)) {
+                throw new Error(`Image '${image.name}' tag must be a non-empty string when provided.`);
+              }
+
               const buildConfig = await getImageBuildConfig(image.name);
               const imagePlatforms = image.platforms === undefined
                 ? buildConfig.platforms || platforms
                 : ensurePlatforms(image.platforms, `Image '${image.name}' input 'platforms'`);
 
-              imagesToBuild.push({
+              const imageToBuild = {
                 context: `images/${image.name}`,
                 dockerfile: 'Dockerfile',
                 ...image,
                 platforms: imagePlatforms,
-              });
+              };
+
+              imagesToBuild.push(imageToBuild);
             }
             core.setOutput('images', JSON.stringify(imagesToBuild));
 

@@ -1,3 +1,4 @@
+---
 name: "Get available images"
 description: "Get the list of available images in the repository"
 author: hoverkraft

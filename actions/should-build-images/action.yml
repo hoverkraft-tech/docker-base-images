@@ -1,3 +1,4 @@
+---
 name: "Should build the given images"
 description: "Check if some files have changed requiring the build of the given images."
 author: hoverkraft

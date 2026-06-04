@@ -1,6 +1,7 @@
+---
 name: Greetings
 
-on:
+on: # yamllint disable-line rule:truthy
   issues:
     types: [opened]
   pull_request_target:

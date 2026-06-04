@@ -1,11 +1,11 @@
-# Reusable workflow to clean up image tags created for pull requests
+# Reusable workflow to clean up transient image tags created for pull requests and tag-push CI
 # Gets the available images from the "images" folder dynamically.
 # Cleanup is performed using the hoverkraft-tech/ci-github-container action.
 # Should be used from main CI workflow after tests are done.
 ---
-name: Clean images tags from pull requests
+name: Clean transient image tags
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       runs-on:
@@ -26,7 +26,7 @@ jobs:
     permissions:
       contents: read
 
-  prune:
+  prune-pull-request-tags:
     permissions:
       contents: read
       packages: write
@@ -36,3 +36,20 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on }}
       images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
+
+  prune-ci-tags:
+    name: Prune CI image tags
+    needs: get-available-images-matrix
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
+    steps:
+      - uses: hoverkraft-tech/ci-github-container/actions/docker/clean-images@77f98ab8773b824eca7ed3f94e3e9c8b8af5875c # 0.36.1
+        with:
+          package: ${{ github.repository }}/${{ matrix.image }}
+          tags: prune-ci-*
+          github-token: ${{ github.token }}
