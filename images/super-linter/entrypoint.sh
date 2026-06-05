@@ -22,6 +22,7 @@ apply_runtime_defaults() {
 	set_default_env LOG_LEVEL WARN
 	set_default_env LOG_FILE /github/home/logs
 	set_default_env IGNORE_GITIGNORED_FILES true
+	set_default_env KUBERNETES_KUBECONFORM_OPTIONS '-schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 	set_default_env VALIDATE_JAVASCRIPT_TOOLCHAIN biome
 	set_default_env VALIDATE_PYTHON_TOOLCHAIN ruff-format
 }
