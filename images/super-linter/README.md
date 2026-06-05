@@ -13,6 +13,7 @@ For direct local use, the image still supports `UID` and `GID` build args so the
 - defaults `LOG_LEVEL=WARN`
 - defaults `LOG_FILE=/github/home/logs`
 - defaults `IGNORE_GITIGNORED_FILES=true`
+- defaults `KUBERNETES_KUBECONFORM_OPTIONS="-schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"`
 - defaults `VALIDATE_JAVASCRIPT_TOOLCHAIN=biome`
 - defaults `VALIDATE_PYTHON_TOOLCHAIN=ruff-format`
 - supports overriding `VALIDATE_JAVASCRIPT_TOOLCHAIN=biome|eslint-prettier`

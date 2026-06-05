@@ -47,13 +47,13 @@ describe("super-linter Image", () => {
   it("applies local runtime defaults", async () => {
     const { exitCode, output } = await runEntrypoint([
       "-c",
-      'printf "%s" "$RUN_LOCAL|$USE_FIND_ALGORITHM|$LOG_LEVEL|$LOG_FILE|$IGNORE_GITIGNORED_FILES|$VALIDATE_JAVASCRIPT_TOOLCHAIN|$VALIDATE_PYTHON_TOOLCHAIN"',
+      'printf "%s" "$RUN_LOCAL|$USE_FIND_ALGORITHM|$LOG_LEVEL|$LOG_FILE|$IGNORE_GITIGNORED_FILES|$KUBERNETES_KUBECONFORM_OPTIONS|$VALIDATE_JAVASCRIPT_TOOLCHAIN|$VALIDATE_PYTHON_TOOLCHAIN"',
     ]);
 
     assert.strictEqual(exitCode, 0);
     assert.strictEqual(
       output.trim(),
-      "true|true|WARN|/github/home/logs|true|biome|ruff-format",
+      "true|true|WARN|/github/home/logs|true|-schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json|biome|ruff-format",
     );
   });
 
@@ -69,16 +69,20 @@ describe("super-linter Image", () => {
 
   it("preserves explicitly provided runtime values", async () => {
     const { exitCode, output } = await runEntrypoint(
-      ["-c", 'printf "%s" "$RUN_LOCAL|$LOG_LEVEL|$IGNORE_GITIGNORED_FILES"'],
+      [
+        "-c",
+        'printf "%s" "$RUN_LOCAL|$LOG_LEVEL|$IGNORE_GITIGNORED_FILES|$KUBERNETES_KUBECONFORM_OPTIONS"',
+      ],
       {
         RUN_LOCAL: "false",
         LOG_LEVEL: "INFO",
         IGNORE_GITIGNORED_FILES: "false",
+        KUBERNETES_KUBECONFORM_OPTIONS: "-summary",
       },
     );
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(output.trim(), "false|INFO|false");
+    assert.strictEqual(output.trim(), "false|INFO|false|-summary");
   });
 
   it("disables conflicting validators for the biome toolchain", async () => {
