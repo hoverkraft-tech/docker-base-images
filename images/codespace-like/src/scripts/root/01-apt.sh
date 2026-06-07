@@ -26,7 +26,10 @@ apt install -y --no-install-recommends --no-install-suggests \
 	docker-compose \
 	git \
 	gnupg \
+	jq \
+	liquidprompt \
 	make \
 	rsync \
 	wget \
+	yq \
 	zsh
