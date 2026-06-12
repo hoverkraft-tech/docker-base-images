@@ -24,4 +24,3 @@ jobs:
       pull-requests: write
       security-events: write
       statuses: write
-    secrets: inherit

@@ -67,7 +67,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
     permissions:
       actions: read
       contents: read
@@ -83,7 +83,7 @@ jobs:
     steps:
       # jscpd:ignore-start
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           actions-path: actions
 
@@ -225,11 +225,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+      - uses: hoverkraft-tech/ci-github-container/actions/docker/setup@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
-          registry: ${{ inputs.oci-registry }}
-          username: ${{ inputs.oci-registry-username }}
-          password: ${{ secrets.oci-registry-password || github.token }}
+          oci-registry: ${{ inputs.oci-registry }}
+          oci-registry-username: ${{ inputs.oci-registry-username }}
+          oci-registry-password: ${{ secrets.oci-registry-password || github.token }} # zizmor: ignore[secrets-outside-env]
+          setup-buildx: false
 
       - name: Pull testcontainers test image
         run: docker pull "$TEST_IMAGE_REF"
@@ -252,7 +253,7 @@ jobs:
       - name: 📊 Parse coverage reports
         if: always()
         id: parse-coverage-reports
-        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
@@ -261,7 +262,7 @@ jobs:
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
-        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           title: "Code Coverage Report - ${{ matrix.name }}"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}

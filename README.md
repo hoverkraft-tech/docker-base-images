@@ -287,7 +287,7 @@ images/                               # Docker images (each image is self-contai
 ##### Release build
 
 - Build images that have been modified
-- Tag respecting sementic versioning
+- Tag respecting semantic versioning
 
 ## Author
 

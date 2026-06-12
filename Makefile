@@ -8,13 +8,11 @@ lint: ## Execute linting
 
 lint-fix: ## Execute linting and fix
 	$(call run_linter, \
-		-e FIX_JSON_PRETTIER=true \
-		-e FIX_JAVASCRIPT_PRETTIER=true \
-		-e FIX_YAML_PRETTIER=true \
 		-e FIX_MARKDOWN=true \
-		-e FIX_MARKDOWN_PRETTIER=true \
 		-e FIX_NATURAL_LANGUAGE=true \
 		-e FIX_SHELL_SHFMT=true \
+		-e FIX_BIOME_LINT=true \
+		-e FIX_BIOME_FORMAT=true \
 	)
 
 build: ## Build an image (usage: make build <image-name>)
@@ -64,19 +62,14 @@ define run_linter
 	DEFAULT_WORKSPACE="$(CURDIR)"; \
 	LINTER_IMAGE="linter:latest"; \
 	VOLUME="$$DEFAULT_WORKSPACE:$$DEFAULT_WORKSPACE"; \
-	docker build --platform linux/amd64 \
-			--target linter \
-			--build-arg UID=$(shell id -u) \
-			--build-arg GID=$(shell id -g) \
-			--tag $$LINTER_IMAGE .; \
+	docker build --platform linux/amd64 --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
 	docker run \
 		--platform linux/amd64 \
-		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
-		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
-		-e IGNORE_GITIGNORED_FILES=true \
-		$(1) \
 		-v $$VOLUME \
 		--rm \
+		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
+		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
+		$(1) \
 		$$LINTER_IMAGE
 endef
 

@@ -1,0 +1,5 @@
+{
+	"files": {
+		"includes": ["**", "!!**/images/codespace-like/src/config/user/.ssh"]
+	}
+}

@@ -32,7 +32,7 @@ jobs:
       packages: write
       pull-requests: read
     needs: get-available-images-matrix
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@5396e1258d209f9af18e55da8692361508e3338c # 0.36.2
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
     with:
       runs-on: ${{ inputs.runs-on }}
       images: ${{ needs.get-available-images-matrix.outputs.images-matrix }}
@@ -48,7 +48,7 @@ jobs:
       matrix:
         image: ${{ fromJson(needs.get-available-images-matrix.outputs.images-matrix) }}
     steps:
-      - uses: hoverkraft-tech/ci-github-container/actions/docker/clean-images@5396e1258d209f9af18e55da8692361508e3338c # 0.36.2
+      - uses: hoverkraft-tech/ci-github-container/actions/docker/clean-images@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
           package: ${{ github.repository }}/${{ matrix.image }}
           tags: prune-ci-*

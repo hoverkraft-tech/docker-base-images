@@ -10,7 +10,7 @@ SOURCE_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 echo "hk-deployment-single"
 
 echo "+ pre-checks"
-cp "$SOURCE_DIR/kustomize-template.yaml" ./kustomization.yaml
+cp "$SOURCE_DIR/kustomize-template.tpl" ./kustomization.yaml
 if [ -z "${ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID}" ]; then
 	echo "WARN: HOVERKRAFT_DEPLOYMENT_ID is empty"
 	ARGOCD_ENV_HOVERKRAFT_DEPLOYMENT_ID="unknown"
