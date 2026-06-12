@@ -4,7 +4,7 @@ FROM quay.io/helmpack/chart-testing:v3.14.0
 # hadolint ignore=DL3018
 RUN --mount=type=cache,target=/var/cache/apt \
   set -ex && \
-  apk add jq yq curl openssl git
+  apk add --no-cache jq yq curl openssl git
 
 COPY scripts/ /usr/local/bin/
 

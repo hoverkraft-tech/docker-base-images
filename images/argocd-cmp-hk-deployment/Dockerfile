@@ -2,7 +2,7 @@ FROM quay.io/argoproj/argocd:v3.4.3
 
 USER root
 
-COPY --chown=argocd:argocd entrypoint.sh kustomize-template.yaml multi-sources.sh single-source.sh /hk-tools/
+COPY --chown=argocd:argocd entrypoint.sh kustomize-template.tpl multi-sources.sh single-source.sh /hk-tools/
 
 USER argocd
 

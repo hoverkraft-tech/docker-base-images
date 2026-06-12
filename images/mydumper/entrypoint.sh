@@ -6,6 +6,11 @@ TIME=$(date +%Y%m%d%H%M%S)
 BACKUP_DIR="/backup"
 KEEP_BACKUPS="${KEEP_BACKUPS:-7}"
 
+if [[ -z "${MYSQL_DATABASE:-}" ]]; then
+	echo "MYSQL_DATABASE environment variable is required" >&2
+	exit 1
+fi
+
 # build extra args to mydumper
 EXTRA_ARGS=()
 thread_count="${MYDUMPER_THREADS:-}"
@@ -26,13 +31,21 @@ fi
 
 mkdir -p "/backup/${TIME}"
 
-if ! mydumper -h "${MYSQL_HOST}" \
-	-P "${MYSQL_PORT}" \
-	-u "${MYSQL_USER}" \
-	-p "${MYSQL_PASSWORD}" \
-	-B "${MYSQL_DATABASE}" \
-	"${EXTRA_ARGS[@]}" \
-	-o "/backup/${TIME}"; then
+dump_command=(
+	mydumper
+	-h "${MYSQL_HOST}"
+	-P "${MYSQL_PORT}"
+	-u "${MYSQL_USER}"
+	-B "${MYSQL_DATABASE}"
+	"${EXTRA_ARGS[@]}"
+	-o "/backup/${TIME}"
+)
+
+if [[ -n "${MYSQL_PASSWORD:-}" ]]; then
+	dump_command+=(-p "${MYSQL_PASSWORD}")
+fi
+
+if ! "${dump_command[@]}"; then
 	echo "Backup failed"
 	rm -rf "/backup/${TIME}"
 	exit 1

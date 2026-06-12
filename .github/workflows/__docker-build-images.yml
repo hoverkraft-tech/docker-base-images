@@ -168,7 +168,7 @@ jobs:
   build-images:
     needs: prepare-images-to-build
     if: needs.prepare-images-to-build.outputs.images
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5396e1258d209f9af18e55da8692361508e3338c # 0.36.2
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
     permissions:
       contents: read
       issues: read
@@ -271,7 +271,7 @@ jobs:
             core.summary.addHeading(summaryTitle, 2).addRaw(summaryContent);
             await core.summary.write();
 
-      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+      - uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         if: github.event.pull_request.number && steps.generate-summary.outputs.summary-body
         with:
           title: "## ${{ steps.generate-summary.outputs.summary-title }}"

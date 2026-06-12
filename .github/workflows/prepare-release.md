@@ -22,7 +22,7 @@
 
 ## Overview
 
-Reuseable workflow to prepare a release using the hoverkraft-tech/ci-github-publish workflow
+Reusable workflow to prepare a release using the hoverkraft-tech/ci-github-publish workflow
 Prepare for all the available images
 
 ### Permissions

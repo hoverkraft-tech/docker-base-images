@@ -70,7 +70,7 @@ jobs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           actions-path: actions
 
@@ -82,7 +82,7 @@ jobs:
         env:
           IMAGES: ${{ steps.get-available-images.outputs.images }}
         with:
-          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
           script: |
             const images = JSON.parse(process.env.IMAGES);
 
@@ -146,7 +146,7 @@ jobs:
       fail-fast: false
     steps:
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           actions-path: actions
 
@@ -176,7 +176,7 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
@@ -188,7 +188,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           artifact-name: "images-to-release"
 
@@ -215,11 +215,11 @@ jobs:
       fail-fast: false
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@84d583ba7b357f9476707f54cf5419d630ae0145 # 0.26.2
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@b2562b46714e535a0113f90f554b55e1248212c1 # 0.26.3
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
-          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
       - id: set-planned-release
         if: steps.plan-release.outputs.tag != ''
@@ -240,7 +240,7 @@ jobs:
             }));
 
       - if: steps.set-planned-release.outputs.planned-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           value: ${{ steps.set-planned-release.outputs.planned-release }}
           artifact-name: planned-releases
@@ -254,7 +254,7 @@ jobs:
       releases: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@66578f5b9aec4ac5558b5dad750c4c74dfcb65c5 # 0.35.5
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@624be17604ee0a7378488191aacb35851e7cf001 # 0.37.1
         with:
           artifact-name: "planned-releases"
 
@@ -307,11 +307,11 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@84d583ba7b357f9476707f54cf5419d630ae0145 # 0.26.2
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@b2562b46714e535a0113f90f554b55e1248212c1 # 0.26.3
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           tag: ${{ matrix.release.releaseTag }}
           target-sha: ${{ github.sha }}
           working-directory: images/${{ matrix.release.name }}
           publish: "true"
-          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }}
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
