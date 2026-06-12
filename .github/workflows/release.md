@@ -44,7 +44,7 @@ on:
 permissions: {}
 jobs:
   release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@75c563e455402a2aad0e925a8df78ecf719551c7 # 0.6.0
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@536aff60442c9d70714c247aeb392dc762d84b4e # 0.7.0
     permissions:
       contents: write
       id-token: write
