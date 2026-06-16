@@ -53,7 +53,7 @@ describe("super-linter Image", () => {
 		assert.strictEqual(exitCode, 0);
 		assert.strictEqual(
 			output.trim(),
-			"true|true|WARN|/github/home/logs|true|-schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json|biome|ruff-format",
+			"true|true|WARN|/github/home/logs|true|-schema-location default -schema-location https://raw.githubusercontent.com/hoverkraft-tech/crds-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json|biome|ruff-format",
 		);
 	});
 
