@@ -3,6 +3,7 @@
 set -eu
 
 SUPER_LINTER_ENTRYPOINT="${SUPER_LINTER_ENTRYPOINT:-/action/lib/linter.sh}"
+DEFAULT_KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS='https://raw.githubusercontent.com/hoverkraft-tech/crds-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
 set_default_env() {
 	variable_name="$1"
@@ -16,13 +17,24 @@ set_default_env() {
 	export "${variable_name}=${variable_value}"
 }
 
+build_kubernetes_kubeconform_options() {
+	options='-schema-location default'
+
+	for schema_location in ${KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS}; do
+		options="${options} -schema-location ${schema_location}"
+	done
+
+	echo "${options}"
+}
+
 apply_runtime_defaults() {
 	set_default_env RUN_LOCAL true
 	set_default_env USE_FIND_ALGORITHM true
 	set_default_env LOG_LEVEL WARN
 	set_default_env LOG_FILE /github/home/logs
 	set_default_env IGNORE_GITIGNORED_FILES true
-	set_default_env KUBERNETES_KUBECONFORM_OPTIONS '-schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+	set_default_env KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS "${DEFAULT_KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS}"
+	set_default_env KUBERNETES_KUBECONFORM_OPTIONS "$(build_kubernetes_kubeconform_options)"
 	set_default_env VALIDATE_JAVASCRIPT_TOOLCHAIN biome
 	set_default_env VALIDATE_PYTHON_TOOLCHAIN ruff-format
 }

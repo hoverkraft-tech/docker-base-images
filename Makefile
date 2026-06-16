@@ -13,6 +13,7 @@ lint-fix: ## Execute linting and fix
 		-e FIX_SHELL_SHFMT=true \
 		-e FIX_BIOME_LINT=true \
 		-e FIX_BIOME_FORMAT=true \
+		-e FIX_YAML_PRETTIER=true \
 	)
 
 build: ## Build an image (usage: make build <image-name>)
