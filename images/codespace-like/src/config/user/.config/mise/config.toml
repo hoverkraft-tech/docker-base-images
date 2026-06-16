@@ -20,8 +20,15 @@ fzf = "0.73.1"
 krew = "0.5.0"
 usage = "3.4.0"
 
-[tasks.generate-ssh-key]
-description = 'Generate a brand new ssh-key'
+[tasks.ssh-setup]
+description = 'Generate a brand ssh key and uses it in git'
 run = """
-ssh-keygen -t ed25519 -C 'workshop hoverkraft' -f ${HOME}/work/.ssh/id_ed25519 -N ''
+mkdir -p ${HOME}/work/.ssh
+if [ ! -f ${HOME}/work/.ssh/id_ed25519 ]; then
+  ssh-keygen -t ed25519 -C 'workshop hoverkraft' -f ${HOME}/work/.ssh/id_ed25519 -N ''
+  git config --global core.sshCommand "ssh -i ${HOME}/work/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+  ssh-keyscan github.com
+else
+  echo "WARN: SSH key already exists, skipping..."
+fi
 """
