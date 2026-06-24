@@ -13,6 +13,7 @@ USER root
 # hadolint ignore=DL3004
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN \
   echo "+ starting setup" && \
   for script in /build/scripts/root/*.sh; do \
   echo "running $script (as root)"; \
@@ -24,6 +25,7 @@ USER coder
 # this is the user config part
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN \
   echo "+ starting user config" && \
   for script in /build/scripts/user/*.sh; do \
   echo "running $script"; \
