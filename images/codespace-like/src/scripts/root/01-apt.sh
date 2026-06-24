@@ -29,6 +29,8 @@ apt install -y --no-install-recommends --no-install-suggests \
 	jq \
 	liquidprompt \
 	make \
+	pass \
+	python3 python3-pip pipx \
 	rsync \
 	wget \
 	yq \
