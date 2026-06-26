@@ -2,9 +2,13 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
 zstyle ':omz:update' mode disabled  # disable automatic updates
-ENABLE_CORRECTION="true"
 DISABLE_AUTO_UPDATE=true
 DISABLE_UPDATE_PROMPT=true
+
+# disbale auto-correct
+ENABLE_CORRECTION="false"
+unsetopt correct_all
+unsetopt correct
 
 plugins=(
   git

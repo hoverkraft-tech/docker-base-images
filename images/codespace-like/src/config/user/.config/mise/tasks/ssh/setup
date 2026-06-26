@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Generate a brand new ssh key and uses it in git"
 #MISE dir="{{ config_root }}"
-#USAGE arg "<gpg-id>" var=#true help="GPG id (can be repeated)" {}
 
 set -e -o pipefail
 
@@ -10,6 +9,14 @@ if [ ! -f "${HOME}/work/.ssh/id_ed25519" ]; then
 	ssh-keygen -t ed25519 -C 'workshop@hoverkraft.cloud' -f "${HOME}/work/.ssh/id_ed25519" -N ''
 	git config --global core.sshCommand "ssh -i ${HOME}/work/.ssh/id_ed25519 -o IdentitiesOnly=yes"
 	ssh-keyscan github.com
+	ssh-keyscan gitlab.com
+	rsync -a "${HOME}/.skel/.ssh/" "${HOME}/work/.ssh/"
+
+	echo "A new key has been added. Please upload the following key it to your git provider:"
+	echo "Github: https://github.com/settings/keys"
+	echo "Gitlab: https://gitlab.com/-/user_settings/ssh_keys"
+	echo ""
+	cat "${HOME}/work/.ssh/id_ed25519.pub"
 else
 	echo "WARN: SSH key already exists, skipping..."
 fi

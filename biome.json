@@ -1,5 +1,9 @@
 {
 	"files": {
-		"includes": ["**", "!!**/images/codespace-like/src/config/user/.ssh"]
+		"includes": [
+			"**",
+			"!!**/images/codespace-like/src/config/user/.ssh",
+			"!!**/images/codespace-like/src/config/user/.gnupg"
+		]
 	}
 }
