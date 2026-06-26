@@ -1,3 +1,14 @@
 {
-	"recommendations": ["ms-azuretools.vscode-containers", "docker.docker"]
+	"recommendations": [
+		"ms-azuretools.vscode-containers",
+		"docker.docker",
+		"hashicorp.terraform",
+		"bahramjoharshamshiri.hcl-lsp",
+		"hashicorp.hcl",
+		"EditorConfig.EditorConfig",
+		"DavidAnson.vscode-markdownlint",
+		"yzhang.markdown-all-in-one",
+		"christian-kohler.path-intellisense",
+		"bierner.markdown-mermaid"
+	]
 }
