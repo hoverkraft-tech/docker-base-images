@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Configure gpg correctly"
+#MISE dir="{{ config_root }}"
+
+set -e -o pipefail
+
+mkdir -p "${HOME}/work/.gnupg"
+chown 700 "${HOME}/work/.gnupg"

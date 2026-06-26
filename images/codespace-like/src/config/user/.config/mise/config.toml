@@ -2,7 +2,7 @@
 lockfile = true
 
 [env]
-GNUPGHOME = "{{env.HOME}}/work/.gpg"
+GNUPGHOME = "{{env.HOME}}/work/.gnupg"
 
 [tools]
 "aqua:chezmoi" = "2.70.1"
