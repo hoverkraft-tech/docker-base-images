@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Generate a GPG key"
+#MISE dir="{{ cwd }}"
+
+set -e -o pipefail
+gpg --generate-key

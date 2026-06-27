@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="List GPG keys"
+#MISE dir="{{ cwd }}"
+
+set -e -o pipefail
+gpg --list-keys
