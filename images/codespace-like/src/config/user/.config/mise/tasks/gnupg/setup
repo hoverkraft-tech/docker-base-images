@@ -5,4 +5,4 @@
 set -e -o pipefail
 
 mkdir -p "${HOME}/work/.gnupg"
-chown 700 "${HOME}/work/.gnupg"
+chmod 700 "${HOME}/work/.gnupg"

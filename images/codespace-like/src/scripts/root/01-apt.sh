@@ -24,6 +24,7 @@ apt install -y --no-install-recommends --no-install-suggests \
 	docker-buildx \
 	docker-cli \
 	docker-compose \
+	fish \
 	git \
 	gnupg \
 	jq \
