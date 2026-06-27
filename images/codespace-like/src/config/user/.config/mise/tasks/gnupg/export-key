@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#MISE description="Export GPG key"
+#MISE dir="{{ config_root }}"
+#USAGE flag "--username <username>"
+
+set -e -o pipefail
+
+username="${usage_username?}"
+filename="$(echo "$username" | tr " " "_" | tr "[:upper:]" "[:lower:]").asc"
+
+mkdir -p .gpg-keys
+gpg --export --armor "${username}" >.gpg-keys/"${filename}"

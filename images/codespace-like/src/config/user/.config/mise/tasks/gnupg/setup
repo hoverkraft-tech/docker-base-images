@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Configure gpg correctly"
-#MISE dir="{{ config_root }}"
+#MISE dir="{{ cwd }}"
 
 set -e -o pipefail
 
