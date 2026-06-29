@@ -3,4 +3,12 @@
 #MISE dir="{{ cwd }}"
 
 set -e -o pipefail
+
+echo "Generating a new GPG  key"
 gpg --generate-key
+
+echo "Reconfigure git to use it"
+MYKEY="$(gpg --list-secret-keys --keyid-format=long | awk '/^sec/ {print $2; exit}' | cut -d'/' -f2)"
+echo "GPG key id is : ${MYKEY}"
+git config --global user.signingkey "${MYKEY}"
+git config --global commit.gpgsign true

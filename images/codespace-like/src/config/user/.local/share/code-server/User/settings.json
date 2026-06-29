@@ -1,4 +1,14 @@
 {
+	"diffEditor.ignoreTrimWhitespace": false,
+	"editor.minimap.enabled": false,
+	"git.autofetch": true,
+	"remote.autoForwardPorts": false,
+	"remote.autoForwardPortsFallback": 0,
+	"remote.autoForwardPortsSource": "hybrid",
+	"security.workspace.trust.banner": "never",
+	"security.workspace.trust.enabled": false,
+	"security.workspace.trust.startupPrompt": "never",
+	"terminal.integrated.defaultProfile.linux": "zsh",
 	"terminal.integrated.profiles.linux": {
 		"bash": {
 			"path": "/bin/bash",
@@ -16,9 +26,5 @@
 		}
 	},
 	"terminal.integrated.stickyScroll.enabled": false,
-	"terminal.integrated.defaultProfile.linux": "zsh",
-	"security.workspace.trust.enabled": false,
-	"security.workspace.trust.startupPrompt": "never",
-	"security.workspace.trust.banner": "never",
 	"workbench.startupEditor": "none"
 }

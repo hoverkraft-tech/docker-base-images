@@ -25,7 +25,7 @@ apt install -y --no-install-recommends --no-install-suggests \
 	docker-cli \
 	docker-compose \
 	fish \
-	git \
+	git git-lfs \
 	gnupg \
 	jq \
 	liquidprompt \

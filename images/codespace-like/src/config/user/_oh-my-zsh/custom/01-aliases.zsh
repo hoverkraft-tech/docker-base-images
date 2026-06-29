@@ -1,3 +1,3 @@
-if [ -f ~/.bash.aliases ]; then
-	source ~/.bash.aliases
+if [ -f ~/.aliases ]; then
+	source ~/.aliases
 fi
