@@ -1,0 +1,10 @@
+# NOTE: this file is only intended to be sourced in your interractive shells
+
+alias tf='terraform'
+alias tg='terragrunt'
+alias k='kubectl'
+alias ks='kubectl -n kube-system'
+alias code='code-server'
+
+complete -o default -F __start_kubectl k
+complete -o default -F __start_kubectl ks

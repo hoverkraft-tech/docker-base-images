@@ -8,15 +8,17 @@ mkdir -p "${HOME}/work/.ssh"
 if [ ! -f "${HOME}/work/.ssh/id_ed25519" ]; then
 	ssh-keygen -t ed25519 -C 'workshop@hoverkraft.cloud' -f "${HOME}/work/.ssh/id_ed25519" -N ''
 	git config --global core.sshCommand "ssh -i ${HOME}/work/.ssh/id_ed25519 -o IdentitiesOnly=yes"
-	ssh-keyscan github.com
-	ssh-keyscan gitlab.com
+	ssh-keyscan -t rsa,ed25519 github.com
+	ssh-keyscan -t rsa,ed25519 gitlab.com
 	rsync -a "${HOME}/.skel/.ssh/" "${HOME}/work/.ssh/"
 
-	echo "A new key has been added. Please upload the following key it to your git provider:"
-	echo "Github: https://github.com/settings/keys"
-	echo "Gitlab: https://gitlab.com/-/user_settings/ssh_keys"
+	echo ""
+	echo "⚠️⚠️⚠️ A new key has been created. Please upload the following key it to your git provider: ⚠️⚠️⚠️"
+	echo "  - Github: https://github.com/settings/keys"
+	echo "  - Gitlab: https://gitlab.com/-/user_settings/ssh_keys"
 	echo ""
 	cat "${HOME}/work/.ssh/id_ed25519.pub"
+	echo ""
 else
 	echo "WARN: SSH key already exists, skipping..."
 fi

@@ -17,9 +17,9 @@ if ! shopt -oq posix; then
 fi
 
 # aliases
-if [ -f "${HOME}/bash.aliases" ]; then
+if [ -f "${HOME}/.aliases" ]; then
 	# shellcheck disable=SC1091
-	. "${HOME}/bash.aliases"
+	. "${HOME}/.aliases"
 fi
 
 # extras
