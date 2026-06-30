@@ -31,9 +31,11 @@ apt install -y --no-install-recommends --no-install-suggests \
 	liquidprompt \
 	make \
 	pass \
-	python3 python3-pip python3.13-venv pipx \
+	pipx python3 python3-pip python3.13-venv \
+	python3-yamale \
 	rsync \
 	tmux \
 	wget \
+	yamllint \
 	yq \
 	zsh
