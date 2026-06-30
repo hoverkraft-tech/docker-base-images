@@ -4,5 +4,9 @@
 
 set -e -o pipefail
 
+echo "Creating GNUPGHOME"
 mkdir -p "${HOME}/work/.gnupg"
 chmod 700 "${HOME}/work/.gnupg"
+
+echo "Create a new gnupg private key"
+mise run gnupg:generate-key
