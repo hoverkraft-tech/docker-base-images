@@ -67,7 +67,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@7034f6ae5bae1ec46a0108e8efb60d102e88961d # 0.37.2
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@2334d395217f9811699dbd4ace9d8559e4d99e0d # 0.37.3
     permissions:
       actions: read
       contents: read
@@ -86,7 +86,7 @@ jobs:
     steps:
       # jscpd:ignore-start
       - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@7034f6ae5bae1ec46a0108e8efb60d102e88961d # 0.37.2
+        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@2334d395217f9811699dbd4ace9d8559e4d99e0d # 0.37.3
         with:
           actions-path: actions
 
@@ -256,7 +256,7 @@ jobs:
       - name: 📊 Parse coverage reports
         if: always()
         id: parse-coverage-reports
-        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@7034f6ae5bae1ec46a0108e8efb60d102e88961d # 0.37.2
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@2334d395217f9811699dbd4ace9d8559e4d99e0d # 0.37.3
         with:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
@@ -265,7 +265,7 @@ jobs:
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
-        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@7034f6ae5bae1ec46a0108e8efb60d102e88961d # 0.37.2
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@2334d395217f9811699dbd4ace9d8559e4d99e0d # 0.37.3
         with:
           title: "Code Coverage Report - ${{ matrix.name }}"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}
