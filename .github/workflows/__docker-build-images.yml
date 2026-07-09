@@ -168,7 +168,7 @@ jobs:
   build-images:
     needs: prepare-images-to-build
     if: needs.prepare-images-to-build.outputs.images
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
     permissions:
       contents: read
       issues: read

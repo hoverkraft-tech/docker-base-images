@@ -228,7 +228,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: hoverkraft-tech/ci-github-container/actions/docker/setup@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
+      - uses: hoverkraft-tech/ci-github-container/actions/docker/setup@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
         with:
           oci-registry: ${{ inputs.oci-registry }}
           oci-registry-username: ${{ inputs.oci-registry-username }}
