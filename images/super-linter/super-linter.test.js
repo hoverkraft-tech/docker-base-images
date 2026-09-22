@@ -45,10 +45,11 @@ describe("super-linter Image", () => {
 	});
 
 	it("removes the broken bundled jscpd gitignore option", async () => {
+		const jscpdGitignoreOption = `$` + "{JSCPD_GITIGNORE_OPTION}";
 		const { exitCode } = await container.exec([
 			"/bin/sh",
 			"-lc",
-			`! grep -F 'LINTER_COMMANDS_ARRAY_JSCPD+=("${JSCPD_GITIGNORE_OPTION}")' /action/lib/functions/linterCommands.sh`,
+			`! grep -F 'LINTER_COMMANDS_ARRAY_JSCPD+=("${jscpdGitignoreOption}")' /action/lib/functions/linterCommands.sh`,
 		]);
 		assert.strictEqual(exitCode, 0);
 	});
