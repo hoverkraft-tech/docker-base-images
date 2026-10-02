@@ -1,9 +1,9 @@
+import assert from "node:assert";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { after, before, describe, it } from "node:test";
-import assert from "node:assert";
-import { GenericContainer } from "testcontainers";
+import { GenericContainer, Wait } from "testcontainers";
 
 describe("super-linter Image", () => {
 	// jscpd:ignore-start
@@ -44,14 +44,79 @@ describe("super-linter Image", () => {
 		assert.strictEqual(exitCode, 0);
 	});
 
-	it("removes the broken bundled jscpd gitignore option", async () => {
-		const { exitCode } = await container.exec([
-			"/bin/sh",
-			"-lc",
-			"! grep -E 'LINTER_COMMANDS_ARRAY_JSCPD.*JSCPD_GITIGNORE_OPTION' /action/lib/functions/linterCommands.sh",
-		]);
-		assert.strictEqual(exitCode, 0);
-	});
+	for (const noGitignore of [false, true]) {
+		const ignoredFilesBehavior = noGitignore ? "includes" : "excludes";
+		it(`${ignoredFilesBehavior} Git-ignored files according to the JSCPD configuration`, async () => {
+			const workspace = "/tmp/lint";
+			const source = Array.from(
+				{ length: 10 },
+				(_, index) => `export const value${index} = ${index};`,
+			).join("\n");
+
+			for (const ignoreGitignoredFiles of ["true", "false"]) {
+				const jscpdContainer = await new GenericContainer(testedImageRef)
+					.withCopyContentToContainer([
+						{ content: source, target: "/tmp/jscpd-fixture/source.js" },
+						{ content: source, target: "/tmp/jscpd-fixture/ignored.js" },
+						{
+							content: "ignored.js\n",
+							target: "/tmp/jscpd-fixture/.gitignore",
+						},
+						{
+							content: JSON.stringify({
+								threshold: 0,
+								noGitignore,
+								format: ["javascript"],
+								reporters: ["json"],
+								output: `${workspace}/report`,
+							}),
+							target: "/tmp/jscpd-fixture/.jscpd.json",
+						},
+					])
+					.withEnvironment({
+						DEFAULT_WORKSPACE: workspace,
+						LINTER_RULES_PATH: ".",
+						VALIDATE_JSCPD: "true",
+						VALIDATE_JAVASCRIPT_TOOLCHAIN: "",
+						VALIDATE_PYTHON_TOOLCHAIN: "",
+						IGNORE_GITIGNORED_FILES: ignoreGitignoredFiles,
+					})
+					.withEntrypoint(["/bin/sh", "-ec"])
+					.withCommand([
+						`cp -R /tmp/jscpd-fixture "$DEFAULT_WORKSPACE"
+git init -q "$DEFAULT_WORKSPACE"
+status=0
+/usr/local/bin/super-linter-entrypoint > /tmp/linter.log 2>&1 || status=$?
+printf '%s' "$status" > /tmp/linter-exit-code
+echo "Super-Linter finished"
+exec sleep infinity`,
+					])
+					.withWaitStrategy(Wait.forLogMessage("Super-Linter finished"))
+					.withStartupTimeout(60_000)
+					.start();
+
+				try {
+					const { exitCode, output } = await jscpdContainer.exec([
+						"/bin/sh",
+						"-c",
+						'cat /tmp/linter.log; exit "$(cat /tmp/linter-exit-code)"',
+					]);
+					assert.strictEqual(exitCode, noGitignore ? 1 : 0, output);
+
+					const report = await jscpdContainer.exec([
+						"cat",
+						`${workspace}/report/jscpd-report.json`,
+					]);
+					assert.strictEqual(report.exitCode, 0, report.output);
+					const { total } = JSON.parse(report.output).statistics;
+					assert.strictEqual(total.sources, noGitignore ? 2 : 1);
+					assert.strictEqual(total.duplicatedLines > 0, noGitignore);
+				} finally {
+					await jscpdContainer.stop();
+				}
+			}
+		});
+	}
 
 	it("applies local runtime defaults", async () => {
 		const { exitCode, output } = await runEntrypoint([

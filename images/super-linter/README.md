@@ -4,7 +4,7 @@ An opinionated Super-Linter image with safer local defaults and explicit toolcha
 
 It extends `ghcr.io/super-linter/super-linter` and keeps the stock linter entrypoint, while applying runtime defaults only when you did not set them yourself.
 
-For direct local use, the image still supports `UID` and `GID` build args so the container can run as the host user. When this image is used as a base image, matching `ONBUILD` hooks apply the same `UID` and `GID` to `/github/home` and to the child image runtime user.
+For direct local use, the image supports `UID` and `GID` build args so the container can run as the host user. When this image is used as a base image, matching `ONBUILD` hooks apply the same `UID` and `GID` to `/github/home` and to the child image runtime user.
 
 ## Included behavior
 
@@ -20,6 +20,25 @@ For direct local use, the image still supports `UID` and `GID` build args so the
 - supports overriding `VALIDATE_JAVASCRIPT_TOOLCHAIN=biome|eslint-prettier`
 - supports overriding `VALIDATE_PYTHON_TOOLCHAIN=black|ruff-format`
 - fails fast on unsupported toolchain names
+
+## JSCPD configuration
+
+Configure copy/paste detection in your project's `.github/linters/.jscpd.json`:
+
+```json
+{
+  "noGitignore": false
+}
+```
+
+Set `noGitignore` to `false` to exclude Git-ignored files, or `true` to include them.
+This setting operates independently of `IGNORE_GITIGNORED_FILES`.
+
+## Testing
+
+Run `make test super-linter` from the repository root.
+JSCPD checks run the image entrypoint at container startup, with a fresh container for each configuration.
+Each check has a 60-second startup deadline and verifies the linter exit code and duplication report.
 
 ## Usage
 
