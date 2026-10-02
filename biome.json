@@ -3,7 +3,8 @@
 		"includes": [
 			"**",
 			"!!**/images/codespace-like/src/config/user/.ssh",
-			"!!**/images/codespace-like/src/config/user/.gnupg"
+			"!!**/images/codespace-like/src/config/user/.gnupg",
+			"!!**/.github/*.svg"
 		]
 	}
 }
