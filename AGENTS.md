@@ -19,6 +19,13 @@ This project is a collection of opinionated Docker base images and related GitHu
 
 ## Agent-Specific Development Patterns
 
+### Documentation and tests (required)
+
+Follow the [documentation and test rules](./CONTRIBUTING.md#documentation-and-tests).
+Documentation, examples, test names, fixtures, and assertions must describe only the current supported codebase.
+Do not add migration narratives, historical comparisons, or tests for unsupported behavior or deleted implementation details.
+Review changed documentation and tests against this rule before finishing any task, including dependency upgrades.
+
 ### Critical Workflow Knowledge
 
 ```bash

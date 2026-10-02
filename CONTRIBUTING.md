@@ -16,6 +16,18 @@ Please note we have a code of conduct, please follow it in all your interactions
 4. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
    do not have permission to do that, you may request the second reviewer to merge it for you.
 
+## Documentation and tests
+
+Documentation and tests must describe only the current supported codebase.
+
+- Write documentation and examples in the present tense, using supported configuration and APIs.
+  Do not include migration narratives, comparisons with previous versions, or descriptions of removed workarounds.
+- Name tests after observable behavior and assert the current contract.
+  Fixtures and assertions must not preserve unsupported behavior or check for deleted implementation details.
+  Keep regression coverage that verifies a current requirement.
+- Before submitting, review documentation, examples, test names, fixtures, and assertions for compliance with these rules.
+  Record change history in commit messages and pull request descriptions.
+
 ## Code of Conduct
 
 ### Our Pledge
