@@ -1,7 +1,4 @@
-FROM ghcr.io/super-linter/super-linter:slim-v8.7.0
-
-USER root
-RUN sed -i '/LINTER_COMMANDS_ARRAY_JSCPD+=("${JSCPD_GITIGNORE_OPTION}")/d' /action/lib/functions/linterCommands.sh
+FROM ghcr.io/super-linter/super-linter:slim-v9.0.0
 
 HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["/bin/sh", "-c", "test -d /github/home"]
 
