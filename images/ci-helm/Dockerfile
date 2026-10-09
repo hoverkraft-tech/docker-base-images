@@ -1,4 +1,4 @@
-FROM quay.io/helmpack/chart-testing:v3.14.0
+FROM quay.io/helmpack/chart-testing:v3.15.0
 
 # we can probably ignore warning about versions of such packages
 # hadolint ignore=DL3018
