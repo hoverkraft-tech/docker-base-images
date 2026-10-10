@@ -1,17 +1,17 @@
 # super-linter
 
-An opinionated Super-Linter image with safer local defaults and explicit toolchain conflict guards.
+An opinionated Super-Linter image shared by local linting and GitHub Actions.
 
-It extends `ghcr.io/super-linter/super-linter` and keeps the stock linter entrypoint, while applying runtime defaults only when you did not set them yourself.
+It extends `ghcr.io/super-linter/super-linter:slim` and runs its stock linter after applying shared toolchain defaults and installing fallback commitlint rules. Explicit environment variables take precedence over the image defaults.
 
-For direct local use, the image supports `UID` and `GID` build args so the container can run as the host user. When this image is used as a base image, matching `ONBUILD` hooks apply the same `UID` and `GID` to `/github/home` and to the child image runtime user.
+The published image runs as root, as required by GitHub Docker actions. For local use, pass the host `UID` and `GID` as build arguments so fixes preserve file ownership. When used as a base image, `ONBUILD` hooks apply the child build’s `UID` and `GID` to `/github/home` and its runtime user; both default to `1000`.
 
 ## Included behavior
 
-- defaults `RUN_LOCAL=true`
-- defaults `USE_FIND_ALGORITHM=true`
+- defaults `RUN_LOCAL=false` when `GITHUB_ACTIONS=true`, otherwise `RUN_LOCAL=true`
+- defaults `USE_FIND_ALGORITHM=true` for local runs; CI uses Super-Linter's Git discovery and summary defaults
 - defaults `LOG_LEVEL=WARN`
-- defaults `LOG_FILE=/github/home/logs`
+- uses Super-Linter's `LOG_FILE=super-linter.log` default; enable file logging with `CREATE_LOG_FILE=true`
 - defaults `IGNORE_GITIGNORED_FILES=true`
 - defaults `KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS="https://raw.githubusercontent.com/hoverkraft-tech/crds-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"`
 - defaults `KUBERNETES_KUBECONFORM_OPTIONS` from `KUBERNETES_KUBECONFORM_SCHEMA_LOCATIONS` as `-schema-location default` plus one `-schema-location` per entry
@@ -20,6 +20,9 @@ For direct local use, the image supports `UID` and `GID` build args so the conta
 - supports overriding `VALIDATE_JAVASCRIPT_TOOLCHAIN=biome|eslint-prettier`
 - supports overriding `VALIDATE_PYTHON_TOOLCHAIN=black|ruff-format`
 - fails fast on unsupported toolchain names
+- supplies conventional commit rules as a global fallback without writing configuration in the workspace
+- respects `VALIDATE_GIT_COMMITLINT=false`; with toolchain selectors enabled, explicit `true` keeps commitlint enabled without restricting other validators
+- accepts `$/` self-repository action and reusable workflow references with both default and project-provided Actionlint configurations
 
 ## JSCPD configuration
 
@@ -56,7 +59,7 @@ docker build \
 When you build a child image from this base, pass the same build args to the child build and the `ONBUILD` hooks will apply them automatically:
 
 ```dockerfile
-FROM ghcr.io/hoverkraft-tech/docker-base-images/super-linter:latest
+FROM ghcr.io/hoverkraft-tech/docker-base-images/super-linter:2.0.0
 ```
 
 ```bash
@@ -119,3 +122,51 @@ Available values:
 - `VALIDATE_JAVASCRIPT_TOOLCHAIN=eslint-prettier`
 - `VALIDATE_PYTHON_TOOLCHAIN=black`
 - `VALIDATE_PYTHON_TOOLCHAIN=ruff-format`
+
+To use Super-Linter's native validator allowlist, set both toolchain selectors to
+empty strings and enable the desired `VALIDATE_*` variables. For example,
+`VALIDATE_GIT_COMMITLINT=true` then selects only commit message validation.
+Super-Linter accepts either `true` flags (an allowlist) or `false` flags (exclusions),
+not a mixture of both. The automatic toolchain selectors use exclusions.
+
+## GitHub Actions
+
+Use the same image release as local linting. GitHub provides the workspace, event
+metadata, and command files to the Docker action:
+
+```yaml
+- uses: docker://ghcr.io/hoverkraft-tech/docker-base-images/super-linter:2.0.0
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
+    DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    VALIDATE_ALL_CODEBASE: "false"
+```
+
+Check out the full Git history before running the image when validating changed
+files. The reusable [linter workflow](https://github.com/hoverkraft-tech/ci-github-common/blob/main/.github/workflows/linter.yml)
+provides checkout, input mapping, dependency installation for Prettier plugins,
+and additional CodeQL and action-pinning jobs.
+
+Install project dependencies before local linting when configuration references
+Prettier plugins. The image uses those dependencies from the mounted workspace.
+
+### Actionlint self-repository references
+
+The image adds two narrow Actionlint `-ignore` patterns for the unsupported
+`$/` reference-format diagnostics described in [actionlint#711](https://github.com/rhysd/actionlint/issues/711).
+They apply to step actions and reusable workflow calls, including projects with
+their own Actionlint configuration. Other diagnostics remain enabled, and
+arguments supplied through `GITHUB_ACTIONS_COMMAND_ARGS` are preserved.
+
+## Commitlint configuration
+
+Commitlint discovers project configuration itself, including parent directories
+and the `commitlint` field in `package.json` or `package.yaml`. Project rules take
+precedence over the bundled rules.
+
+The entrypoint installs the bundled rules in
+`${XDG_CONFIG_HOME:-$HOME/.config}/commitlint/config.cjs` when no global
+configuration exists. This supports GitHub Actions' mounted home directory and
+leaves the workspace untouched. Existing global configuration is preserved.
+Set `VALIDATE_GIT_COMMITLINT=false` to disable commit message validation and
+fallback installation.
