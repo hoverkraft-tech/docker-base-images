@@ -18,6 +18,7 @@ updates:
   - package-ecosystem: docker
     open-pull-requests-limit: 20
     directories:
+      - "/images/*"
       - "/images/*/*"
     schedule:
       interval: weekly
