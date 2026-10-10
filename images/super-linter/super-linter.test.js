@@ -27,12 +27,21 @@ describe("super-linter Image", () => {
 	// jscpd:ignore-end
 
 	async function runEntrypoint(args = [], env = {}) {
-		return container.exec(["/usr/local/bin/super-linter-entrypoint", ...args], {
-			env: {
-				SUPER_LINTER_ENTRYPOINT: "/bin/sh",
-				...env,
+		const workspace =
+			env.DEFAULT_WORKSPACE ??
+			(await container.exec(["mktemp", "-d"])).output.trim();
+		const result = await container.exec(
+			["/usr/local/bin/super-linter-entrypoint", ...args],
+			{
+				env: {
+					SUPER_LINTER_ENTRYPOINT: "/bin/sh",
+					DEFAULT_WORKSPACE: workspace,
+					GITHUB_WORKSPACE: workspace,
+					...env,
+				},
 			},
-		});
+		);
+		return { ...result, workspace };
 	}
 
 	it("wrapper script exists and is executable", async () => {
@@ -118,16 +127,22 @@ exec sleep infinity`,
 		});
 	}
 
+	it("runs as root for GitHub Docker actions", async () => {
+		const { exitCode, output } = await container.exec(["id", "-u"]);
+		assert.strictEqual(exitCode, 0);
+		assert.strictEqual(output.trim(), "0");
+	});
+
 	it("applies local runtime defaults", async () => {
 		const { exitCode, output } = await runEntrypoint([
 			"-c",
-			'printf "%s" "$RUN_LOCAL|$USE_FIND_ALGORITHM|$LOG_LEVEL|$LOG_FILE|$IGNORE_GITIGNORED_FILES|$KUBERNETES_KUBECONFORM_OPTIONS|$VALIDATE_JAVASCRIPT_TOOLCHAIN|$VALIDATE_PYTHON_TOOLCHAIN"',
+			'printf "%s" "$RUN_LOCAL|$USE_FIND_ALGORITHM|$LOG_LEVEL|$IGNORE_GITIGNORED_FILES|$KUBERNETES_KUBECONFORM_OPTIONS|$VALIDATE_JAVASCRIPT_TOOLCHAIN|$VALIDATE_PYTHON_TOOLCHAIN"',
 		]);
 
 		assert.strictEqual(exitCode, 0);
 		assert.strictEqual(
 			output.trim(),
-			"true|true|WARN|/github/home/logs|true|-schema-location default -schema-location https://raw.githubusercontent.com/hoverkraft-tech/crds-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json|biome|ruff-format",
+			"true|true|WARN|true|-schema-location default -schema-location https://raw.githubusercontent.com/hoverkraft-tech/crds-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json|biome|ruff-format",
 		);
 	});
 
@@ -139,6 +154,36 @@ exec sleep infinity`,
 
 		assert.strictEqual(exitCode, 0);
 		assert.strictEqual(output.trim(), "false|false|false|||false");
+	});
+
+	it("selects CI mode in GitHub Actions", async () => {
+		const { exitCode, output } = await runEntrypoint(
+			["-c", 'printf "%s" "$RUN_LOCAL"'],
+			{ GITHUB_ACTIONS: "true" },
+		);
+		assert.strictEqual(exitCode, 0);
+		assert.strictEqual(output.trim(), "false");
+	});
+
+	it("applies the same linting policy locally and in GitHub Actions", async () => {
+		const args = [
+			"-c",
+			'printf "%s" "$VALIDATE_JAVASCRIPT_TOOLCHAIN|$VALIDATE_PYTHON_TOOLCHAIN|$VALIDATE_JAVASCRIPT_ES|$VALIDATE_PYTHON_BLACK|$KUBERNETES_KUBECONFORM_OPTIONS|$IGNORE_GITIGNORED_FILES|$LOG_LEVEL"',
+		];
+		const local = await runEntrypoint(args);
+		const ci = await runEntrypoint(args, { GITHUB_ACTIONS: "true" });
+		assert.strictEqual(local.exitCode, 0);
+		assert.strictEqual(ci.exitCode, 0);
+		assert.strictEqual(ci.output, local.output);
+	});
+
+	it("supports explicit local execution inside GitHub Actions", async () => {
+		const { exitCode, output } = await runEntrypoint(
+			["-c", 'printf "%s" "$RUN_LOCAL|$USE_FIND_ALGORITHM"'],
+			{ GITHUB_ACTIONS: "true", RUN_LOCAL: "true" },
+		);
+		assert.strictEqual(exitCode, 0);
+		assert.strictEqual(output.trim(), "true|true");
 	});
 
 	it("preserves explicitly provided runtime values", async () => {
@@ -157,6 +202,145 @@ exec sleep infinity`,
 
 		assert.strictEqual(exitCode, 0);
 		assert.strictEqual(output.trim(), "false|INFO|false|-summary");
+	});
+
+	it("preserves validator overrides and empty toolchain selectors", async () => {
+		const { exitCode, output } = await runEntrypoint(
+			[
+				"-c",
+				'printf "%s" "$VALIDATE_JAVASCRIPT_ES|$VALIDATE_PYTHON_BLACK|$VALIDATE_BIOME_LINT"',
+			],
+			{
+				VALIDATE_JAVASCRIPT_ES: "true",
+				VALIDATE_PYTHON_TOOLCHAIN: "",
+				VALIDATE_JAVASCRIPT_TOOLCHAIN: "",
+			},
+		);
+		assert.strictEqual(exitCode, 0);
+		assert.strictEqual(output.trim(), "true||");
+	});
+
+	it("keeps commitlint enabled without restricting the other validators", async () => {
+		const { exitCode, output } = await runEntrypoint(
+			[
+				"-c",
+				'if printenv VALIDATE_GIT_COMMITLINT; then exit 1; fi; printf "%s" "$VALIDATE_JAVASCRIPT_ES"',
+			],
+			{ VALIDATE_GIT_COMMITLINT: "true" },
+		);
+		assert.strictEqual(exitCode, 0);
+		assert.strictEqual(output.trim(), "false");
+	});
+
+	for (const [message, expectedExitCode] of [
+		["feat: add a shared linter", 0],
+		["invalid commit message", 1],
+	]) {
+		it(`validates '${message}' without writing in the workspace`, async () => {
+			const { exitCode, workspace } = await runEntrypoint(
+				[
+					"-c",
+					'printf "%s\\n" "$COMMIT_MESSAGE" | commitlint --cwd "$DEFAULT_WORKSPACE"',
+				],
+				{ COMMIT_MESSAGE: message },
+			);
+			assert.strictEqual(exitCode, expectedExitCode);
+			const files = await container.exec(["ls", "-A", workspace]);
+			assert.strictEqual(files.output, "");
+		});
+	}
+
+	for (const [filename, contents] of [
+		[
+			"commitlint.config.cjs",
+			'module.exports = { rules: { "type-enum": [2, "always", ["custom"]] } };',
+		],
+		[
+			"commitlint.config.mjs",
+			'export default { rules: { "type-enum": [2, "always", ["custom"]] } };',
+		],
+		[".commitlintrc.yaml", "rules:\n  type-enum: [2, always, [custom]]\n"],
+		[
+			"package.json",
+			'{"commitlint":{"rules":{"type-enum":[2,"always",["custom"]]}}}',
+		],
+		[
+			"package.yaml",
+			"commitlint:\n  rules:\n    type-enum: [2, always, [custom]]\n",
+		],
+	]) {
+		it(`uses project rules from ${filename}`, async () => {
+			const workspace = (await container.exec(["mktemp", "-d"])).output.trim();
+			await container.exec([
+				"sh",
+				"-c",
+				'printf "%s" "$1" > "$2"',
+				"sh",
+				contents,
+				`${workspace}/${filename}`,
+			]);
+			const { exitCode, output } = await runEntrypoint(
+				[
+					"-c",
+					'printf "custom: project rules\\n" | commitlint --cwd "$DEFAULT_WORKSPACE"',
+				],
+				{ DEFAULT_WORKSPACE: workspace },
+			);
+			assert.strictEqual(exitCode, 0, output);
+			const config = await container.exec(["cat", `${workspace}/${filename}`]);
+			assert.strictEqual(config.output, contents);
+		});
+	}
+
+	it("uses commitlint rules inherited from a parent directory", async () => {
+		const { exitCode, output } = await runEntrypoint([
+			"-c",
+			'mkdir "$DEFAULT_WORKSPACE/child"; printf \'{"rules":{"type-enum":[2,"always",["custom"]]}}\' > "$DEFAULT_WORKSPACE/.commitlintrc.json"; printf "custom: inherited rules\\n" | commitlint --cwd "$DEFAULT_WORKSPACE/child"',
+		]);
+		assert.strictEqual(exitCode, 0, output);
+	});
+
+	it("honors existing global commitlint configuration", async () => {
+		const configHome = (await container.exec(["mktemp", "-d"])).output.trim();
+		await container.exec([
+			"sh",
+			"-c",
+			'mkdir "$1/commitlint"; printf \'export default { rules: { "type-enum": [2, "always", ["custom"]] } };\' > "$1/commitlint/config.mjs"',
+			"sh",
+			configHome,
+		]);
+		const { exitCode, output } = await runEntrypoint(
+			[
+				"-c",
+				'printf "custom: global rules\\n" | commitlint --cwd "$DEFAULT_WORKSPACE"',
+			],
+			{ XDG_CONFIG_HOME: configHome },
+		);
+		assert.strictEqual(exitCode, 0, output);
+	});
+
+	it("installs fallback rules in the runtime home directory", async () => {
+		const home = (await container.exec(["mktemp", "-d"])).output.trim();
+		const { exitCode, output } = await runEntrypoint(
+			[
+				"-c",
+				'printf "feat: runtime home\\n" | commitlint --cwd "$DEFAULT_WORKSPACE"',
+			],
+			{ HOME: home },
+		);
+		assert.strictEqual(exitCode, 0, output);
+	});
+
+	it("skips configuration when commitlint is disabled", async () => {
+		const home = (await container.exec(["mktemp", "-d"])).output.trim();
+		const { exitCode } = await runEntrypoint(
+			[
+				"-c",
+				'test -z "$(ls -A "$HOME")" && test "$VALIDATE_GIT_COMMITLINT" = false',
+			],
+			{ HOME: home, VALIDATE_GIT_COMMITLINT: "false" },
+		);
+		assert.strictEqual(exitCode, 0);
 	});
 
 	it("disables conflicting validators for the biome toolchain", async () => {
@@ -208,46 +392,72 @@ exec sleep infinity`,
 		assert.match(output, /Unsupported VALIDATE_JAVASCRIPT_TOOLCHAIN: unknown/);
 	});
 
-	it("applies uid and gid to child builds via ONBUILD", async () => {
+	for (const [name, env] of [
+		["Python toolchain", { VALIDATE_PYTHON_TOOLCHAIN: "unknown" }],
+		["execution mode", { RUN_LOCAL: "unknown" }],
+	]) {
+		it(`rejects an unsupported ${name}`, async () => {
+			const { exitCode } = await runEntrypoint(["-c", "exit 0"], env);
+			assert.strictEqual(exitCode, 1);
+		});
+	}
+
+	async function runFixture(image, name) {
+		const script = await fs.readFile(
+			path.join(import.meta.dirname, "tests", name),
+			"utf8",
+		);
+		let output = "";
+		try {
+			const fixture = await image
+				.withEntrypoint(["sh"])
+				.withCommand(["-c", script])
+				.withLogConsumer((stream) =>
+					stream.on("data", (chunk) => {
+						output += chunk;
+					}),
+				)
+				.withWaitStrategy(Wait.forOneShotStartup())
+				.withStartupTimeout(120_000)
+				.start();
+			await fixture.stop();
+		} catch (cause) {
+			throw new Error(`Fixture ${name} failed:\n${output}`, { cause });
+		}
+	}
+
+	it("uses Git changes in CI and includes untracked files locally", async () => {
+		await runFixture(new GenericContainer(testedImageRef), "file-selection.sh");
+	});
+
+	it("supports toolchain selection and native validator allowlists", async () => {
+		await runFixture(new GenericContainer(testedImageRef), "toolchains.sh");
+	});
+
+	it("validates commit history with the bundled rules", async () => {
+		await runFixture(new GenericContainer(testedImageRef), "commitlint.sh");
+	});
+
+	it("accepts self-repository references while reporting other workflow errors", async () => {
+		await runFixture(
+			new GenericContainer(testedImageRef),
+			"self-repository.sh",
+		);
+	});
+
+	it("preserves local ownership when fixing files in a child image", async () => {
 		const buildContext = await fs.mkdtemp(
 			path.join(os.tmpdir(), "super-linter-onbuild-"),
 		);
-
 		try {
 			await fs.writeFile(
 				path.join(buildContext, "Dockerfile"),
 				`FROM ${testedImageRef}\n`,
 			);
-
 			const childImage = await GenericContainer.fromDockerfile(buildContext)
 				.withBuildArgs({ UID: "2345", GID: "3456" })
 				.build();
-
-			const childContainer = await childImage
-				.withEntrypoint(["sleep"])
-				.withCommand(["infinity"])
-				.start();
-
-			try {
-				const userId = await childContainer.exec(["id", "-u"]);
-				assert.strictEqual(userId.exitCode, 0);
-				assert.strictEqual(userId.output.trim(), "2345");
-
-				const groupId = await childContainer.exec(["id", "-g"]);
-				assert.strictEqual(groupId.exitCode, 0);
-				assert.strictEqual(groupId.output.trim(), "3456");
-
-				const owner = await childContainer.exec([
-					"stat",
-					"-c",
-					"%u:%g",
-					"/github/home",
-				]);
-				assert.strictEqual(owner.exitCode, 0);
-				assert.strictEqual(owner.output.trim(), "2345:3456");
-			} finally {
-				await childContainer.stop();
-			}
+			await runFixture(childImage, "autofix.sh");
 		} finally {
 			await fs.rm(buildContext, { recursive: true, force: true });
 		}
