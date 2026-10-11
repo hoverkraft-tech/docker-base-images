@@ -1,3 +1,5 @@
+FROM ghcr.io/yannh/kubeconform:v0.8.0 AS kubeconform
+
 FROM quay.io/helmpack/chart-testing:v3.15.0
 
 # we can probably ignore warning about versions of such packages
@@ -7,6 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
   apk add --no-cache jq yq curl openssl git
 
 COPY scripts/ /usr/local/bin/
+COPY --from=kubeconform /kubeconform /usr/local/bin/kubeconform
 
 RUN \
   set -ex && \
@@ -18,8 +21,10 @@ WORKDIR /home/helm
 
 RUN --mount=type=cache,target=/home/.cache \
   set -ex; \
+  kubeconform -v; \
   # Should be updated via dependabot. See https://github.com/jtyr/kubeconform-helm/tags
-  helm plugin install https://github.com/jtyr/kubeconform-helm --version 0.2.0; \
+  # Use the bundled binary instead of querying the GitHub releases API.
+  SKIP_BIN_INSTALL=1 helm plugin install https://github.com/jtyr/kubeconform-helm --version 0.2.0; \
   # Should be updated via dependabot. See https://github.com/losisin/helm-values-schema-json/releases
   helm plugin install https://github.com/losisin/helm-values-schema-json.git --version 2.3.0;
 
