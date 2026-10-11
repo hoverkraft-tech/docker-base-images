@@ -7,6 +7,10 @@ A image for helm chart-testing (helm ct) with some handy tools added
 - cURL
 - OpenSSL
 - Git
+- kubeconform, supplied by a version-pinned upstream image for AMD64 and ARM64
+
+The `kubeconform` Helm plugin uses the bundled kubeconform binary.
+The `schema` Helm plugin generates JSON schemas for chart values.
 
 We also add some scripts to make life easier :
 
