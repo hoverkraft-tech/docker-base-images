@@ -16,13 +16,8 @@ jobs:
     env:
       TEST_IMAGE_NAME: testcontainers-node
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: should-build-images
-        uses: ./../self-workflow/actions/should-build-images
+        uses: $/actions/should-build-images
         with:
           images: ${{ format('["{0}"]', env.TEST_IMAGE_NAME) }}
 
@@ -42,7 +37,7 @@ jobs:
 
   build-test-image:
     needs: prepare-build-test-image
-    uses: ./.github/workflows/__docker-build-images.yml
+    uses: $/.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write
@@ -88,7 +83,7 @@ jobs:
 
   ci:
     needs: prepare-test-image
-    uses: ./.github/workflows/continuous-integration.yml
+    uses: $/.github/workflows/continuous-integration.yml
     permissions:
       actions: read
       contents: read

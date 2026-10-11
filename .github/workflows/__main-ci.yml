@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: ./.github/workflows/__shared-ci.yml
+    uses: $/.github/workflows/__shared-ci.yml
     permissions:
       actions: read
       contents: read
@@ -32,7 +32,7 @@ jobs:
 
   clean:
     needs: ci
-    uses: ./.github/workflows/prune-pull-requests-images-tags.yml
+    uses: $/.github/workflows/prune-pull-requests-images-tags.yml
     permissions:
       contents: read
       packages: write
