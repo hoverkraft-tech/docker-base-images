@@ -7,4 +7,4 @@ COPY --chown=argocd:argocd entrypoint.sh kustomize-template.tpl multi-sources.sh
 USER argocd
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD argocd version --client
+    CMD ["argocd", "version", "--client"]

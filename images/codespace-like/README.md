@@ -2,6 +2,9 @@
 
 A web-based Visual Studio Code environment built on top of [`coder/code-server`](https://github.com/coder/code-server), enriched with developer tooling for Kubernetes and container workflows.
 
+The image build creates `/home/coder/.ssh` and `/home/coder/.gnupg` as symbolic links into
+`/home/coder/work`, so SSH and GnuPG data use the persistent workspace volume.
+
 ## What's included
 
 **System packages** (via apt): `docker`, `git`, `make`, `curl`, `wget`, `rsync`, `zsh`
