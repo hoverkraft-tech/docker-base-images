@@ -31,4 +31,4 @@ WORKDIR /home/mydumper
 ENTRYPOINT ["/entrypoint.sh"]
 VOLUME /backup
 
-HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD test -w /backup
+HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD ["test", "-w", "/backup"]
