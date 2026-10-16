@@ -28,4 +28,4 @@ RUN --mount=type=cache,target=/home/.cache \
   # Should be updated via dependabot. See https://github.com/losisin/helm-values-schema-json/releases
   helm plugin install https://github.com/losisin/helm-values-schema-json.git --version 2.3.0;
 
-HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD helm version
+HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD ["helm", "version"]

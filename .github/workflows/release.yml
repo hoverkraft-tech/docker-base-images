@@ -69,13 +69,8 @@ jobs:
     outputs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: get-available-images
-        uses: ./../self-workflow/actions/get-available-images
+        uses: $/actions/get-available-images
 
       - id: get-images-matrix
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -145,13 +140,8 @@ jobs:
         images: ${{ fromJson(needs.prepare-images.outputs.images-matrix) }}
       fail-fast: false
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: should-build-images
-        uses: ./../self-workflow/actions/should-build-images
+        uses: $/actions/should-build-images
         with:
           base-sha: ${{ matrix.images.base-sha }}
           images: ${{ toJSON(matrix.images.images) }}
@@ -275,7 +265,7 @@ jobs:
   build-images:
     needs: prepare-planned-releases
     if: needs.prepare-planned-releases.outputs.images != '[]'
-    uses: ./.github/workflows/__docker-build-images.yml
+    uses: $/.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write

@@ -45,6 +45,6 @@ RUN \
 
 USER coder
 
-HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD code-server --version >/dev/null || exit 1
+HEALTHCHECK --interval=1m --timeout=10s --start-period=30s --retries=3 CMD ["code-server", "--version"]
 
 VOLUME /home/coder/work

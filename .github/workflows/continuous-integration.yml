@@ -85,16 +85,11 @@ jobs:
       images: ${{ steps.set-images-to-build.outputs.images }}
     steps:
       # jscpd:ignore-start
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: get-available-images
-        uses: ./../self-workflow/actions/get-available-images
+        uses: $/actions/get-available-images
 
       - id: should-build-images
-        uses: ./../self-workflow/actions/should-build-images
+        uses: $/actions/should-build-images
         with:
           images: ${{ steps.get-available-images.outputs.images }}
       # jscpd:ignore-end
@@ -134,7 +129,7 @@ jobs:
 
   build-images:
     needs: [linter, prepare-images-to-build]
-    uses: ./.github/workflows/__docker-build-images.yml
+    uses: $/.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write
