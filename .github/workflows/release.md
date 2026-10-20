@@ -52,6 +52,11 @@ jobs:
       packages: write
       pull-requests: write
     secrets:
+      # Optional JSON configuration for AI-generated release summaries.
+      # Include `llmAuth` (API key) and optionally `llmProvider`, `llmModel`, `llmConfig`, `workingDirectory`, or `summaryTemplate`.
+      # See https://github.com/hoverkraft-tech/ci-github-publish/blob/main/actions/release/create/README.md.
+      changelog-summary: ""
+
       # GitHub token with permissions `contents: write`, `pull-requests: read`.
       github-token: ""
 
@@ -120,11 +125,14 @@ jobs:
 
 ## Secrets
 
-| **Secret**                  | **Description**                                                                                          | **Required** |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- | ------------ |
-| **`github-token`**          | GitHub token with permissions `contents: write`, `pull-requests: read`.                                  | **false**    |
-| **`oci-registry-password`** | Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry. | **false**    |
-|                             | Defaults to GITHUB_TOKEN if not provided.                                                                |              |
+| **Secret**                  | **Description**                                                                                                              | **Required** |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| **`changelog-summary`**     | Optional JSON configuration for AI-generated release summaries.                                                              | **false**    |
+|                             | Include `llmAuth` (API key) and optionally `llmProvider`, `llmModel`, `llmConfig`, `workingDirectory`, or `summaryTemplate`. |              |
+|                             | See <https://github.com/hoverkraft-tech/ci-github-publish/blob/main/actions/release/create/README.md>.                       |              |
+| **`github-token`**          | GitHub token with permissions `contents: write`, `pull-requests: read`.                                                      | **false**    |
+| **`oci-registry-password`** | Password or GitHub token (packages:read and packages:write scopes) used to log against the OCI registry.                     | **false**    |
+|                             | Defaults to GITHUB_TOKEN if not provided.                                                                                    |              |
 
 <!-- secrets:end -->
 <!-- outputs:start -->

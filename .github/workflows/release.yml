@@ -44,6 +44,12 @@ on: # yamllint disable-line rule:truthy
         type: boolean
         default: false
     secrets:
+      changelog-summary:
+        description: |
+          Optional JSON configuration for AI-generated release summaries.
+          Include `llmAuth` (API key) and optionally `llmProvider`, `llmModel`, `llmConfig`, `workingDirectory`, or `summaryTemplate`.
+          See https://github.com/hoverkraft-tech/ci-github-publish/blob/main/actions/release/create/README.md.
+        required: false
       github-token:
         description: |
           GitHub token with permissions `contents: write`, `pull-requests: read`.
@@ -69,13 +75,8 @@ jobs:
     outputs:
       images-matrix: ${{ steps.get-images-matrix.outputs.images-matrix }}
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: get-available-images
-        uses: ./../self-workflow/actions/get-available-images
+        uses: $/actions/get-available-images
 
       - id: get-images-matrix
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -145,13 +146,8 @@ jobs:
         images: ${{ fromJson(needs.prepare-images.outputs.images-matrix) }}
       fail-fast: false
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: should-build-images
-        uses: ./../self-workflow/actions/should-build-images
+        uses: $/actions/should-build-images
         with:
           base-sha: ${{ matrix.images.base-sha }}
           images: ${{ toJSON(matrix.images.images) }}
@@ -215,10 +211,11 @@ jobs:
       fail-fast: false
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@1ee0354c40e4cd0a46c69cbe305c74fc67338042 # 0.28.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@218a19141dd9c88bd74b0ad28f1facb4c3568fbb # 1.0.0
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
+          target-sha: ${{ github.sha }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
       - id: set-planned-release
@@ -275,7 +272,7 @@ jobs:
   build-images:
     needs: prepare-planned-releases
     if: needs.prepare-planned-releases.outputs.images != '[]'
-    uses: ./.github/workflows/__docker-build-images.yml
+    uses: $/.github/workflows/__docker-build-images.yml
     permissions:
       contents: read
       id-token: write
@@ -307,11 +304,14 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@1ee0354c40e4cd0a46c69cbe305c74fc67338042 # 0.28.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@218a19141dd9c88bd74b0ad28f1facb4c3568fbb # 1.0.0
+        env:
+          CHANGELOG_SUMMARY: ${{ secrets.changelog-summary }}
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           tag: ${{ matrix.release.releaseTag }}
           target-sha: ${{ github.sha }}
           working-directory: images/${{ matrix.release.name }}
           publish: "true"
+          changelog-summary: ${{ env.CHANGELOG_SUMMARY }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]

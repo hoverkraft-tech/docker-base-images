@@ -63,9 +63,15 @@ _Actions that you can plug directly into your own Docker images repository._
 
 _Orchestrated workflows you can plug directly into your own Docker images repository._
 
+Release workflows require GitHub.com and GitHub Actions runner **2.336.0 or newer**.
+
 ### - [Continuous Integration](.github/workflows/continuous-integration.md)
 
 ### - [Prune pull requests images tags](.github/workflows/prune-pull-requests-images-tags.md)
+
+### - [Prepare Release](.github/workflows/prepare-release.md)
+
+### - [Release](.github/workflows/release.md)
 
 ## Contributing
 
@@ -276,16 +282,30 @@ images/                               # Docker images (each image is self-contai
 
 - Remove all tags create during Pull request builds
 
-##### Release
+#### Automatic releases
 
-###### Release checks
+[Internal - Release](.github/workflows/__release.yml) runs every Monday at 08:25 UTC
+and supports manual dispatch on the default branch. CI must succeed before publishing.
+The workflow builds and publishes images changed since their latest image-specific tags,
+then creates their GitHub releases. It then plans the repository release and publishes it
+only when there are release changes.
 
-- Run linters against modified files
+Image tags use `<image>-<version>` and repository tags use `<version>`, following
+Semantic Versioning. Both release types include an AI-generated summary and breaking
+changes section above the full changelog. A summary failure prevents that release
+from being published; rerun the workflow after resolving the failure.
 
-##### Release build
+Configure these repository or organization settings:
 
-- Build images that have been modified
-- Tag respecting semantic versioning
+- Variable `CI_BOT_APP_CLIENT_ID` and secret `CI_BOT_APP_PRIVATE_KEY` for a GitHub App
+  installed on this repository with contents write and pull requests read permissions.
+  Its token publishes the repository tag so the main CI documentation jobs run.
+- Secret `OPENAI_API_KEY` for AI summaries. The provider's model defaults come from
+  the pinned release action.
+- Allow `GITHUB_TOKEN` to publish packages to GHCR and create image releases.
+
+Reusable image release callers can enable AI summaries through the optional
+`changelog-summary` secret in [Release](.github/workflows/release.md).
 
 ## Author
 
