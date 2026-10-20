@@ -430,6 +430,10 @@ exec sleep infinity`,
 		await runFixture(new GenericContainer(testedImageRef), "file-selection.sh");
 	});
 
+	it("prunes package-manager stores from local find discovery", async () => {
+		await runFixture(new GenericContainer(testedImageRef), "find-prune.sh");
+	});
+
 	it("supports toolchain selection and native validator allowlists", async () => {
 		await runFixture(new GenericContainer(testedImageRef), "toolchains.sh");
 	});

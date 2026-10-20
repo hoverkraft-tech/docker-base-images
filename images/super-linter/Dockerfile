@@ -7,6 +7,12 @@ COPY actionlint.sh /usr/local/bin/actionlint
 COPY commitlint.config.cjs /usr/local/lib/super-linter/
 RUN chmod 755 /usr/local/bin/super-linter-entrypoint /usr/local/bin/actionlint
 
+# Extend Super-Linter's find-based discovery so it skips large, always-ignored
+# package-manager stores (for example pnpm's .pnpm-store) that would otherwise
+# dominate local run time.
+RUN --mount=type=bind,source=patch-find-prune.sh,target=/tmp/patch-find-prune.sh \
+	sh /tmp/patch-find-prune.sh
+
 ARG UID=0
 ARG GID=0
 RUN chown -R ${UID}:${GID} /github/home

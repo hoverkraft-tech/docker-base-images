@@ -10,6 +10,7 @@ The published image runs as root, as required by GitHub Docker actions. For loca
 
 - defaults `RUN_LOCAL=false` when `GITHUB_ACTIONS=true`, otherwise `RUN_LOCAL=true`
 - defaults `USE_FIND_ALGORITHM=true` for local runs; CI uses Super-Linter's Git discovery and summary defaults
+- prunes always-ignored package-manager stores (`.pnpm-store`, `.yarn`, `.npm`) from the local `find` discovery so large content stores don't dominate run time, while still linting untracked files
 - defaults `LOG_LEVEL=WARN`
 - uses Super-Linter's `LOG_FILE=super-linter.log` default; enable file logging with `CREATE_LOG_FILE=true`
 - defaults `IGNORE_GITIGNORED_FILES=true`
