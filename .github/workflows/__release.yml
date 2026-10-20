@@ -1,0 +1,88 @@
+---
+name: Internal - Release
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  schedule:
+    - cron: "25 8 * * 1"
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
+    uses: $/.github/workflows/__shared-ci.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      issues: write
+      packages: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+
+  release-images:
+    needs: ci
+    uses: $/.github/workflows/release.yml
+    permissions:
+      contents: write
+      id-token: write
+      issues: read
+      packages: write
+      pull-requests: write
+    secrets:
+      changelog-summary: |
+        {
+          "llmAuth": ${{ toJSON(secrets.OPENAI_API_KEY) }},
+          "llmProvider": "openai"
+        }
+
+  release:
+    name: Create and publish repository release
+    needs: [ci, release-images]
+    if: ${{ !cancelled() && needs.ci.result == 'success' && needs.release-images.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Use the app token so the repository tag triggers documentation publishing.
+      - id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.CI_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] CI bot triggers tag workflows
+          permission-contents: write
+          permission-pull-requests: read
+
+      - name: Plan repository release
+        id: plan-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@218a19141dd9c88bd74b0ad28f1facb4c3568fbb # 1.0.0
+        with:
+          target-sha: ${{ github.sha }}
+          github-token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Create and publish repository release
+        if: steps.plan-release.outputs.has-changes == 'true'
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@218a19141dd9c88bd74b0ad28f1facb4c3568fbb # 1.0.0
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          tag: ${{ steps.plan-release.outputs.tag }}
+          target-sha: ${{ github.sha }}
+          publish: "true"
+          changelog-summary: |
+            {
+              "llmAuth": ${{ toJSON(env.OPENAI_API_KEY) }},
+              "llmProvider": "openai"
+            }
+          github-token: ${{ steps.generate-token.outputs.token }}
