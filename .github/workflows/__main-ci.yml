@@ -37,7 +37,7 @@ jobs:
 
   release:
     needs: ci
-    uses: hoverkraft-tech/ci-github-publish/.github/workflows/release-actions.yml@218a19141dd9c88bd74b0ad28f1facb4c3568fbb # 1.0.0
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/release-actions.yml@16cb15741b5789d383fb2565648a93ad761627e1 # 1.0.1
     permissions:
       contents: read
     with:
