@@ -1,4 +1,4 @@
-FROM ghcr.io/hoverkraft-tech/docker-base-images/super-linter:1.1.0@sha256:f600fdd9c95e222b3831181e206db1a58494c45390b0ee0001e32a3c2ddedc75
+FROM ghcr.io/hoverkraft-tech/docker-base-images/super-linter:1.2.0@sha256:bedb8954f0c3e8849b40fd400282bb20a9b3476a1baad37ba7085584156e2a84
 
 HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["/bin/sh","-c","test -d /github/home"]
 ARG UID=1000
