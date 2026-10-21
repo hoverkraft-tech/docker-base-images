@@ -251,7 +251,7 @@ jobs:
       - name: 📊 Parse coverage reports
         if: always()
         id: parse-coverage-reports
-        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
+        uses: hoverkraft-tech/ci-github-common/actions/parse-ci-reports@44f6108cef0e9884ea7735f3d62932c2310745d4 # 0.39.1
         with:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
@@ -260,7 +260,7 @@ jobs:
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
-        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@44f6108cef0e9884ea7735f3d62932c2310745d4 # 0.39.1
         with:
           title: "Code Coverage Report - ${{ matrix.name }}"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}
