@@ -274,6 +274,7 @@ jobs:
     if: needs.prepare-planned-releases.outputs.images != '[]'
     uses: $/.github/workflows/__docker-build-images.yml
     permissions:
+      attestations: write
       contents: read
       id-token: write
       issues: read

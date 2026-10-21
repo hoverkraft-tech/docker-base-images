@@ -24,6 +24,7 @@
 
 ### Permissions
 
+- **`attestations`**: `write`
 - **`contents`**: `write`
 - **`id-token`**: `write`
 - **`issues`**: `read`
@@ -46,6 +47,7 @@ jobs:
   release:
     uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@536aff60442c9d70714c247aeb392dc762d84b4e # 0.7.0
     permissions:
+      attestations: write
       contents: write
       id-token: write
       issues: read

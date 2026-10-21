@@ -36,6 +36,7 @@ and runs tests against the built images using [testcontainers](https://testconta
 ### Permissions
 
 - **`actions`**: `read`
+- **`attestations`**: `write`
 - **`contents`**: `read`
 - **`id-token`**: `write`
 - **`issues`**: `write`
@@ -66,6 +67,10 @@ The workflow injects a few environment variables:
 The runner also writes a JUnit report to `images/<image>/junit.xml`, which is picked up by the CI report parsing step.
 
 The workflow pulls the published runner image with the configured `test-image-tag`.
+
+The runner requires a Unix Docker socket. It uses the selected Docker context
+or `DOCKER_HOST` and passes the host socket path to Testcontainers for its helper
+containers.
 
 ### Example Test
 
@@ -116,6 +121,7 @@ jobs:
     uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@536aff60442c9d70714c247aeb392dc762d84b4e # 0.7.0
     permissions:
       actions: read
+      attestations: write
       contents: read
       id-token: write
       issues: write
