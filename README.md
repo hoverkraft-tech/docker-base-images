@@ -63,7 +63,7 @@ _Actions that you can plug directly into your own Docker images repository._
 
 _Orchestrated workflows you can plug directly into your own Docker images repository._
 
-Release workflows require GitHub.com and GitHub Actions runner **2.336.0 or newer**.
+Workflows require GitHub.com and GitHub Actions runner **2.336.0 or newer**.
 
 ### - [Continuous Integration](.github/workflows/continuous-integration.md)
 

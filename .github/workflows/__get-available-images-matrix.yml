@@ -34,10 +34,5 @@ jobs:
     outputs:
       images-matrix: ${{ steps.get-available-images.outputs.images }}
     steps:
-      - id: local-workflow-actions
-        uses: hoverkraft-tech/ci-github-common/actions/local-workflow-actions@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
-        with:
-          actions-path: actions
-
       - id: get-available-images
-        uses: ./../self-workflow/actions/get-available-images
+        uses: $/actions/get-available-images
