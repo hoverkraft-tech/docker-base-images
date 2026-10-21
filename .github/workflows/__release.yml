@@ -38,7 +38,7 @@ jobs:
     secrets:
       changelog-summary: |
         {
-          "llmAuth": ${{ toJSON(secrets.OPENAI_API_KEY) }},
+          "llmAuth": ${{ toJSON(format('{0}', secrets.OPENAI_API_KEY)) }},
           "llmProvider": "openai"
         }
 
