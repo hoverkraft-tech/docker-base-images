@@ -39,6 +39,7 @@ jobs:
     needs: prepare-build-test-image
     uses: $/.github/workflows/__docker-build-images.yml
     permissions:
+      attestations: write
       contents: read
       id-token: write
       issues: read
@@ -86,6 +87,7 @@ jobs:
     uses: $/.github/workflows/continuous-integration.yml
     permissions:
       actions: read
+      attestations: write
       contents: read
       id-token: write
       issues: write
