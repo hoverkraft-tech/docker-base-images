@@ -224,7 +224,7 @@ jobs:
       fail-fast: false
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@16cb15741b5789d383fb2565648a93ad761627e1 # 1.0.1
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
@@ -318,7 +318,7 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@16cb15741b5789d383fb2565648a93ad761627e1 # 1.0.1
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
         env:
           CHANGELOG_SUMMARY: ${{ secrets.changelog-summary }}
         with:
