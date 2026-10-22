@@ -45,7 +45,7 @@ on:
 permissions: {}
 jobs:
   release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@536aff60442c9d70714c247aeb392dc762d84b4e # 0.7.0
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/release.yml@3083aa27c7ec3bab1d5f0d200aae1576fabcdb73 # 1.0.0
     permissions:
       attestations: write
       contents: write
@@ -93,7 +93,6 @@ jobs:
       prerelease: false
 
       # Release all images even when no relevant changes are detected (manual runs only).
-      # Default: `false`
       force: false
 ```
 
@@ -106,6 +105,12 @@ jobs:
 <!-- inputs:start -->
 
 ## Inputs
+
+### Workflow Dispatch Inputs
+
+| **Input**   | **Description**                                                | **Required** | **Type**    | **Default** |
+| ----------- | -------------------------------------------------------------- | ------------ | ----------- | ----------- |
+| **`force`** | Release all images even when no relevant changes are detected. | **false**    | **boolean** | `false`     |
 
 ### Workflow Call Inputs
 
@@ -121,12 +126,6 @@ jobs:
 |                             | See <https://docs.docker.com/buildx/working-with-buildx/#build-multi-platform-images>. |              |             |                                  |
 | **`prerelease`**            | Whether the release is a prerelease                                                    | **false**    | **boolean** | `false`                          |
 | **`force`**                 | Release all images even when no relevant changes are detected (manual runs only).      | **false**    | **boolean** | `false`                          |
-
-### Workflow Dispatch Inputs
-
-| **Input**   | **Description**                                                | **Required** | **Type**    | **Default** |
-| ----------- | -------------------------------------------------------------- | ------------ | ----------- | ----------- |
-| **`force`** | Release all images even when no relevant changes are detected. | **false**    | **boolean** | `false`     |
 
 <!-- inputs:end -->
 
@@ -152,13 +151,18 @@ jobs:
 <!-- outputs:end -->
 <!-- examples:start -->
 
+## Examples
+
 ## Manual releases
 
 Select `force` when running the Release workflow manually to rebuild and publish all images using their next planned release versions, even when no relevant changes are detected.
+
 Manual runs leave `force` disabled by default. Scheduled runs release only images with relevant changes.
 
 The Internal - Release workflow also exposes `force` and applies it to both image releases and the repository release.
+
 Reusable workflow callers must forward their boolean `force` input through `with`; forcing only takes effect when the caller was triggered by `workflow_dispatch`.
+
 Release planning, tag validation, and successful image publishing remain required.
 
 <!-- examples:end -->
