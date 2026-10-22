@@ -215,7 +215,6 @@ jobs:
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
-          include-paths: '["images/${{ matrix.image }}/**"]'
           target-sha: ${{ github.sha }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
@@ -314,7 +313,6 @@ jobs:
           tag: ${{ matrix.release.releaseTag }}
           target-sha: ${{ github.sha }}
           working-directory: images/${{ matrix.release.name }}
-          include-paths: '["images/${{ matrix.release.name }}/**"]'
           publish: "true"
           changelog-summary: ${{ env.CHANGELOG_SUMMARY }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
