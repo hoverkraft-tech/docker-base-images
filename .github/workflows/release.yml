@@ -1,7 +1,8 @@
 ---
 # Reusable workflow to release changed images.
 # Images are grouped by latest released tag SHA to detect which ones need a new release.
-# Only images with changes since their latest image-specific tag are released and rebuilt.
+# Images with changes since their latest image-specific tag are released and rebuilt,
+# unless a manual run explicitly forces all image releases.
 # Release tags are planned before builds.
 # Releases are created only after image publishing succeeds.
 # Should be used from the main release workflow or manual dispatch entrypoint.
@@ -43,6 +44,11 @@ on: # yamllint disable-line rule:truthy
         description: "Whether the release is a prerelease"
         type: boolean
         default: false
+      force:
+        description: "Release all images even when no relevant changes are detected (manual runs only)."
+        type: boolean
+        required: false
+        default: false
     secrets:
       changelog-summary:
         description: |
@@ -60,6 +66,12 @@ on: # yamllint disable-line rule:truthy
           Defaults to GITHUB_TOKEN if not provided.
         required: false
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Release all images even when no relevant changes are detected."
+        type: boolean
+        required: false
+        default: false
 
 permissions: {}
 
@@ -157,11 +169,12 @@ jobs:
         env:
           BASE_SHA: ${{ matrix.images.base-sha }}
           SHOULD_BUILD_IMAGES: ${{ steps.should-build-images.outputs.should-build-images }}
+          FORCE_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
         with:
           script: |
             const shouldBuildImages = JSON.parse(process.env.SHOULD_BUILD_IMAGES);
 
-            const forceBuild = process.env.BASE_SHA.length === 0;
+            const forceBuild = process.env.FORCE_RELEASE === 'true' || process.env.BASE_SHA.length === 0;
 
             const imagesToRelease = Object.entries(shouldBuildImages)
               .filter(([image, shouldBuild]) => forceBuild || shouldBuild === true)
@@ -219,7 +232,7 @@ jobs:
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
       - id: set-planned-release
-        if: steps.plan-release.outputs.has-changes == 'true' && steps.plan-release.outputs.tag != ''
+        if: (steps.plan-release.outputs.has-changes == 'true' || (github.event_name == 'workflow_dispatch' && inputs.force)) && steps.plan-release.outputs.tag != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           TAG: ${{ steps.plan-release.outputs.tag }}
