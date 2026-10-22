@@ -33,7 +33,7 @@ jobs:
       runs-on: ${{ inputs.runs-on }}
 
   prepare-release:
-    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@16cb15741b5789d383fb2565648a93ad761627e1 # 1.0.1
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
     needs: get-available-images-matrix
     strategy:
       matrix:
