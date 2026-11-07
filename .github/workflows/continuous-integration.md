@@ -118,7 +118,7 @@ on:
 permissions: {}
 jobs:
   continuous-integration:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/continuous-integration.yml@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46 # 1.0.2
     permissions:
       actions: read
       attestations: write
