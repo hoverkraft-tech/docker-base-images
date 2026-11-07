@@ -44,7 +44,7 @@ on:
 permissions: {}
 jobs:
   prepare-release:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/prepare-release.yml@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/prepare-release.yml@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46 # 1.0.2
     permissions:
       contents: read
       pull-requests: write
