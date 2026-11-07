@@ -7,6 +7,7 @@ git init --quiet --initial-branch=main
 git config user.name Test
 git config user.email test@example.com
 git commit --quiet --allow-empty -m 'feat: initialize fixture'
+git commit --quiet --allow-empty -m 'feat!: change the fixture contract'
 
 export DEFAULT_WORKSPACE="$workspace"
 export VALIDATE_JAVASCRIPT_TOOLCHAIN='' VALIDATE_PYTHON_TOOLCHAIN=''

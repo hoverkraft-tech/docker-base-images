@@ -169,6 +169,12 @@ arguments supplied through `GITHUB_ACTIONS_COMMAND_ARGS` are preserved.
 
 ## Commitlint configuration
 
+The shared policy is the unmodified
+[`@commitlint/config-conventional` preset](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional),
+including its Conventional Commits parser. It accepts breaking-change headers
+such as `feat!:` and applies the same rules to contributor and bot messages.
+The preset and validator versions are supplied by the pinned image.
+
 Commitlint discovers project configuration itself, including parent directories
 and the `commitlint` field in `package.json` or `package.yaml`. Project rules take
 precedence over the bundled rules.
