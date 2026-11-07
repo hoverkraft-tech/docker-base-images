@@ -2,6 +2,9 @@
 version: 2
 updates:
   - package-ecosystem: docker
+    commit-message:
+      prefix: build
+      include: scope
     open-pull-requests-limit: 20
     directory: "/"
     schedule:
@@ -16,6 +19,9 @@ updates:
           - "*"
 
   - package-ecosystem: docker
+    commit-message:
+      prefix: build
+      include: scope
     open-pull-requests-limit: 20
     directories:
       - "/images/*"
@@ -28,6 +34,9 @@ updates:
       default-days: 7
 
   - package-ecosystem: npm
+    commit-message:
+      prefix: build
+      include: scope
     open-pull-requests-limit: 20
     directory: "/images/testcontainers-node"
     schedule:
@@ -42,6 +51,9 @@ updates:
           - "*"
 
   - package-ecosystem: github-actions
+    commit-message:
+      prefix: build
+      include: scope
     open-pull-requests-limit: 20
     directories:
       - "/"
@@ -58,6 +70,9 @@ updates:
           - "*"
 
   - package-ecosystem: "devcontainers"
+    commit-message:
+      prefix: build
+      include: scope
     open-pull-requests-limit: 20
     directory: "/"
     schedule:

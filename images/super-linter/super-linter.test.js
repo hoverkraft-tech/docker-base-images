@@ -234,17 +234,31 @@ exec sleep infinity`,
 
 	for (const [message, expectedExitCode] of [
 		["feat: add a shared linter", 0],
+		["feat!: change the release contract", 0],
+		[
+			"feat(api)!: change the release contract\n\nBREAKING CHANGE: callers must supply a release tag",
+			0,
+		],
+		["build(deps): bump a dependency", 0],
+		["build(deps): Bump a dependency", 1],
+		[
+			"unknown(deps): bump a dependency\n\nupdated-dependencies:\n- dependency-name: example\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+			1,
+		],
+		["fix: keep headers bounded ".padEnd(101, "x"), 1],
+		[`fix: keep body lines bounded\n\n${"x".repeat(101)}`, 1],
+		["fix: end a subject with a full stop.", 1],
 		["invalid commit message", 1],
 	]) {
 		it(`validates '${message}' without writing in the workspace`, async () => {
-			const { exitCode, workspace } = await runEntrypoint(
+			const { exitCode, output, workspace } = await runEntrypoint(
 				[
 					"-c",
 					'printf "%s\\n" "$COMMIT_MESSAGE" | commitlint --cwd "$DEFAULT_WORKSPACE"',
 				],
 				{ COMMIT_MESSAGE: message },
 			);
-			assert.strictEqual(exitCode, expectedExitCode);
+			assert.strictEqual(exitCode, expectedExitCode, output);
 			const files = await container.exec(["ls", "-A", workspace]);
 			assert.strictEqual(files.output, "");
 		});
