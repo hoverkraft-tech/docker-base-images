@@ -2,8 +2,6 @@
 name: Internal - Prepare release
 
 on: # yamllint disable-line rule:truthy
-  push:
-    branches: [main]
   pull_request:
     types: [opened, reopened, synchronize]
 
