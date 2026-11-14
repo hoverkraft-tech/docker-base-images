@@ -185,7 +185,7 @@ jobs:
             }
 
       - if: steps.set-images-to-release.outputs.images-to-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           value: ${{ steps.set-images-to-release.outputs.images-to-release }}
           artifact-name: images-to-release
@@ -197,7 +197,7 @@ jobs:
       images: ${{ steps.get-images-to-release.outputs.images }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           artifact-name: "images-to-release"
 
@@ -224,12 +224,12 @@ jobs:
       fail-fast: false
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@d983bd6279de308518b8b8df7c51e179fd50bffb # 2.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@78a540b1bf0b18dd2f160c98943f61eefb03e8b9 # 3.0.4
         with:
           force: ${{ github.event_name == 'workflow_dispatch' && inputs.force && 'true' || 'false' }}
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           working-directory: images/${{ matrix.image }}
-          target-sha: ${{ github.sha }}
+          target-ref: ${{ github.sha }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
       - id: set-planned-release
@@ -251,7 +251,7 @@ jobs:
             }));
 
       - if: steps.set-planned-release.outputs.planned-release
-        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/set-matrix-output@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           value: ${{ steps.set-planned-release.outputs.planned-release }}
           artifact-name: planned-releases
@@ -265,7 +265,7 @@ jobs:
       releases: ${{ steps.get-matrix-outputs.outputs.result }}
     steps:
       - id: get-matrix-outputs
-        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/get-matrix-outputs@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           artifact-name: "planned-releases"
 
@@ -319,13 +319,13 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@d983bd6279de308518b8b8df7c51e179fd50bffb # 2.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@78a540b1bf0b18dd2f160c98943f61eefb03e8b9 # 3.0.4
         env:
           CHANGELOG_SUMMARY: ${{ secrets.changelog-summary }}
         with:
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
           tag: ${{ matrix.release.releaseTag }}
-          target-sha: ${{ github.sha }}
+          target-ref: ${{ github.sha }}
           working-directory: images/${{ matrix.release.name }}
           publish: "true"
           changelog-summary: ${{ env.CHANGELOG_SUMMARY }}

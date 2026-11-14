@@ -67,7 +67,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
     permissions:
       actions: read
       contents: read
@@ -224,7 +224,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: hoverkraft-tech/ci-github-container/actions/docker/setup@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
+      - uses: hoverkraft-tech/ci-github-container/actions/docker/setup@d6569ca423f29f68152ee561f51f7de0c08db709 # 1.0.0
         with:
           oci-registry: ${{ inputs.oci-registry }}
           oci-registry-username: ${{ inputs.oci-registry-username }}
@@ -263,7 +263,7 @@ jobs:
       - name: 📊 Parse coverage reports
         if: always()
         id: parse-coverage-reports
-        uses: hoverkraft-tech/ci-github-common/actions/quality/parse-ci-reports@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/quality/parse-ci-reports@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           report-name: "Test Results - ${{ matrix.name }}"
           report-paths: "auto:test,auto:coverage"
@@ -272,7 +272,7 @@ jobs:
 
       - name: 📊 Add coverage PR comment
         if: always() && github.event_name == 'pull_request' && steps.parse-coverage-reports.outputs.markdown
-        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@5fbb531db839a26ebcc35c4946be279f945f7633 # 1.0.0
+        uses: hoverkraft-tech/ci-github-common/actions/create-or-update-comment@f44e1bcc350b6bfe9e4a86a27b1d5e032e58f292 # 4.2.1
         with:
           title: "Code Coverage Report - ${{ matrix.name }}"
           body: ${{ steps.parse-coverage-reports.outputs.markdown }}
