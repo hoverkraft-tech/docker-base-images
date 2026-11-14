@@ -76,20 +76,20 @@ jobs:
 
       - name: Plan repository release
         id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@d983bd6279de308518b8b8df7c51e179fd50bffb # 2.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@78a540b1bf0b18dd2f160c98943f61eefb03e8b9 # 3.0.4
         with:
           force: ${{ github.event_name == 'workflow_dispatch' && inputs.force && 'true' || 'false' }}
-          target-sha: ${{ github.sha }}
+          target-ref: ${{ github.sha }}
           github-token: ${{ steps.generate-token.outputs.token }}
 
       - name: Create and publish repository release
         if: steps.plan-release.outputs.has-changes == 'true' && steps.plan-release.outputs.tag != ''
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@d983bd6279de308518b8b8df7c51e179fd50bffb # 2.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@78a540b1bf0b18dd2f160c98943f61eefb03e8b9 # 3.0.4
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
           tag: ${{ steps.plan-release.outputs.tag }}
-          target-sha: ${{ github.sha }}
+          target-ref: ${{ github.sha }}
           publish: "true"
           changelog-summary: |
             {
