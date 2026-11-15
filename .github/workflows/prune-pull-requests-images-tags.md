@@ -50,7 +50,7 @@ on:
 permissions: {}
 jobs:
   prune-pull-requests-images-tags:
-    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46
+    uses: hoverkraft-tech/docker-base-images/.github/workflows/prune-pull-requests-images-tags.yml@f8d8eda59d77e217f1ad145ab1e3500b459bf4b2 # 1.0.3
     permissions:
       contents: read
       packages: write
