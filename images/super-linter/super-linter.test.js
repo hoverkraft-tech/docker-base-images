@@ -448,6 +448,10 @@ exec sleep infinity`,
 		await runFixture(new GenericContainer(testedImageRef), "toolchains.sh");
 	});
 
+	it("validates rendered Helm scenarios and preserves plain manifests", async () => {
+		await runFixture(new GenericContainer(testedImageRef), "helm.sh");
+	});
+
 	it("validates commit history with the bundled rules", async () => {
 		await runFixture(new GenericContainer(testedImageRef), "commitlint.sh");
 	});
