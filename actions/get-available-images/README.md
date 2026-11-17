@@ -31,7 +31,7 @@ Get the list of available images in the repository
 ## Usage
 
 ```yaml
-- uses: hoverkraft-tech/docker-base-images/actions/get-available-images@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46
+- uses: hoverkraft-tech/docker-base-images/actions/get-available-images@af998e12cd2f9725617b809766717c3c1deb4334 # 1.0.4
 ```
 
 <!-- usage:end -->

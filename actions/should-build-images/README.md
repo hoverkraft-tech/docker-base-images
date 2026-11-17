@@ -31,7 +31,7 @@ Check if some files have changed requiring the build of the given images.
 ## Usage
 
 ```yaml
-- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@a411297b5cd6d0c9333e434ff6f347b1dbe0ad46
+- uses: hoverkraft-tech/docker-base-images/actions/should-build-images@af998e12cd2f9725617b809766717c3c1deb4334 # 1.0.4
   with:
     # Image names located in the 'images' folder.
     # Formatted as a JSON array.
