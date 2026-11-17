@@ -233,7 +233,7 @@ jobs:
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN || github.token }} # zizmor: ignore[secrets-outside-env]
 
       - id: set-planned-release
-        if: steps.plan-release.outputs.has-changes == 'true' && steps.plan-release.outputs.tag != ''
+        if: steps.plan-release.outputs.should-release == 'true' && steps.plan-release.outputs.tag != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           TAG: ${{ steps.plan-release.outputs.tag }}
