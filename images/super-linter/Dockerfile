@@ -4,8 +4,9 @@ HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["/bi
 
 COPY entrypoint.sh /usr/local/bin/super-linter-entrypoint
 COPY actionlint.sh /usr/local/bin/actionlint
+COPY kubeconform.sh /usr/local/bin/kubeconform
 COPY commitlint.config.cjs /usr/local/lib/super-linter/
-RUN chmod 755 /usr/local/bin/super-linter-entrypoint /usr/local/bin/actionlint
+RUN chmod 755 /usr/local/bin/super-linter-entrypoint /usr/local/bin/actionlint /usr/local/bin/kubeconform
 
 ARG UID=0
 ARG GID=0

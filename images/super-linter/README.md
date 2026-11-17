@@ -24,6 +24,17 @@ The published image runs as root, as required by GitHub Docker actions. For loca
 - respects `VALIDATE_GIT_COMMITLINT=false`; with toolchain selectors enabled, explicit `true` keeps commitlint enabled without restricting other validators
 - accepts `$/` self-repository action and reusable workflow references with both default and project-provided Actionlint configurations
 
+## Helm schema validation
+
+Kubeconform validates rendered Helm manifests when Super-Linter selects files
+under a chart's `templates/` directory. Rendering uses an isolated copy of the
+chart, restores locked dependencies and checks every `ci/*-values.yaml` scenario,
+or the default values when no scenario exists. Rendering and schema failures
+both fail linting. Source charts are not modified.
+
+Ordinary manifests and standard input keep Kubeconform's native behavior. Existing
+schema locations, Kubernetes versions and other command-line options still apply.
+
 ## JSCPD configuration
 
 Configure copy/paste detection in your project's `.github/linters/.jscpd.json`:
