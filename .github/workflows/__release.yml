@@ -46,11 +46,7 @@ jobs:
       packages: write
       pull-requests: write
     secrets:
-      changelog-summary: |
-        {
-          "llmAuth": ${{ toJSON(format('{0}', secrets.OPENAI_API_KEY)) }},
-          "llmProvider": "openai"
-        }
+      changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}
 
   release:
     name: Create and publish repository release
@@ -85,15 +81,9 @@ jobs:
       - name: Create and publish repository release
         if: steps.plan-release.outputs.should-release == 'true' && steps.plan-release.outputs.tag != ''
         uses: hoverkraft-tech/ci-github-publish/actions/release/create@d034b96d52f6f32c58a93bcd87a06932f50d8b26 # 3.1.0
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
           tag: ${{ steps.plan-release.outputs.tag }}
           target-ref: ${{ github.sha }}
           publish: "true"
-          changelog-summary: |
-            {
-              "llmAuth": ${{ toJSON(env.OPENAI_API_KEY) }},
-              "llmProvider": "openai"
-            }
+          changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}
           github-token: ${{ steps.generate-token.outputs.token }}
