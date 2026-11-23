@@ -224,7 +224,7 @@ jobs:
       fail-fast: false
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@d034b96d52f6f32c58a93bcd87a06932f50d8b26 # 3.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@79515002f850e714d4c76f07983e6eb1ba97bea5 # 3.1.1
         with:
           force: ${{ github.event_name == 'workflow_dispatch' && inputs.force && 'true' || 'false' }}
           prerelease: ${{ inputs.prerelease && 'true' || 'false' }}
@@ -319,7 +319,7 @@ jobs:
       fail-fast: false
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@d034b96d52f6f32c58a93bcd87a06932f50d8b26 # 3.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@79515002f850e714d4c76f07983e6eb1ba97bea5 # 3.1.1
         env:
           CHANGELOG_SUMMARY: ${{ secrets.changelog-summary }}
         with:
